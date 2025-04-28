@@ -1,6 +1,15 @@
 function loadRandomQuestion() {
   const question = questions[Math.floor(Math.random() * questions.length)];
   const questionData = question.question();
+    const questionData = question.question();
+ // === Reset & calculate total possible marks for this question ===
+ totalMarksEarned = 0;
+ totalMarksPossible = questionData.parts.reduce((sum, p) => sum + p.marks.length, 0);
+ updateScoreDisplay();
+ 
+ // Keep current question data globally for marking
+ window.currentQuestionData = questionData;
+
 
   const container = document.getElementById("question-container");
   container.innerHTML = "";
@@ -54,6 +63,15 @@ function checkPartAnswer(index, correctAnswer, modelAnswer, explanation) {
   const input = document.getElementById(`answer-${index}`).value.trim();
   const modelDiv = document.getElementById(`model-${index}`);
   modelDiv.style.display = "block";
+ // === Award any as‐yet‐unawarded marks for this part ===
+ const partMarks = window.currentQuestionData.parts[index].marks;
+ partMarks.forEach(mark => {
+   if (!mark.awarded) {
+     mark.awarded = true;
+     totalMarksEarned++;
+   }
+ });
+ updateScoreDisplay();
 
   if (input.toLowerCase() === correctAnswer.toLowerCase()) {
     modelDiv.innerHTML =
