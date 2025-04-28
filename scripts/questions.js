@@ -103,7 +103,7 @@ Percentage uncertainty = ${percentageDensityUnc}%`,
 "Sum the fractional uncertainties: mass fraction + volume fraction, then ×100 to get percentage uncertainty.",
             marks: [
               { point: "Method for combining uncertainties", awarded: false },
-              { point: "Correct final percentage uncertainty", awarded: false }
+              { point: "Correct final percentage uncertainty", awarded: false },
               { point: "Working out one fractional uncertainty (e.g. Δm/m)", awarded: false }
             ]
           },
