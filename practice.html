@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Physics Site</title>
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+  <div id="question-container">
+    <h2 id="question-title"></h2>
+    <canvas id="diagram-canvas" width="400" height="300"></canvas>
+    <textarea id="student-answer" placeholder="Type your answer here..."></textarea>
+    <button onclick="submitAnswer()">Submit Answer</button>
+    <div id="marking-guidance"></div>
+  </div>
+
+  <script src="scripts/questions.js"></script>
+  <script src="scripts/question_engine.js"></script>
+  <script src="scripts/main.js"></script>
+</body>
+</html>
