@@ -1,4 +1,5 @@
-{
+const questions = [
+  {
   id: 1,
   type: "long_answer",
   tags: ["mechanics", "density", "errors"],
@@ -81,3 +82,4 @@ Percentage uncertainty = ${percentageDensityUnc}%`,
     };
   }
 }
+  ];
