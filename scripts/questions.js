@@ -55,13 +55,18 @@ const questions = [
         parts: [
           {
             partText: "a) Define density.",
-            answer: "mass per unit volume",
-            modelAnswer: "Density is defined as mass per unit volume, i.e. ρ = m/V.",
-            explanation: "Density (ρ) represents how much mass there is in each unit of volume.",
-            marks: [
-              { point: "Mentioned mass",   awarded: false },
-              { point: "Mentioned volume", awarded: false }
-            ]
+           answer: [
+        "mass per unit volume",
+        "mass divided by volume",
+        "mass per volume",
+        "mass divided by unit volume"
+      ],
+      modelAnswer: "Density is defined as mass per unit volume, i.e. ρ = m/V.",
+      explanation: "Density (ρ) represents how much mass there is in each unit of volume.",
+      marks: [
+        // 1 mark total for any correct definition
+        { point: "Correct definition of density", awarded: false }
+      ]
           },
           {
             partText:
@@ -81,10 +86,9 @@ Then ρ = m/V = ${mass}/${volume} = ${density} kg/m³.`,
 "You must first find the volume from the three dimensions (ensure any cm values are converted back to m).<br>"
 + "Then use ρ = m/V with mass in kg and volume in m³ to get density in kg/m³.",
             marks: [
-              { point: "Correct volume formula",      awarded: false },
-              { point: "Volume calculated correctly", awarded: false },
-              { point: "Density formula applied",     awarded: false },
-              { point: "Correct final answer",        awarded: false }
+              { point: "Formulas for both volume (V=l×w×h) and density (ρ=m/V)", awarded: false },
+           { point: "Correct final numerical answer",                             awarded: false }
+
             ]
           },
           {
@@ -100,6 +104,7 @@ Percentage uncertainty = ${percentageDensityUnc}%`,
             marks: [
               { point: "Method for combining uncertainties", awarded: false },
               { point: "Correct final percentage uncertainty", awarded: false }
+              { point: "Working out one fractional uncertainty (e.g. Δm/m)", awarded: false }
             ]
           },
           {
