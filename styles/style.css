@@ -86,4 +86,19 @@ button {
 button:hover {
   background-color: #2980b9;
 }
+.question-part table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.question-part th,
+.question-part td {
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  text-align: center;
+}
+.question-part th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
 
