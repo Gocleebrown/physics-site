@@ -53,9 +53,14 @@ function loadRandomQuestion() {
   });
 
   // If the question has a diagram to draw
-  if (questionData.diagram) {
-    questionData.diagram(document.getElementById("diagram-canvas"));
-  }
+ const canvas = document.getElementById("diagram-canvas");
+if (questionData.diagram) {
+  canvas.style.display = "block";
+  questionData.diagram(canvas);
+} else {
+  canvas.style.display = "none";
+}
+
 }
 
 function checkPartAnswer(index, correctAnswer, modelAnswer) {
