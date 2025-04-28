@@ -5,9 +5,9 @@
   <title>Physics Site</title>
   <link rel="stylesheet" href="styles/style.css">
 </head>
-<body>
+<body onload="loadRandomQuestion()">
   <div id="question-container">
-    <!-- Dynamic question parts will be added here -->
+    <!-- Dynamic question parts will be injected here -->
   </div>
 
   <canvas id="diagram-canvas" width="400" height="300" style="margin-top:20px;"></canvas>
@@ -16,5 +16,4 @@
   <script src="scripts/question_engine.js"></script>
   <script src="scripts/main.js"></script>
 </body>
-
 </html>
