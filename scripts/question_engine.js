@@ -1,24 +1,28 @@
+// scripts/question_engine.js
+
 function loadRandomQuestion() {
+  // Pick a random question
   const question = questions[Math.floor(Math.random() * questions.length)];
-  const questionData = question.question();
-    const questionData = question.question();
- // === Reset & calculate total possible marks for this question ===
- totalMarksEarned = 0;
- totalMarksPossible = questionData.parts.reduce((sum, p) => sum + p.marks.length, 0);
- updateScoreDisplay();
- 
- // Keep current question data globally for marking
- window.currentQuestionData = questionData;
+  const qData = question.question();
 
+  // Reset and tally marks for this question
+  totalMarksEarned = 0;
+  totalMarksPossible = qData.parts.reduce((sum, p) => sum + p.marks.length, 0);
+  sessionMarksPossible += totalMarksPossible;
+  updateScoreDisplay();
 
+  // Make current question available for marking
+  window.currentQuestionData = qData;
+
+  // Render the question
   const container = document.getElementById("question-container");
   container.innerHTML = "";
 
   const intro = document.createElement("h2");
-  intro.textContent = questionData.mainText;
+  intro.textContent = qData.mainText;
   container.appendChild(intro);
 
-  questionData.parts.forEach((part, index) => {
+  qData.parts.forEach((part, index) => {
     const partDiv = document.createElement("div");
     partDiv.classList.add("question-part");
 
@@ -35,7 +39,12 @@ function loadRandomQuestion() {
     const checkButton = document.createElement("button");
     checkButton.textContent = "Check Answer";
     checkButton.onclick = function() {
-      checkPartAnswer(index, part.answer, part.modelAnswer, part.explanation);
+      checkPartAnswer(
+        index,
+        part.answer,
+        part.modelAnswer,
+        part.explanation
+      );
     };
     partDiv.appendChild(checkButton);
 
@@ -50,29 +59,33 @@ function loadRandomQuestion() {
     container.appendChild(partDiv);
   });
 
+  // Show or hide the diagram canvas
   const canvas = document.getElementById("diagram-canvas");
-  if (typeof questionData.diagram === "function") {
+  if (typeof qData.diagram === "function") {
     canvas.style.display = "block";
-    questionData.diagram(canvas);
+    qData.diagram(canvas);
   } else {
     canvas.style.display = "none";
   }
 }
 
+// Award marks only once per part and show model/hint
 function checkPartAnswer(index, correctAnswer, modelAnswer, explanation) {
   const input = document.getElementById(`answer-${index}`).value.trim();
   const modelDiv = document.getElementById(`model-${index}`);
   modelDiv.style.display = "block";
- // === Award any as‐yet‐unawarded marks for this part ===
- const partMarks = window.currentQuestionData.parts[index].marks;
- partMarks.forEach(mark => {
-   if (!mark.awarded) {
-     mark.awarded = true;
-     totalMarksEarned++;
-   }
- });
- updateScoreDisplay();
 
+  // Award unawarded marks for this part
+  const partMarks = window.currentQuestionData.parts[index].marks;
+  partMarks.forEach(mark => {
+    if (!mark.awarded) {
+      mark.awarded = true;
+      totalMarksEarned++;
+    }
+  });
+  updateScoreDisplay();
+
+  // Show feedback
   if (input.toLowerCase() === correctAnswer.toLowerCase()) {
     modelDiv.innerHTML =
       "<strong>Correct!</strong><br><br>Model Answer:<br>" + modelAnswer;
@@ -86,3 +99,6 @@ function checkPartAnswer(index, correctAnswer, modelAnswer, explanation) {
     modelDiv.style.border = "2px solid red";
   }
 }
+
+// Ensure the first question loads on page open
+window.onload = loadRandomQuestion;
