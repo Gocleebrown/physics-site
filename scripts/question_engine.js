@@ -3,26 +3,24 @@ function loadRandomQuestion() {
   const questionData = question.question();
 
   const container = document.getElementById("question-container");
-  container.innerHTML = ""; // Clear previous question
+  container.innerHTML = ""; // Clear previous content
 
-  // Add the main intro text
+  // Main question heading
   const intro = document.createElement("h2");
   intro.textContent = questionData.mainText;
   container.appendChild(intro);
 
-  // Now loop over each part
+  // Loop through each sub-part
   questionData.parts.forEach((part, index) => {
-    // Create a div for each part
     const partDiv = document.createElement("div");
     partDiv.classList.add("question-part");
-    partDiv.style.marginBottom = "30px";
 
-    // Part text
+    // Part prompt
     const partText = document.createElement("p");
     partText.innerHTML = part.partText;
     partDiv.appendChild(partText);
 
-    // Student answer box
+    // Answer input
     const answerInput = document.createElement("textarea");
     answerInput.id = `answer-${index}`;
     answerInput.rows = 3;
@@ -32,19 +30,16 @@ function loadRandomQuestion() {
     // Check button
     const checkButton = document.createElement("button");
     checkButton.textContent = "Check Answer";
-    checkButton.style.display = "block";
-    checkButton.style.marginTop = "10px";
     checkButton.onclick = function() {
       checkPartAnswer(index, part.answer, part.modelAnswer);
     };
     partDiv.appendChild(checkButton);
 
-    // Div to show model answer after checking
+    // Model answer container
     const modelDiv = document.createElement("div");
     modelDiv.id = `model-${index}`;
     modelDiv.style.display = "none";
     modelDiv.style.marginTop = "10px";
-    modelDiv.style.backgroundColor = "#f9f9f9";
     modelDiv.style.padding = "10px";
     modelDiv.style.borderRadius = "8px";
     partDiv.appendChild(modelDiv);
@@ -52,21 +47,19 @@ function loadRandomQuestion() {
     container.appendChild(partDiv);
   });
 
-  // If the question has a diagram to draw
- const canvas = document.getElementById("diagram-canvas");
-if (questionData.diagram) {
-  canvas.style.display = "block";
-  questionData.diagram(canvas);
-} else {
-  canvas.style.display = "none";
-}
-
+  // Show or hide the diagram canvas
+  const canvas = document.getElementById("diagram-canvas");
+  if (typeof questionData.diagram === "function") {
+    canvas.style.display = "block";
+    questionData.diagram(canvas);
+  } else {
+    canvas.style.display = "none";
+  }
 }
 
 function checkPartAnswer(index, correctAnswer, modelAnswer) {
   const input = document.getElementById(`answer-${index}`).value.trim();
   const modelDiv = document.getElementById(`model-${index}`);
-
   modelDiv.style.display = "block";
 
   if (input.toLowerCase() === correctAnswer.toLowerCase()) {
