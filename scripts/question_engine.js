@@ -86,7 +86,14 @@ function checkPartAnswer(index, correctAnswer, modelAnswer, explanation) {
   updateScoreDisplay();
 
   // Show feedback
-  if (input.toLowerCase() === correctAnswer.toLowerCase()) {
+// Determine match: single string or any entry in an array
+  let isCorrect;
+  if (Array.isArray(correctAnswer)) {
+    isCorrect = correctAnswer.some(ans => input === ans.toLowerCase());
+  } else {
+    isCorrect = input === correctAnswer.toLowerCase();
+  }
+  if (isCorrect) {
     modelDiv.innerHTML =
       "<strong>Correct!</strong><br><br>Model Answer:<br>" + modelAnswer;
     modelDiv.style.border = "2px solid green";
