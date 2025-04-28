@@ -1,10 +1,10 @@
 const questions = [
   {
-  id: 1,
-  type: "long_answer",
-  tags: ["mechanics", "density", "errors"],
-  dynamic: true,
-  question: function() {
+    id: 1,
+    type: "long_answer",
+    tags: ["mechanics", "density", "errors"],
+    dynamic: true,
+    question: function() {
     // Random values
     const mass = (Math.random() * 0.3 + 0.1).toFixed(3); // between 0.1 kg and 0.4 kg
     const length = (Math.random() * 0.05 + 0.02).toFixed(4); // between 0.02 m and 0.07 m
