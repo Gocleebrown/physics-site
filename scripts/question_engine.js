@@ -8,8 +8,8 @@ const questions = [
     dynamic: true,
     question: function() {
       // --- Random measurements in metres ---
-      const mass   = (Math.random() * 0.3  + 0.1 ).toFixed(3);  // 0.100–0.400 kg
-      const length = (Math.random() * 0.05 + 0.02).toFixed(4);  // 0.0200–0.0700 m
+      const mass   = (Math.random() * 0.3  + 0.1 ).toFixed(3);   // 0.100–0.400 kg
+      const length = (Math.random() * 0.05 + 0.02).toFixed(4);   // 0.0200–0.0700 m
       const width  = (Math.random() * 0.05 + 0.02).toFixed(4);
       const height = (Math.random() * 0.02 + 0.01).toFixed(4);
 
@@ -19,7 +19,7 @@ const questions = [
       const widthUnc  = (Math.random() * 0.0008 + 0.0002).toFixed(5);
       const heightUnc = (Math.random() * 0.0008 + 0.0002).toFixed(5);
 
-      // --- Choose two dims to display in cm ---
+      // --- Pick two dimensions to display in cm ---
       const dims = [
         { label: "Length (l)",  val: +length, unc: +lengthUnc, unit: "m" },
         { label: "Width (w)",   val: +width,  unc: +widthUnc,  unit: "m" },
@@ -76,15 +76,15 @@ Calculate the density of the block.`,
             answer: density.toString(),
             modelAnswer:
 `First calculate volume: V = l × w × h = ${length} × ${width} × ${height} = ${volume} m³.<br>
-Then ρ = m / V = ${mass} / ${volume} = ${density} kg/m³.`,
+Then ρ = m/V = ${mass}/${volume} = ${density} kg/m³.`,
             explanation:
 "You must first find the volume from the three dimensions (ensure any cm values are converted back to m).<br>"
 + "Then use ρ = m/V with mass in kg and volume in m³ to get density in kg/m³.",
             marks: [
-              { point: "Correct volume formula",   awarded: false },
+              { point: "Correct volume formula",      awarded: false },
               { point: "Volume calculated correctly", awarded: false },
-              { point: "Density formula applied", awarded: false },
-              { point: "Correct final answer",     awarded: false }
+              { point: "Density formula applied",     awarded: false },
+              { point: "Correct final answer",        awarded: false }
             ]
           },
           {
@@ -105,7 +105,7 @@ Percentage uncertainty = ${percentageDensityUnc}%`,
           {
             partText: "c) Suggest one possible systematic error affecting the mass or dimensions.",
             answer: "zero error or incorrect calibration",
-            modelAnswer: "A systematic zero‐error on the balance or calipers (or a mis-calibrated instrument).",
+            modelAnswer: "A systematic zero-error on the balance or calipers (or a mis-calibrated instrument).",
             explanation: "Systematic errors shift all measurements by the same amount, e.g. a zero offset on the balance or caliper.",
             marks: [
               { point: "Identified valid systematic error", awarded: false }
