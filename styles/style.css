@@ -88,17 +88,19 @@ button:hover {
 }
 .question-part table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: collapse;   /* merge adjacent borders */
   margin-top: 10px;
+  border: 2px solid #ccc;      /* outer border */
 }
+
 .question-part th,
 .question-part td {
-  border: 1px solid #ccc;
+  border: 1px solid #ccc;      /* inner cell borders */
   padding: 6px 10px;
   text-align: center;
 }
+
 .question-part th {
   background-color: #f2f2f2;
   font-weight: bold;
 }
-
