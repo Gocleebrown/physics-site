@@ -15,11 +15,16 @@ function updateScoreDisplay() {
     scoreDiv = document.createElement("div");
     scoreDiv.id = "score-display";
     scoreDiv.style.margin = "20px";
-    document.body.insertBefore(scoreDiv, document.getElementById("question-container"));
+    document.body.insertBefore(
+      scoreDiv,
+      document.getElementById("question-container")
+    );
   }
   scoreDiv.textContent =
     `Question Score: ${totalMarksEarned} / ${totalMarksPossible}` +
-    ` | Session Score: ${sessionMarksEarned + totalMarksEarned} / ${sessionMarksPossible + totalMarksPossible}`;
+    ` | Session Score: ${sessionMarksEarned + totalMarksEarned} / ${
+      sessionMarksPossible + totalMarksPossible
+    }`;
 }
 
 // Navigate from index.html → practice.html
