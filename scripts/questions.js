@@ -163,11 +163,10 @@ const questions = [
               "Systematic errors shift all measurements by the same amount, e.g. a zero offset on the balance or caliper.",
             keywords: [
               [
-                "systematic error",
-                "zero error",
                 "mis-calibration",
                 "mis-calibrated",
                 "calibration error",
+                "zero error"
               ],
             ],
             marks: [
