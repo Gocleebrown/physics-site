@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Physics Practice</title>
-    <link rel="stylesheet" href="/styles/style.css" />
+  <link rel="stylesheet" href="styles/style.css" />
   </head>
   <body>
     <!-- HOME PAGE -->
@@ -40,11 +40,11 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="/scripts/questionBuilders.js"></script>
-    <script src="/scripts/questionLoader.js"></script>
-    <script src="/scripts/main.js"></script>
-    <script src="/scripts/question_engine.js"></script>
+   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+ <script src="scripts/questionBuilders.js"></script>
+ <script src="scripts/questionLoader.js"></script>
+ <script src="scripts/main.js"></script>
+ <script src="scripts/question_engine.js"></script>
     <script>
       document
         .getElementById("start-btn")
@@ -52,8 +52,8 @@
           // swap pages
           document.getElementById("home-page").style.display = "none";
           document.getElementById("practice-page").style.display = "block";
-          // load from sheet then show first question
-          window.questions = await loadQuestionsFromSheet();
+                  // now loadQuestionsFromSheet will exist
+       window.questions = await loadQuestionsFromSheet();
           loadRandomQuestion();
         });
     </script>
