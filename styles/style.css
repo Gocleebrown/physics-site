@@ -1,106 +1,23 @@
 body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background: linear-gradient(#eef2f3, #ffffff);
+  font-family: sans-serif;
   margin: 0;
   padding: 20px;
 }
 
-h1 {
-  color: #2c3e50;
-  margin-bottom: 0;
-  font-size: 48px;
-}
-
-h2 {
-  color: #34495e;
-  margin-top: 10px;
-  font-weight: normal;
-}
-
-p {
-  color: #555;
-  font-size: 18px;
-  max-width: 600px;
-  margin: 20px auto;
-}
-
-img {
-  margin-top: 20px;
-}
-
-.start-button {
-  padding: 15px 30px;
-  font-size: 20px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  margin-top: 30px;
-  transition: all 0.3s ease;
-}
-
-.start-button:hover {
-  background-color: #2980b9;
-  transform: scale(1.1);
-}
 .question-part {
-  background-color: #ffffff;
-  padding: 20px;
-  margin: 20px auto;
-  max-width: 800px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-  text-align: left;
+  margin-bottom: 1.5em;
 }
 
-.question-part p {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
+/* Tables with grid lines */
+#question-container table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
 }
-
-textarea {
-  width: 100%;
-  font-size: 16px;
-  padding: 10px;
-  border-radius: 8px;
+#question-container th,
+#question-container td {
   border: 1px solid #ccc;
-  resize: vertical;
-  margin-top: 10px;
+  padding: 0.5em;
 }
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  margin-top: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #2980b9;
-}
-.question-part table {
-  width: 100%;
-  border-collapse: collapse;   /* merge adjacent borders */
-  margin-top: 10px;
-  border: 2px solid #ccc;      /* outer border */
-}
-
-.question-part th,
-.question-part td {
-  border: 1px solid #ccc;      /* inner cell borders */
-  padding: 6px 10px;
-  text-align: center;
-}
-
-.question-part th {
-  background-color: #f2f2f2;
-  font-weight: bold;
+#question-container th {
+  background-color: rgba(0, 0, 0, 0.05);
 }
