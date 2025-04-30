@@ -1,186 +1,213 @@
 // scripts/question_engine.js
 
+// 1) Load & render a random question
 function loadRandomQuestion() {
-  // Pick a random question
-  const question = questions[Math.floor(Math.random() * questions.length)];
-  const qData = question.question();
+  const qDef =
+    window.questions[Math.floor(Math.random() * window.questions.length)];
+  const qData = typeof qDef.question === "function" ? qDef.question() : qDef;
 
-  // Reset totals
-  totalMarksEarned = 0;
-  totalMarksPossible = qData.parts.reduce((sum, p) => sum + p.marks.length, 0);
+  // Reset and tally
+  resetQuestionScores();
+  totalMarksPossible = qData.parts.reduce((s, p) => s + p.marks.length, 0);
   updateScoreDisplay();
-
-  // Store for marking
   window.currentQuestionData = qData;
 
-  // Render
+  // Clear & render container
   const container = document.getElementById("question-container");
   container.innerHTML = "";
 
-  // Main text
-  const intro = document.createElement("h2");
-  intro.textContent = qData.mainText;
-  container.appendChild(intro);
+  // Main question text
+  const h2 = document.createElement("h2");
+  h2.innerHTML = qData.mainText;
+  container.appendChild(h2);
 
-  qData.parts.forEach((part, index) => {
-    const partDiv = document.createElement("div");
-    partDiv.classList.add("question-part");
+  // Render each part
+  qData.parts.forEach((part, i) => {
+    const div = document.createElement("div");
+    div.classList.add("question-part");
 
-    // Part text + per-part score display
-    const partText = document.createElement("p");
-    partText.innerHTML = part.partText + " ";
-    const scoreSpan = document.createElement("span");
-    scoreSpan.id = `score-${index}`;
-    scoreSpan.textContent = `(0/${part.marks.length})`;
-    scoreSpan.style.fontWeight = "bold";
-    partText.appendChild(scoreSpan);
-    partDiv.appendChild(partText);
+    const p = document.createElement("p");
+    p.innerHTML = part.partText + " ";
+    const span = document.createElement("span");
+    span.id = `score-${i}`;
+    span.textContent = `(0/${part.marks.length})`;
+    span.style.fontWeight = "bold";
+    p.appendChild(span);
+    div.appendChild(p);
 
-    // Answer input
-    const answerInput = document.createElement("textarea");
-    answerInput.id = `answer-${index}`;
-    answerInput.rows = 3;
-    answerInput.cols = 60;
-    partDiv.appendChild(answerInput);
+    const ta = document.createElement("textarea");
+    ta.id = `answer-${i}`;
+    ta.rows = 3;
+    ta.cols = 60;
+    div.appendChild(ta);
 
-    // Check button
-    const checkButton = document.createElement("button");
-    checkButton.textContent = "Check Answer";
-    checkButton.onclick = () => {
-      checkPartAnswer(index, part.answer, part.modelAnswer, part.explanation);
-    };
-    partDiv.appendChild(checkButton);
+    const btn = document.createElement("button");
+    btn.textContent = "Check Answer";
+    btn.onclick = () =>
+      checkPartAnswer(i, part.marks, part.modelAnswer, part.explanation);
+    div.appendChild(btn);
 
-    // Model & feedback box
-    const modelDiv = document.createElement("div");
-    modelDiv.id = `model-${index}`;
-    modelDiv.style.display = "none";
-    modelDiv.style.marginTop = "10px";
-    modelDiv.style.padding = "10px";
-    modelDiv.style.borderRadius = "8px";
-    partDiv.appendChild(modelDiv);
+    const fb = document.createElement("div");
+    fb.id = `model-${i}`;
+    fb.style.display = "none";
+    fb.style.marginTop = "10px";
+    fb.style.padding = "10px";
+    fb.style.borderRadius = "8px";
+    div.appendChild(fb);
 
-    container.appendChild(partDiv);
+    container.appendChild(div);
   });
 
-  // Diagram if any
-  const canvas = document.getElementById("diagram-canvas");
-  if (typeof qData.diagram === "function") {
-    canvas.style.display = "block";
-    qData.diagram(canvas);
-  } else {
-    canvas.style.display = "none";
-  }
+  document.getElementById("diagram-canvas").style.display = "none";
 }
 
-function checkPartAnswer(index, correctAnswer, modelAnswer, explanation) {
-  // Fetch input
-  const inputRaw = document.getElementById(`answer-${index}`).value.trim();
-  const input = inputRaw.replace("%", "").trim(); // strip % for numbers
+// 2) Check answer using unified marking system (with numeric fallback)
+function checkPartAnswer(index, marks, modelAnswer, explanation) {
+  const raw = document.getElementById(`answer-${index}`).value.trim();
+  const input = raw.replace("%", "").toLowerCase();
 
-  // Show model/feedback container
-  const modelDiv = document.getElementById(`model-${index}`);
-  modelDiv.style.display = "block";
+  // —— Numeric-only fallback ——
+  if (marks.length === 0 && !isNaN(parseFloat(modelAnswer))) {
+    const userNum = parseFloat(raw);
+    const correctNum = parseFloat(modelAnswer);
+    const tol = Math.abs(correctNum) * 1e-3; // 0.1% tolerance
 
-  const lowerInput = input.toLowerCase();
-  const partData = window.currentQuestionData.parts[index];
-  const partMarks = partData.marks;
+    if (Math.abs(userNum - correctNum) <= tol) {
+      totalMarksEarned++;
+      updateScoreDisplay();
+      document.getElementById(`score-${index}`).textContent = `(1/1)`;
+      const fb = document.getElementById(`model-${index}`);
+      fb.style.display = "block";
+      fb.style.border = "2px solid green";
+      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${modelAnswer}`;
+      return;
+    }
+    // else fall through
+  }
 
-  // Flags
-  let c1FirstAwarded = false;
-  let c1SecondAwarded = false;
-  let aMarkAwarded = false;
+  const fb = document.getElementById(`model-${index}`);
+  fb.style.display = "block";
 
-  // 1) Special percentage-uncertainty working checks
-  if (partData.partText.includes("percentage uncertainty")) {
-    const fractionRegex = /\d+(\.\d+)?\s*\/\s*\d+(\.\d+)?/;
-    if (fractionRegex.test(lowerInput)) c1FirstAwarded = true;
-    const plusCount = (lowerInput.match(/\+/g) || []).length;
-    if (plusCount >= 2) c1SecondAwarded = true;
-  } else {
-    // 2) Keyword checking for definitions & method steps
-    if (Array.isArray(partData.keywords)) {
-      let allGroups = true;
-      for (let group of partData.keywords) {
-        if (!group.some((kw) => lowerInput.includes(kw.toLowerCase()))) {
-          allGroups = false;
-          break;
+  let aBlocked = false;
+  let aAwarded = false;
+  let cAwarded = new Set();
+
+  // Match flat, grouped, or OR-of-groups-of-groups keywords
+  function matchesKeywordGroups(groups) {
+    if (!Array.isArray(groups)) return false;
+
+    // Depth-3: OR-of-branches-of-groups
+    if (
+      Array.isArray(groups[0]) &&
+      Array.isArray(groups[0][0]) &&
+      Array.isArray(groups[0][0][0])
+    ) {
+      return groups.some((subgroups) => matchesKeywordGroups(subgroups));
+    }
+
+    // Flat array: OR logic
+    if (groups.every((g) => typeof g === "string")) {
+      return groups.some((kw) => input.includes(kw));
+    }
+
+    // Depth-2: AND-of-ORs
+    return groups.every(
+      (group) => Array.isArray(group) && group.some((kw) => input.includes(kw))
+    );
+  }
+
+  // STEP 1: M Marks (method gating)
+  marks
+    .filter((m) => m.type === "M")
+    .forEach((m) => {
+      if (matchesKeywordGroups(m.keywords)) {
+        if (!m.awarded) {
+          m.awarded = true;
+          totalMarksEarned++;
         }
+      } else {
+        aBlocked = true;
       }
-      if (allGroups) c1FirstAwarded = true;
+    });
+
+  // STEP 2: A Marks (final answer)
+  if (!aBlocked) {
+    const aMark = marks.find((m) => m.type === "A");
+    if (aMark && matchesKeywordGroups(aMark.keywords)) {
+      aMark.awarded = true;
+      totalMarksEarned++;
+      aAwarded = true;
+      // award all C
+      marks.forEach((m) => {
+        if (m.type === "C" && !m.awarded) {
+          m.awarded = true;
+          totalMarksEarned++;
+          cAwarded.add(m.level || 1);
+        }
+      });
     }
   }
 
-  // 3) Final-answer (A1) check
-  if (typeof correctAnswer === "string" && input === correctAnswer) {
-    aMarkAwarded = true;
-    c1FirstAwarded = true;
-    c1SecondAwarded = true;
+  // STEP 3: C Marks
+  if (!aAwarded) {
+    marks
+      .filter((m) => m.type === "C" && !m.awarded)
+      .sort((a, b) => (b.level || 1) - (a.level || 1))
+      .forEach((m) => {
+        if (matchesKeywordGroups(m.keywords)) {
+          m.awarded = true;
+          totalMarksEarned++;
+          cAwarded.add(m.level || 1);
+          // if C2 then also C1
+          if ((m.level || 1) > 1) {
+            const implied = marks.find(
+              (other) =>
+                other.type === "C" && (other.level || 1) < (m.level || 1)
+            );
+            if (implied && !implied.awarded) {
+              implied.awarded = true;
+              totalMarksEarned++;
+            }
+          }
+        }
+      });
   }
 
-  // 4) Award marks in one pass: B1/M1, C1, C1-sum, A1
-  partMarks.forEach((mark) => {
-    if (!mark.awarded) {
-      if (
-        (mark.point.includes("(B1)") || mark.point.includes("(M1)")) &&
-        c1FirstAwarded
-      ) {
-        mark.awarded = true;
+  // STEP 4: B Marks
+  marks
+    .filter((m) => m.type === "B")
+    .forEach((m) => {
+      if (!m.awarded && matchesKeywordGroups(m.keywords)) {
+        m.awarded = true;
         totalMarksEarned++;
       }
-      if (
-        mark.point.includes("(C1)") &&
-        ((mark.point.includes("fractional") && c1FirstAwarded) ||
-          (mark.point.includes("sum") && c1SecondAwarded))
-      ) {
-        mark.awarded = true;
-        totalMarksEarned++;
-      }
-      if (
-        mark.point.includes("(C1)") &&
-        !mark.point.includes("fractional") &&
-        !mark.point.includes("sum") &&
-        c1FirstAwarded
-      ) {
-        mark.awarded = true;
-        totalMarksEarned++;
-      }
-      if (mark.point.includes("(A1)") && aMarkAwarded) {
-        mark.awarded = true;
-        totalMarksEarned++;
-      }
-    }
-  });
+    });
 
-  // 5) Update per-part score display
-  const earned = partMarks.filter((m) => m.awarded).length;
-  const possible = partMarks.length;
+  // Final display
+  const earned = marks.filter((m) => m.awarded).length;
+  const possible = marks.length;
   document.getElementById(
     `score-${index}`
   ).textContent = `(${earned}/${possible})`;
 
-  // 6) Feedback styling
-  const hasSingle = partMarks.some(
-    (m) => m.awarded && (m.point.includes("(B1)") || m.point.includes("(M1)"))
-  );
-  if (
-    aMarkAwarded ||
-    (c1FirstAwarded && possible === 1) ||
-    (c1FirstAwarded && hasSingle)
-  ) {
-    modelDiv.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${modelAnswer}`;
-    modelDiv.style.border = "2px solid green";
-  } else if (c1FirstAwarded || c1SecondAwarded) {
-    modelDiv.innerHTML = `<strong>You're nearly there!</strong><br><br>You have correctly set up the method.<br>Now substitute or combine carefully to get the final answer.<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
-    modelDiv.style.border = "2px solid orange";
+  // Feedback styling
+  if (earned === possible) {
+    fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${modelAnswer}`;
+    fb.style.border = "2px solid green";
+  } else if (earned > 0) {
+    fb.innerHTML =
+      `<strong>You're nearly there!</strong><br><br><em>Hint:</em><br>${explanation}` +
+      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
+    fb.style.border = "2px solid orange";
   } else {
-    modelDiv.innerHTML = `<strong>Not quite right.</strong><br><br><em>Hint:</em><br>${explanation}<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
-    modelDiv.style.border = "2px solid red";
+    fb.innerHTML =
+      `<strong>Not quite right.</strong><br><br><em>Hint:</em><br>${explanation}` +
+      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
+    fb.style.border = "2px solid red";
   }
 
-  // 7) Update the TOTAL score display
   updateScoreDisplay();
 }
 
-// Auto-load first question
-window.onload = loadRandomQuestion;
+// Expose to global
+window.loadRandomQuestion = loadRandomQuestion;
