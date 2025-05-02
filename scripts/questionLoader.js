@@ -13,6 +13,7 @@ async function loadQuestionsFromSheet() {
     skipEmptyLines: true,
   });
 
+  // Build raw definitions (params + parts), but do not call genericBuilder yet
   const byId = {};
   rows.forEach((r) => {
     const id = r.id?.trim();
@@ -28,7 +29,9 @@ async function loadQuestionsFromSheet() {
     byId[id].parts.push(r);
   });
 
-  const questions = Object.values(byId).map((t) => window.genericBuilder(t));
-  console.log("[Loader] built questions:", questions);
-  return questions;
+  const definitions = Object.values(byId);
+  // Expose definitions for fresh builds on each Next Question
+  window.questions = definitions;
+  console.log("[Loader] stored question definitions:", definitions);
+  return definitions;
 }
