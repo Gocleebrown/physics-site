@@ -1,6 +1,6 @@
 // scripts/question_engine.js
 
-// --- Universal graph‑drawing helper with “nice” major + minor grid lines ---
+// ─── Universal graph‑drawing helper with “nice” major + minor grid lines ───
 function drawGraph(canvas, spec) {
   const ctx = canvas.getContext("2d");
   const w = canvas.width,
@@ -13,27 +13,23 @@ function drawGraph(canvas, spec) {
     const exp = Math.floor(Math.log10(Math.abs(raw)));
     const base = Math.pow(10, exp);
     const frac = raw / base;
-    const nf = frac <= 1 ? 1 : frac <= 2 ? 2 : frac <= 5 ? 5 : 10;
-    return nf * base;
+    return base * (frac <= 1 ? 1 : frac <= 2 ? 2 : frac <= 5 ? 5 : 10);
   }
 
-  const xGraphMax = (() => {
-    const step = spec.xStep || niceStep(spec.xMax / 5);
-    return Math.ceil(spec.xMax / step) * step;
-  })();
-  const xDivs = Math.ceil(xGraphMax / (spec.xStep || niceStep(spec.xMax / 5)));
+  // compute "nice" graph maxima + divisions
+  const xStep = spec.xStep || niceStep(spec.xMax / 5);
+  const xGraphMax = Math.ceil(spec.xMax / xStep) * xStep;
+  const xDivs = Math.ceil(xGraphMax / xStep);
+  const yStep = spec.yStep || niceStep(spec.yMax / 5);
+  const yGraphMax = Math.ceil(spec.yMax / yStep) * yStep;
+  const yDivs = Math.ceil(yGraphMax / yStep);
 
-  const yGraphMax = (() => {
-    const step = spec.yStep || niceStep(spec.yMax / 5);
-    return Math.ceil(spec.yMax / step) * step;
-  })();
-  const yDivs = Math.ceil(yGraphMax / (spec.yStep || niceStep(spec.yMax / 5)));
-
+  // minor grid
   ctx.strokeStyle = "#f0f0f0";
   ctx.lineWidth = 1;
   for (let i = 0; i < xDivs; i++) {
     for (let k = 1; k <= 5; k++) {
-      const x = m + (((i + k / 6) * (xGraphMax / xDivs)) / xGraphMax) * plotW;
+      const x = m + (((i + k / 6) * xStep) / xGraphMax) * plotW;
       ctx.beginPath();
       ctx.moveTo(x, m);
       ctx.lineTo(x, m + plotH);
@@ -42,8 +38,7 @@ function drawGraph(canvas, spec) {
   }
   for (let j = 0; j < yDivs; j++) {
     for (let k = 1; k <= 5; k++) {
-      const y =
-        m + plotH - (((j + k / 6) * (yGraphMax / yDivs)) / yGraphMax) * plotH;
+      const y = m + plotH - (((j + k / 6) * yStep) / yGraphMax) * plotH;
       ctx.beginPath();
       ctx.moveTo(m, y);
       ctx.lineTo(m + plotW, y);
@@ -51,22 +46,24 @@ function drawGraph(canvas, spec) {
     }
   }
 
+  // major grid
   ctx.strokeStyle = "#e0e0e0";
   for (let i = 0; i <= xDivs; i++) {
-    const x = m + ((i * (xGraphMax / xDivs)) / xGraphMax) * plotW;
+    const x = m + ((i * xStep) / xGraphMax) * plotW;
     ctx.beginPath();
     ctx.moveTo(x, m);
     ctx.lineTo(x, m + plotH);
     ctx.stroke();
   }
   for (let j = 0; j <= yDivs; j++) {
-    const y = m + plotH - ((j * (yGraphMax / yDivs)) / yGraphMax) * plotH;
+    const y = m + plotH - ((j * yStep) / yGraphMax) * plotH;
     ctx.beginPath();
     ctx.moveTo(m, y);
     ctx.lineTo(m + plotW, y);
     ctx.stroke();
   }
 
+  // axes
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -75,30 +72,33 @@ function drawGraph(canvas, spec) {
   ctx.lineTo(m + plotW, m);
   ctx.stroke();
 
+  // ticks & labels
   ctx.fillStyle = "#000";
   ctx.font = "12px sans-serif";
   for (let i = 0; i <= xDivs; i++) {
-    const val = (i * xGraphMax) / xDivs;
+    const val = i * xStep;
     const x = m + (val / xGraphMax) * plotW;
     ctx.beginPath();
     ctx.moveTo(x, m + plotH - 5);
     ctx.lineTo(x, m + plotH + 5);
     ctx.stroke();
-    ctx.fillText(Math.round(val).toString(), x - 10, m + plotH + 20);
+    ctx.fillText(val.toString(), x - 10, m + plotH + 20);
   }
   for (let j = 0; j <= yDivs; j++) {
-    const val = (j * yGraphMax) / yDivs;
+    const val = j * yStep;
     const y = m + plotH - (val / yGraphMax) * plotH;
     ctx.beginPath();
     ctx.moveTo(m - 5, y);
     ctx.lineTo(m + plotW, y);
     ctx.stroke();
-    ctx.fillText(Math.round(val).toString(), m - 30, y + 4);
+    ctx.fillText(val.toString(), m - 30, y + 4);
   }
 
+  // axis titles
   ctx.fillText(spec.xLabel, m + plotW / 2 - 20, h - 5);
   ctx.fillText(spec.yLabel, 10, m + plotH / 2);
 
+  // plot data line
   ctx.strokeStyle = spec.color || "blue";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -110,10 +110,13 @@ function drawGraph(canvas, spec) {
   ctx.stroke();
 }
 
+// ─── 1) Load & render a random question ───
 function loadRandomQuestion() {
   const def =
     window.questions[Math.floor(Math.random() * window.questions.length)];
   const qData = window.genericBuilder(def);
+
+  // reset scores
   resetQuestionScores();
   totalMarksPossible = qData.parts.reduce((sum, p) => sum + p.marks.length, 0);
   updateScoreDisplay();
@@ -121,13 +124,17 @@ function loadRandomQuestion() {
   const container = document.getElementById("question-container");
   container.innerHTML = "";
 
+  // main text
   const h2 = document.createElement("h2");
   h2.innerHTML = qData.mainText;
   container.appendChild(h2);
 
+  // each part
   qData.parts.forEach((part, i) => {
     const div = document.createElement("div");
     div.classList.add("question-part");
+
+    // prompt + score
     const p = document.createElement("p");
     p.innerHTML = part.partText + " ";
     const span = document.createElement("span");
@@ -137,6 +144,7 @@ function loadRandomQuestion() {
     p.appendChild(span);
     div.appendChild(p);
 
+    // graph if given
     if (part.graphSpec) {
       const canvas = document.createElement("canvas");
       canvas.width = 300;
@@ -146,18 +154,21 @@ function loadRandomQuestion() {
       drawGraph(canvas, part.graphSpec);
     }
 
+    // answer box
     const ta = document.createElement("textarea");
     ta.id = `answer-${i}`;
     ta.rows = 3;
     ta.cols = 60;
     div.appendChild(ta);
 
+    // check button
     const btn = document.createElement("button");
     btn.textContent = "Check Answer";
     btn.onclick = () =>
       checkPartAnswer(i, part.marks, part.modelAnswer, part.explanation);
     div.appendChild(btn);
 
+    // feedback
     const fb = document.createElement("div");
     fb.id = `model-${i}`;
     fb.style.display = "none";
@@ -169,6 +180,7 @@ function loadRandomQuestion() {
     container.appendChild(div);
   });
 
+  // next question
   const nextBtn = document.createElement("button");
   nextBtn.textContent = "Next Question";
   nextBtn.style.display = "block";
@@ -176,32 +188,58 @@ function loadRandomQuestion() {
   nextBtn.onclick = loadRandomQuestion;
   container.appendChild(nextBtn);
 
+  // hide stray canvas
   document.getElementById("diagram-canvas").style.display = "none";
 }
 
+// ─── 2) Check answer with blank-guard, numeric fallback + M/A/C/B ───
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
   const input = raw.replace(/%/g, "").toLowerCase();
 
-  // Numeric-only fallback (single A-mark or truly no marks)
+  // blank-guard: encourage student to write something
+  if (raw === "") {
+    const fb = document.getElementById(`model-${index}`);
+    fb.style.display = "block";
+    fb.style.border = "2px solid red";
+    fb.innerHTML =
+      `<strong>Try to always put something down.</strong><br><br>` +
+      `<em>Key Idea:</em><br>${explanation}`;
+    return;
+  }
+
+  // numeric-only fallback (single A-mark or no marks)
   const numericOnly =
     marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
   if (numericOnly && !isNaN(parseFloat(modelAnswer))) {
-    // 1) Normalize any “M x 10^N” or “M×10^N” into “MeN”
-    const rawNorm = raw
-      .trim()
-      .replace(
-        /([0-9]+(?:\.[0-9]*)?)\s*[×x]\s*10\s*\^\s*([+\-]?\d+)/gi,
-        "$1e$2"
-      )
-      .replace(/,/g, ""); // strip commas
-
-    // 2) Now parse as a standard JS number
-    const userNum = parseFloat(rawNorm);
-
-    // 3) Compare within your 0.1% tolerance
     const correctNum = parseFloat(modelAnswer);
-    const tol = Math.abs(correctNum) * 1e-3;
+    const userStr = raw.toLowerCase().trim();
+
+    // exact variant matches
+    const variants = [
+      correctNum.toPrecision(2),
+      correctNum.toExponential(2),
+      correctNum,
+      toExponential().replace(/e\+?/, "×10^"),
+      Math.round(correctNum).toString(),
+      correctNum.toFixed(1),
+      correctNum.toString(),
+    ].map((v) => v.toLowerCase().trim());
+
+    if (variants.includes(userStr)) {
+      totalMarksEarned++;
+      updateScoreDisplay();
+      document.getElementById(`score-${index}`).textContent = `(1/1)`;
+      const fb = document.getElementById(`model-${index}`);
+      fb.style.display = "block";
+      fb.style.border = "2px solid green";
+      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${modelAnswer}`;
+      return;
+    }
+
+    // tolerance fallback (±0.5%)
+    const userNum = parseFloat(raw);
+    const tol = Math.abs(correctNum) * 0.005;
     if (!isNaN(userNum) && Math.abs(userNum - correctNum) <= tol) {
       totalMarksEarned++;
       updateScoreDisplay();
@@ -214,6 +252,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   }
 
+  // fallback to M/A/C/B
   const fb = document.getElementById(`model-${index}`);
   fb.style.display = "block";
   let aBlocked = false,
@@ -222,6 +261,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
   function matchesKeywordGroups(groups) {
     if (!Array.isArray(groups)) return false;
+    // OR-of-ORs
     if (
       Array.isArray(groups[0]) &&
       Array.isArray(groups[0][0]) &&
@@ -229,13 +269,15 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     ) {
       return groups.some((sub) => matchesKeywordGroups(sub));
     }
+    // flat OR
     if (groups.every((g) => typeof g === "string")) {
       return groups.some((kw) => input.includes(kw));
     }
+    // AND-of-ORs
     return groups.every((grp) => grp.some((kw) => input.includes(kw)));
   }
 
-  // M/A/C/B logic (unchanged)
+  // STEP 1: M-marks
   marks
     .filter((m) => m.type === "M")
     .forEach((m) => {
@@ -246,10 +288,12 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
         }
       } else aBlocked = true;
     });
+
+  // STEP 2: A-marks
   if (!aBlocked) {
-    const a = marks.find((m) => m.type === "A");
-    if (a && matchesKeywordGroups(a.keywords)) {
-      a.awarded = true;
+    const aMark = marks.find((m) => m.type === "A");
+    if (aMark && matchesKeywordGroups(aMark.keywords)) {
+      aMark.awarded = true;
       totalMarksEarned++;
       aAwarded = true;
       marks.forEach((m) => {
@@ -261,6 +305,8 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       });
     }
   }
+
+  // STEP 3: C-marks
   if (!aAwarded) {
     marks
       .filter((m) => m.type === "C" && !m.awarded)
@@ -282,6 +328,8 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
         }
       });
   }
+
+  // STEP 4: B-marks
   marks
     .filter((m) => m.type === "B")
     .forEach((m) => {
@@ -290,22 +338,32 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
         totalMarksEarned++;
       }
     });
-  const earned = marks.filter((m) => m.awarded).length,
-    possible = marks.length;
+
+  // final score update
+  const earned = marks.filter((m) => m.awarded).length;
+  const possible = marks.length;
   document.getElementById(
     `score-${index}`
   ).textContent = `(${earned}/${possible})`;
+
+  // feedback styling
   if (earned === possible) {
     fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${modelAnswer}`;
     fb.style.border = "2px solid green";
   } else if (earned > 0) {
-    fb.innerHTML = `<strong>You're nearly there!</strong><br><br><em>Key Idea:</em><br>${explanation}<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
+    fb.innerHTML =
+      `<strong>You're nearly there!</strong><br><br><em>Key Idea:</em><br>${explanation}` +
+      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
     fb.style.border = "2px solid orange";
   } else {
-    fb.innerHTML = `<strong>Not quite right.</strong><br><br><em>Key Idea:</em><br>${explanation}<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
+    fb.innerHTML =
+      `<strong>Not quite right.</strong><br><br><em>Key Idea:</em><br>${explanation}` +
+      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
     fb.style.border = "2px solid red";
   }
+
   updateScoreDisplay();
 }
 
+// expose globally
 window.loadRandomQuestion = loadRandomQuestion;
