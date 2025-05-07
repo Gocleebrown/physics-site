@@ -35,3 +35,4 @@ async function loadQuestionsFromSheet() {
   console.log("[Loader] stored question definitions:", definitions);
   return definitions;
 }
+ 
