@@ -13,7 +13,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # This step now explicitly checks out your 'main' branch source code
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -22,10 +25,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install mkdocs mkdocs-material
-
-      # This step will show us all the files in the repository
-      - name: List files in the repository
-        run: ls -R
 
       - name: Deploy
         run: mkdocs gh-deploy --force
