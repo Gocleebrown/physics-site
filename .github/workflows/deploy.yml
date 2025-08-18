@@ -3,7 +3,7 @@ on:
   # Runs on pushes to the 'master' branch
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
