@@ -1,33 +1,31 @@
 name: Build and Deploy Physics Site
 on:
-  # Runs on pushes to the 'master' branch
   push:
     branches:
       - main
-      
-# Add this permissions block
+
 permissions:
   contents: read
   pages: write
   id-token: write
-  
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Checks out your repository's code
       - uses: actions/checkout@v4
 
-      # Sets up the Python environment
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.x
 
-      # Installs the tools needed to build your site
       - name: Install dependencies
         run: pip install mkdocs mkdocs-material
 
-      # Builds the site and pushes it to the 'gh-pages' branch
+      # This step will show us all the files in the repository
+      - name: List files in the repository
+        run: ls -R
+
       - name: Deploy
         run: mkdocs gh-deploy --force
