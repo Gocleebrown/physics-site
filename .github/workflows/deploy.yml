@@ -2,7 +2,7 @@ name: Build and Deploy Physics Site
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: read
@@ -13,10 +13,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # This step now explicitly checks out your 'main' branch source code
       - uses: actions/checkout@v4
-        with:
-          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
