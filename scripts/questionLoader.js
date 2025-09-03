@@ -1,7 +1,7 @@
 // scripts/questionLoader.js
 
 const SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjN8Fd1gXHQyGeBQKDjkskUd7wMyBmimmmuQknDdZSP23wkIyoyyk8YOGpd-YBBkWyPnmJ2Lh_q0Fi/pub?gid=0&single=true&output=csv";
+  "https://docs.google.com/spreadsheets/d/1mspkPndqlydcum52DiVx_oq0cbmV8F06igR8kISehTI/export?format=csv&gid=0";
 
 async function loadQuestionsFromSheet() {
   console.log("[Loader] fetching CSV…");
