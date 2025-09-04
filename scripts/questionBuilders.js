@@ -1,3 +1,106 @@
+// scripts/questionBuilders.js
+
+// --- 1) Table-builder helper ---
+window.makeTable = function (rows, cols) {
+  let html = `<table><tr>${cols.map((c) => `<th>${c}</th>`).join("")}</tr>`;
+  rows.forEach((r) => {
+    html += `<tr>${cols.map((c) => `<td>${r[c] || ""}</td>`).join("")}</tr>`;
+  });
+  html += `</table>`;
+  return html;
+};
+
+// --- 2) String interpolation helper ---
+window.interpolate = function (str, ctx) {
+  return (str || "").replace(/\$\{([^}]+)\}/g, (_, expr) => {
+    try {
+      const fn = new Function(...Object.keys(ctx), `return ${expr}`);
+      const result = fn(...Object.values(ctx));
+      // Use the flexible formatting function for numbers found during interpolation
+      return typeof result === "number" ? formatToSigFigs(result) : result;
+    } catch {
+      return "";
+    }
+  });
+};
+
+// --- 3) Format number to a specific number of significant figures ---
+function formatToSigFigs(num, digits) {
+  if (num === 0) return "0";
+  // Default to 3 significant figures if not specified
+  const precision = digits || 3;
+  return parseFloat(num.toPrecision(precision)).toString();
+}
+
+// --- 4) Compute derived values from formulas ---
+function computeValues(params, formulas) {
+  const computed = {};
+  for (const key in formulas) {
+    try {
+      const fn = new Function(
+        "params",
+        "computed",
+        `with(params){with(computed){return ${formulas[key]};}}`
+      );
+      computed[key] = fn(params, computed);
+    } catch {
+      computed[key] = null;
+    }
+  }
+  return computed;
+}
+
+// --- 5) Build marks from keyword columns (supports B2) ---
+function buildMarksFromRow(row, ctx) {
+  const types = ["A", "C2", "C1", "M", "B", "B2"];
+  const marks = [];
+
+  types.forEach((type) => {
+    const rawKey = row[type + "_keywords"];
+    if (!rawKey) return;
+    const raw = interpolate(rawKey, ctx).trim();
+    if (!raw) return;
+
+    let parsed = null;
+    if (raw.startsWith("[")) {
+      try {
+        parsed = JSON.parse(raw.replace(/'/g, '"'));
+      } catch {}
+    }
+
+    let groups = [];
+    if (
+      Array.isArray(parsed) &&
+      parsed.every((e) => typeof e === "string" || typeof e === "number")
+    ) {
+      groups = [parsed.map((e) => String(e).toLowerCase().trim())];
+    } else if (Array.isArray(parsed) && parsed.every((g) => Array.isArray(g))) {
+      groups = parsed.map((g) => g.map((e) => String(e).toLowerCase().trim()));
+    } else {
+      const flat = raw
+        .split(/[,;]+/)
+        .map((e) => e.toLowerCase().trim())
+        .filter(Boolean);
+      if (flat.length) groups = [flat];
+    }
+
+    const markType =
+      type === "B" || type === "B2" ? "B" : type.startsWith("C") ? "C" : type;
+    const level = type === "C2" ? 2 : type === "C1" ? 1 : undefined;
+
+    if ((type === "B" || type === "B2") && groups.length > 1) {
+      // multiple B-subgroups → separate B-marks
+      groups.forEach((sub) => {
+        marks.push({ type: "B", keywords: [sub], awarded: false });
+      });
+    } else {
+      marks.push({ type: markType, level, keywords: groups, awarded: false });
+    }
+  });
+
+  return marks;
+}
+
 // --- 6) Generic builder from CSV ---
 window.genericBuilder = function ({ id, type, params, parts }) {
   const ctx = {};
@@ -82,7 +185,7 @@ window.genericBuilder = function ({ id, type, params, parts }) {
       partObj.marks.forEach((mark) => {
         if (mark.type !== "A") return;
         mark.keywords.forEach((group) => {
-          if (group.length === 0) return;
+          if (group.length === 0) return; // Safety check for empty keyword groups
           const base = parseFloat(group[0].replace(/[^0-9eE+\-.]/g, ""));
           if (isNaN(base)) return;
           const sf2 = base.toPrecision(2);
