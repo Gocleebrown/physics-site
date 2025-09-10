@@ -129,29 +129,10 @@ window.genericBuilder = function ({ id, type, params, parts }) {
     }
   }
 
-  // 6.4 apply tableRequest on main
-  if (mainRow.tableRequest) {
-    try {
-      const tableDef = JSON.parse(mainRow.tableRequest);
-      const tableRows = tableDef.map((t) => ({
-        Quantity: t.label,
-        Value: formatToSigFigs(ctx[t.val], t.valSf), // For the 'Value' column
-        Uncertainty: "±" + formatToSigFigs(ctx[t.unc], t.uncSf), // For the 'Uncertainty' column
-      }));
-      ctx.dimsTable = makeTable(tableRows, [
-        "Quantity",
-        "Value",
-        "Uncertainty",
-      ]);
-    } catch {
-      console.warn("Invalid tableRequest in", id, "main part");
-    }
-  }
-
   // assemble mainText + imageBelowMain
   const mainText = interpolate(mainRow.mainText || "", ctx);
   const imageBelow = mainRow.imageBelowMain
-    ? `<img src="assets/${mainRow.imageBelowMain}.png" style="margin-top:1em;max-width:100%;" />`
+    ? `<img src="assets/${mainRow.imageBelowMain}" style="margin-top:1em;max-width:100%;" />`
     : "";
 
   const q = { id, type, mainText: mainText + imageBelow, parts: [] };
@@ -160,52 +141,27 @@ window.genericBuilder = function ({ id, type, params, parts }) {
   parts
     .sort((a, b) => +a.partIndex - +b.partIndex)
     .forEach((row) => {
-      const local = { ...ctx };
+      const partText = interpolate(row.partText || "", ctx);
+      const imageAfter = row.imageAfterPart
+        ? `<img src="assets/${row.imageAfterPart}" style="margin-top:1em;max-width:100%;" />`
+        : "";
+      const modelAnswer = interpolate(row.modelAnswer || "", ctx);
+      const explanation = interpolate(row.explanation || "", ctx);
+      const marks = buildMarksFromRow(row, ctx);
 
-      // apply computedValues per part
-      if (row.computedValues) {
-        try {
-          Object.assign(
-            local,
-            computeValues(local, JSON.parse(row.computedValues))
-          );
-        } catch {
-          console.warn("Bad computedValues in", id, "part", row.partIndex);
-        }
-      }
+      const partObj = {
+        partText: partText + imageAfter,
+        modelAnswer,
+        explanation,
+        marks,
+      };
 
-      const partText = interpolate(row.partText || "", local);
-      const modelAnswer = interpolate(row.modelAnswer || "", local);
-      const explanation = interpolate(row.explanation || "", local);
-      const marks = buildMarksFromRow(row, local);
-
-      const partObj = { partText, modelAnswer, explanation, marks };
-
-      // ── AUTO-EXPAND GENERIC NUMERIC SYNONYMS ──
-      partObj.marks.forEach((mark) => {
-        if (mark.type !== "A") return;
-        mark.keywords.forEach((group) => {
-          if (group.length === 0) return; // Safety check for empty keyword groups
-          const base = parseFloat(group[0].replace(/[^0-9eE+\-.]/g, ""));
-          if (isNaN(base)) return;
-          const sf2 = base.toPrecision(2);
-          const exp2 = base.toExponential(2).replace(/e\+?/, "×10^");
-          const intRnd = Math.round(base).toString();
-          const dec1 = base.toFixed(1);
-          const plain = base.toString();
-          [sf2, exp2, intRnd, dec1, plain].forEach((v) => {
-            const low = v.toLowerCase().trim();
-            if (low && !group.includes(low)) group.push(low);
-          });
-        });
-      });
-
-      // ── auto-graph for stress-strain with a small plastic plateau ───
+      // Path 1: Keep the original, dedicated stress-strain graph logic
       if (type === "stress-strain" && +row.partIndex === 0) {
-        const s = local.max_strain; // εₘₐₓ from computedValues
-        const m = local.module_plot; // E (Young’s modulus)
-        const σ_limit = s * m; // yield stress
-        const plateauWidth = 0.002; // horizontal plateau length
+        const s = ctx.max_strain;
+        const m = ctx.module_plot;
+        const σ_limit = s * m;
+        const plateauWidth = 0.0005;
 
         partObj.graphSpec = {
           points: [
@@ -216,9 +172,27 @@ window.genericBuilder = function ({ id, type, params, parts }) {
           xMax: s + plateauWidth,
           yMax: σ_limit * 1.1,
           xLabel: "Strain",
-          yLabel: "Stress (Pa)",
-          xTicks: [0, s, s + plateauWidth],
-          yTicks: [0, σ_limit],
+          yLabel: "Stress (×10⁶ Pa)",
+        };
+      }
+      // Path 2: Dedicated handler for the waves interference graph
+      else if (id === "waves-1" && +row.partIndex === 3) {
+        const gradient = ctx.gradient_x_vs_D;
+        const D_start = 2.0;
+        const D_end = 3.5;
+        const x_start = D_start * gradient;
+        const x_end = D_end * gradient;
+
+        partObj.graphSpec = {
+          points: [
+            [D_start, x_start],
+            [D_end, x_end],
+          ],
+          xMin: 2.0,
+          xMax: 3.5,
+          yMax: 10.0,
+          xLabel: "D / m",
+          yLabel: "x / mm",
         };
       }
 
