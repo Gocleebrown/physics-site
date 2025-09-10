@@ -9,6 +9,8 @@ function drawGraph(canvas, spec) {
   const plotW = w - 2 * m,
     plotH = h - 2 * m;
 
+  const xMin = spec.xMin || 0;
+
   function niceStep(raw) {
     const exp = Math.floor(Math.log10(Math.abs(raw)));
     const base = Math.pow(10, exp);
@@ -17,6 +19,7 @@ function drawGraph(canvas, spec) {
   }
 
   // compute "nice" graph maxima + divisions
+  const xRange = spec.xMax - xMin;
   const xStep = spec.xStep || niceStep(spec.xMax / 5);
   const xGraphMax = Math.ceil(spec.xMax / xStep) * xStep;
   const xDivs = Math.ceil(xGraphMax / xStep);
@@ -76,8 +79,8 @@ function drawGraph(canvas, spec) {
   ctx.fillStyle = "#000";
   ctx.font = "12px sans-serif";
   for (let i = 0; i <= xDivs; i++) {
-    const val = i * xStep;
-    const x = m + (val / xGraphMax) * plotW;
+    const val = xMin + i * xStep;
+    const x = m + ((val - xMin) / (xGraphMax - xMin)) * plotW;
     ctx.beginPath();
     ctx.moveTo(x, m + plotH - 5);
     ctx.lineTo(x, m + plotH + 5);
@@ -103,7 +106,7 @@ function drawGraph(canvas, spec) {
   ctx.lineWidth = 2;
   ctx.beginPath();
   spec.points.forEach(([xv, yv], idx) => {
-    const x = m + (xv / xGraphMax) * plotW;
+    const x = m + ((xv - xMin) / (xGraphMax - xMin)) * plotW;
     const y = m + plotH - (yv / yGraphMax) * plotH;
     idx === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
