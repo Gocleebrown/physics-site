@@ -87,15 +87,10 @@ function buildMarksFromRow(row, ctx) {
     const markType =
       type === "B" || type === "B2" ? "B" : type.startsWith("C") ? "C" : type;
     const level = type === "C2" ? 2 : type === "C1" ? 1 : undefined;
-
-    if ((type === "B" || type === "B2") && groups.length > 1) {
-      // multiple B-subgroups → separate B-marks
-      groups.forEach((sub) => {
-        marks.push({ type: "B", keywords: [sub], awarded: false });
-      });
-    } else {
-      marks.push({ type: markType, level, keywords: groups, awarded: false });
-    }
+    
+    // This logic is now simplified. All marks are created the same way.
+    // The marking engine will now handle the AND logic for multiple groups in any mark type.
+    marks.push({ type: markType, level, keywords: groups, awarded: false });
   });
 
   return marks;
@@ -129,11 +124,37 @@ window.genericBuilder = function ({ id, type, params, parts }) {
     }
   }
 
+  // <<< START OF FIX >>>
+  // 6.4 apply tableRequest on main (This block was missing)
+  if (mainRow.tableRequest) {
+    try {
+      const tableDef = JSON.parse(mainRow.tableRequest);
+      const tableRows = tableDef.map((t) => ({
+        Quantity: t.label,
+        Value: formatToSigFigs(ctx[t.val], t.valSf),
+        Uncertainty: "±" + formatToSigFigs(ctx[t.unc], t.uncSf),
+      }));
+      ctx.dimsTable = makeTable(tableRows, [
+        "Quantity",
+        "Value",
+        "Uncertainty",
+      ]);
+    } catch {
+      console.warn("Invalid tableRequest in", id, "main part");
+    }
+  }
+
   // assemble mainText + imageBelowMain
   const mainText = interpolate(mainRow.mainText || "", ctx);
-  const imageBelow = mainRow.imageBelowMain
-    ? `<img src="assets/${mainRow.imageBelowMain}" style="margin-top:1em;max-width:100%;" />`
-    : "";
+  
+  // Correctly handle image filenames that may or may not include '.png'
+  let imageBelow = "";
+  if (mainRow.imageBelowMain) {
+      const filename = mainRow.imageBelowMain;
+      const imageSrc = filename.endsWith('.png') ? filename : `${filename}.png`;
+      imageBelow = `<img src="assets/${imageSrc}" style="margin-top:1em;max-width:100%;" />`;
+  }
+  // <<< END OF FIX >>>
 
   const q = { id, type, mainText: mainText + imageBelow, parts: [] };
 
@@ -142,9 +163,15 @@ window.genericBuilder = function ({ id, type, params, parts }) {
     .sort((a, b) => +a.partIndex - +b.partIndex)
     .forEach((row) => {
       const partText = interpolate(row.partText || "", ctx);
-      const imageAfter = row.imageAfterPart
-        ? `<img src="assets/${row.imageAfterPart}" style="margin-top:1em;max-width:100%;" />`
-        : "";
+      
+      // Correctly handle image filenames for parts
+      let imageAfter = "";
+      if (row.imageAfterPart) {
+          const filename = row.imageAfterPart;
+          const imageSrc = filename.endsWith('.png') ? filename : `${filename}.png`;
+          imageAfter = `<img src="assets/${imageSrc}" style="margin-top:1em;max-width:100%;" />`;
+      }
+      
       const modelAnswer = interpolate(row.modelAnswer || "", ctx);
       const explanation = interpolate(row.explanation || "", ctx);
       const marks = buildMarksFromRow(row, ctx);
@@ -158,10 +185,10 @@ window.genericBuilder = function ({ id, type, params, parts }) {
 
       // Path 1: Keep the original, dedicated stress-strain graph logic
       if (type === "stress-strain" && +row.partIndex === 0) {
-        const s = ctx.max_strain;
+        const s = ctx.max_strain; 
         const m = ctx.module_plot;
-        const σ_limit = s * m;
-        const plateauWidth = 0.0005;
+        const σ_limit = s * m; 
+        const plateauWidth = 0.0005; 
 
         partObj.graphSpec = {
           points: [
@@ -174,7 +201,7 @@ window.genericBuilder = function ({ id, type, params, parts }) {
           xLabel: "Strain",
           yLabel: "Stress (×10⁶ Pa)",
         };
-      }
+      } 
       // Path 2: Dedicated handler for the waves interference graph
       else if (id === "waves-1" && +row.partIndex === 3) {
         const gradient = ctx.gradient_x_vs_D;
@@ -184,18 +211,18 @@ window.genericBuilder = function ({ id, type, params, parts }) {
         const x_end = D_end * gradient;
 
         partObj.graphSpec = {
-          points: [
-            [D_start, x_start],
-            [D_end, x_end],
-          ],
-          xMin: 2.0,
-          xMax: 3.5,
-          yMax: 10.0,
-          xLabel: "D / m",
-          yLabel: "x / mm",
+            points: [
+                [D_start, x_start],
+                [D_end, x_end]
+            ],
+            xMin: 2.0,
+            xMax: 3.5,
+            yMax: 10.0,
+            xLabel: "D / m",
+            yLabel: "x / mm"
         };
       }
-
+      
       q.parts.push(partObj);
     });
 
