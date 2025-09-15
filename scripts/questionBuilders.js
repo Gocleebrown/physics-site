@@ -112,17 +112,19 @@ window.genericBuilder = function ({ id, type, params, parts }) {
   // 6.2 mainRow (partIndex=0)
   const mainRow = parts.find((r) => +r.partIndex === 0) || parts[0];
 
-  // 6.3 apply computedValues on main
-  if (mainRow.computedValues) {
+ // 6.3 apply computedValues across ALL parts
+const allFormulas = {};
+parts.forEach((row) => {
+  if (row.computedValues) {
     try {
-      Object.assign(
-        ctx,
-        computeValues(ctx, JSON.parse(mainRow.computedValues))
-      );
+      Object.assign(allFormulas, JSON.parse(row.computedValues));
     } catch {
-      console.warn("Bad computedValues in", id, "main part");
+      console.warn("Bad computedValues in", id, "part", row.partIndex);
     }
   }
+});
+Object.assign(ctx, computeValues(ctx, allFormulas));
+
 
   // <<< START OF FIX >>>
   // 6.4 apply tableRequest on main (This block was missing)
