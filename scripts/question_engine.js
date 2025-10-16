@@ -11,12 +11,14 @@ function drawGraph(canvas, spec) {
 
   const xMin = spec.xMin || 0;
 
-  function niceStep(raw) {
-    const exp = Math.floor(Math.log10(Math.abs(raw)));
-    const base = Math.pow(10, exp);
-    const frac = raw / base;
-    return base * (frac <= 1 ? 1 : frac <= 2 ? 2 : frac <= 5 ? 5 : 10);
-  }
+function niceStep(raw) {
+  if (!isFinite(raw) || raw <= 0) return 1;
+  const exp = Math.floor(Math.log10(Math.abs(raw)));
+  const base = Math.pow(10, exp);
+  const frac = raw / base;
+  return base * (frac <= 1 ? 1 : frac <= 2 ? 2 : frac <= 5 ? 5 : 10);
+}
+
 
   // compute "nice" graph maxima + divisions
   const xRange = spec.xMax - xMin;
@@ -114,20 +116,58 @@ function drawGraph(canvas, spec) {
   ctx.stroke();
 
 }
-// Normalize graphSpec whether it came as an object or as a JSON string from the sheet
+// Normalize graphSpec whether it came as an object or a JSON string from the sheet.
+// Coerce numeric fields, strip ${...} placeholders if any slipped through,
+// and infer xMax/yMax from points when needed.
 function normalizeGraphSpec(s) {
-  const spec = typeof s === "string" ? JSON.parse(s) : (s || {});
-  const num = (v) => (typeof v === "string" && !isNaN(v)) ? Number(v) : v;
+  // Parse string → object
+  const rawObj = (typeof s === "string") ? JSON.parse(s) : (s || {});
+  const spec = { ...rawObj };
 
-  spec.xMin = num(spec.xMin ?? 0);
-  spec.xMax = num(spec.xMax ?? 0);
-  spec.yMax = num(spec.yMax ?? 0);
+  // helper: numeric coercion (handles "0.0168", " 3.15 ", etc.)
+  const num = (v) => {
+    if (typeof v === "number") return v;
+    if (typeof v === "string") {
+      const t = v.trim();
+      if (/^\$\{.+\}$/.test(t)) return NaN; // unresolved placeholder
+      const n = Number(t);
+      return isFinite(n) ? n : NaN;
+    }
+    return NaN;
+  };
 
-  if (Array.isArray(spec.points)) {
-    spec.points = spec.points.map(([x, y]) => [num(x), num(y)]);
-  }
+  // points: coerce and filter to finite numbers
+  const pts = Array.isArray(spec.points)
+    ? spec.points
+        .map(([x, y]) => [num(x), num(y)])
+        .filter(([x, y]) => isFinite(x) && isFinite(y))
+    : [];
+
+  spec.points = pts;
+
+  // Defaults / inference
+  const xs = pts.map(p => p[0]);
+  const ys = pts.map(p => p[1]);
+
+  const xMinCoerced = num(spec.xMin);
+  const xMaxCoerced = num(spec.xMax);
+  const yMaxCoerced = num(spec.yMax);
+
+  spec.xMin = isFinite(xMinCoerced) ? xMinCoerced : 0;
+  spec.xMax = isFinite(xMaxCoerced)
+    ? xMaxCoerced
+    : (xs.length ? Math.max(...xs) * 1.05 : 1);
+  spec.yMax = isFinite(yMaxCoerced)
+    ? yMaxCoerced
+    : (ys.length ? Math.max(...ys) * 1.05 : 1);
+
+  // Labels fallback
+  spec.xLabel = spec.xLabel || "";
+  spec.yLabel = spec.yLabel || "";
+
   return spec;
 }
+
 
 // Add an <img> (png or svg). Accept either a string URL or {src, alt, width}.
 function appendImage(target, item) {
