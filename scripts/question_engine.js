@@ -1,5 +1,3 @@
-<!-- scripts/question_engine.js -->
-<script>
 // ─────────────────────────────────────────────────────────────────────────────
 //  Universal graph-drawing helper with “nice” major + minor grid lines
 // ─────────────────────────────────────────────────────────────────────────────
@@ -9,7 +7,6 @@ function drawGraph(canvas, spec) {
   const m = 40;
   const plotW = w - 2 * m, plotH = h - 2 * m;
 
-  // safe "nice" step
   function niceStep(raw) {
     if (!isFinite(raw) || raw <= 0) return 1;
     const exp = Math.floor(Math.log10(Math.abs(raw)));
@@ -328,7 +325,6 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
   const input = raw.replace(/%/g, "").toLowerCase();
 
-  // blank-guard
   if (raw === "") {
     const fb = document.getElementById(`model-${index}`);
     fb.style.display = "block";
@@ -339,13 +335,11 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     return;
   }
 
-  // numeric-only fallback (single A-mark or no marks)
   const numericOnly = marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
   if (numericOnly && !isNaN(parseFloat(modelAnswer))) {
     const correctNum = parseFloat(modelAnswer);
     const userStr = raw.toLowerCase().trim();
 
-    // exact variant matches (no stray toExponential() bug)
     const variants = [
       correctNum.toPrecision(2),
       correctNum.toExponential(2),
@@ -366,7 +360,6 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       return;
     }
 
-    // tolerance fallback (±0.5%)
     const userNum = parseFloat(raw);
     const tol = Math.abs(correctNum) * 0.005;
     if (!isNaN(userNum) && Math.abs(userNum - correctNum) <= tol) {
@@ -381,26 +374,21 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   }
 
-  // fallback to M/A/C/B
   const fb = document.getElementById(`model-${index}`);
   fb.style.display = "block";
   let aBlocked = false, aAwarded = false;
 
   function matchesKeywordGroups(groups) {
     if (!Array.isArray(groups)) return false;
-    // OR-of-ORs (nested)
     if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
       return groups.some((sub) => matchesKeywordGroups(sub));
     }
-    // flat OR
     if (groups.every((g) => typeof g === "string")) {
       return groups.some((kw) => input.includes(kw));
     }
-    // AND-of-ORs
     return groups.every((grp) => grp.some((kw) => input.includes(kw)));
   }
 
-  // STEP 1: M-marks
   marks.filter((m) => m.type === "M").forEach((m) => {
     if (matchesKeywordGroups(m.keywords)) {
       if (!m.awarded) {
@@ -410,7 +398,6 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     } else aBlocked = true;
   });
 
-  // STEP 2: A-marks (+ auto C carry-through)
   if (!aBlocked) {
     const aMark = marks.find((m) => m.type === "A");
     if (aMark && matchesKeywordGroups(aMark.keywords)) {
@@ -426,7 +413,6 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   }
 
-  // STEP 3: C-marks (ordered high→low; imply lower C if higher C awarded)
   if (!aAwarded) {
     marks
       .filter((m) => m.type === "C" && !m.awarded)
@@ -448,7 +434,6 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       });
   }
 
-  // STEP 4: B-marks
   marks.filter((m) => m.type === "B").forEach((m) => {
     if (!m.awarded && matchesKeywordGroups(m.keywords)) {
       m.awarded = true;
@@ -456,12 +441,10 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   });
 
-  // final score update
   const earned = marks.filter((m) => m.awarded).length;
   const possible = marks.length;
   document.getElementById(`score-${index}`).textContent = `(${earned}/${possible})`;
 
-  // feedback styling
   if (earned === possible) {
     fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${modelAnswer}`;
     fb.style.border = "2px solid green";
@@ -482,4 +465,3 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
 // expose globally
 window.loadRandomQuestion = loadRandomQuestion;
-</script>
