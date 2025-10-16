@@ -1,27 +1,39 @@
 name: Build and Deploy Physics Site
+
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]   # change to main if needed
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # If your site files (index.html, scripts/, etc.) are at repo root, keep path: .
+      # If they live under /docs, change to: path: ./docs
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          python-version: 3.x
+          path: .
 
-      - name: Install dependencies
-        run: pip install mkdocs mkdocs-material
-
-      - name: Deploy
-        run: mkdocs gh-deploy --force
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
