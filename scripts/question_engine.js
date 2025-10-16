@@ -105,12 +105,14 @@ function drawGraph(canvas, spec) {
   ctx.strokeStyle = spec.color || "blue";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  spec.points.forEach(([xv, yv], idx) => {
+   const pts = Array.isArray(spec.points) ? spec.points : [];
+  pts.forEach(([xv, yv], idx) => {
     const x = m + ((xv - xMin) / (xGraphMax - xMin)) * plotW;
     const y = m + plotH - (yv / yGraphMax) * plotH;
     idx === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.stroke();
+
 }
 // Normalize graphSpec whether it came as an object or as a JSON string from the sheet
 function normalizeGraphSpec(s) {
@@ -161,15 +163,24 @@ function loadRandomQuestion() {
     p.appendChild(span);
     div.appendChild(p);
 
-    // graph if given
-    if (part.graphSpec) {
+        // graph if given (parse JSON string → object)
+    if (part.graphSpec && part.graphSpec !== "[]") {
       const canvas = document.createElement("canvas");
       canvas.width = 300;
       canvas.height = 300;
       canvas.style.border = "1px solid #000";
       div.appendChild(canvas);
-      drawGraph(canvas, part.graphSpec);
+      try {
+        drawGraph(canvas, normalizeGraphSpec(part.graphSpec));
+      } catch (e) {
+        console.error("Graph error:", e);
+        const fallback = document.createElement("div");
+        fallback.textContent = "[graph unavailable]";
+        fallback.style.color = "crimson";
+        div.appendChild(fallback);
+      }
     }
+
 
     // answer box
     const ta = document.createElement("textarea");
@@ -237,7 +248,6 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       correctNum.toPrecision(2),
       correctNum.toExponential(2),
       correctNum,
-      toExponential().replace(/e\+?/, "×10^"),
       Math.round(correctNum).toString(),
       correctNum.toFixed(1),
       correctNum.toString(),
