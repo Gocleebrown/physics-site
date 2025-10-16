@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="360" viewBox="0 0 720 360">
+  <rect width="100%" height="100%" fill="white"/>
+  <g font-family="Segoe UI, Arial" font-size="12">
+    <text x="40" y="40">Coherent sources (same f, fixed phase)</text>
+    <circle cx="250" cy="200" r="5" fill="#1976d2"/><text x="240" y="220">D₁</text>
+    <circle cx="360" cy="200" r="5" fill="#1976d2"/><text x="350" y="220">D₂</text>
+    <!-- wavefronts -->
+    <g fill="none" stroke="#1976d2" stroke-dasharray="5,4">
+      <!-- around D1 -->
+      <circle cx="250" cy="200" r="20"/><circle cx="250" cy="200" r="40"/><circle cx="250" cy="200" r="60"/>
+      <circle cx="250" cy="200" r="80"/><circle cx="250" cy="200" r="100"/>
+      <!-- around D2 -->
+      <circle cx="360" cy="200" r="20"/><circle cx="360" cy="200" r="40"/><circle cx="360" cy="200" r="60"/>
+      <circle cx="360" cy="200" r="80"/><circle cx="360" cy="200" r="100"/>
+    </g>
+    <text x="430" y="320" fill="#666">Constructive interference occurs where path difference = mλ</text>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="200" viewBox="0 0 720 200">
+  <rect width="100%" height="100%" fill="white"/>
+  <g font-family="Segoe UI, Arial" font-size="28">
+    <text x="40" y="110">
+      <tspan baseline-shift="super">A</tspan>
+      <tspan baseline-shift="sub">Z</tspan> X
+      <tspan>  →  </tspan>
+      <tspan baseline-shift="super">A</tspan>
+      <tspan baseline-shift="sub">Z−1</tspan> Y
+      <tspan>  +  β⁺  +  ν</tspan>
+      <tspan font-size="18" baseline-shift="sub">e</tspan>
+    </text>
+  </g>
+  <g font-family="Segoe UI, Arial" font-size="14" fill="#666">
+    <text x="40" y="160">Symbolic only — use with variable A, Z in the question text.</text>
+  </g>
+</svg>
