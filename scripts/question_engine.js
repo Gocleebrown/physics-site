@@ -1,5 +1,7 @@
+// scripts/question_engine.js
+
 // ─────────────────────────────────────────────────────────────────────────────
-//  Universal graph-drawing helper with “nice” major + minor grid lines
+// 1) Graph helper (with “nice” grid lines) + robust spec normalisation
 // ─────────────────────────────────────────────────────────────────────────────
 function drawGraph(canvas, spec) {
   const ctx = canvas.getContext("2d");
@@ -16,20 +18,20 @@ function drawGraph(canvas, spec) {
   }
 
   const xMin = isFinite(spec.xMin) ? spec.xMin : 0;
-  const xStep = spec.xStep || niceStep(spec.xMax / 5);
+  const xStep = spec.xStep || niceStep((spec.xMax - xMin) / 5 || spec.xMax / 5 || 1);
   const xGraphMax = Math.ceil(spec.xMax / xStep) * xStep;
-  const xDivs = Math.ceil(xGraphMax / xStep);
+  const xDivs = Math.max(1, Math.ceil((xGraphMax - xMin) / xStep));
 
-  const yStep = spec.yStep || niceStep(spec.yMax / 5);
+  const yStep = spec.yStep || niceStep(spec.yMax / 5 || 1);
   const yGraphMax = Math.ceil(spec.yMax / yStep) * yStep;
-  const yDivs = Math.ceil(yGraphMax / yStep);
+  const yDivs = Math.max(1, Math.ceil(yGraphMax / yStep));
 
   // minor grid
   ctx.strokeStyle = "#f0f0f0";
   ctx.lineWidth = 1;
   for (let i = 0; i < xDivs; i++) {
     for (let k = 1; k <= 5; k++) {
-      const x = m + (((i + k / 6) * xStep) / xGraphMax) * plotW;
+      const x = m + (((i + k / 6) * xStep) / (xGraphMax - xMin)) * plotW;
       ctx.beginPath();
       ctx.moveTo(x, m);
       ctx.lineTo(x, m + plotH);
@@ -49,7 +51,7 @@ function drawGraph(canvas, spec) {
   // major grid
   ctx.strokeStyle = "#e0e0e0";
   for (let i = 0; i <= xDivs; i++) {
-    const x = m + ((i * xStep) / xGraphMax) * plotW;
+    const x = m + ((i * xStep) / (xGraphMax - xMin)) * plotW;
     ctx.beginPath();
     ctx.moveTo(x, m);
     ctx.lineTo(x, m + plotH);
@@ -68,8 +70,8 @@ function drawGraph(canvas, spec) {
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(m, m + plotH);
-  ctx.lineTo(m + plotW, m + plotH);
-  ctx.lineTo(m + plotW, m);
+  ctx.lineTo(m + plotW, m + plotH); // x-axis
+  ctx.lineTo(m + plotW, m);         // y-axis
   ctx.stroke();
 
   // ticks & labels
@@ -111,9 +113,7 @@ function drawGraph(canvas, spec) {
   ctx.stroke();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Helpers: placeholder resolution, robust graphSpec normalization, images
-// ─────────────────────────────────────────────────────────────────────────────
+// Collect values for ${...} replacement (params + computedValues + any flat keys)
 function collectContext(ctx) {
   const bag = {};
   const add = (o) => {
@@ -124,15 +124,9 @@ function collectContext(ctx) {
       });
     }
   };
-  add(ctx);
-  add(ctx?.params);
-  add(ctx?.computedValues);
-  add(ctx?.computed);
-  add(ctx?.values);
-  add(ctx?.vars);
+  add(ctx); add(ctx?.params); add(ctx?.computedValues); add(ctx?.computed); add(ctx?.values); add(ctx?.vars);
   return bag;
 }
-
 function resolvePlaceholdersInString(src, ctx) {
   if (typeof src !== "string") return src;
   const bag = collectContext(ctx);
@@ -141,28 +135,23 @@ function resolvePlaceholdersInString(src, ctx) {
     return (v !== undefined && v !== null) ? String(v) : "";
   });
 }
-
-// Normalize graphSpec: resolve ${...}, parse JSON, coerce numbers, infer limits
+// JSON string → object; coerce numbers; infer limits from points if missing
 function normalizeGraphSpec(s, ctx) {
   if (typeof s === "string") {
     const substituted = resolvePlaceholdersInString(s, ctx);
     try { s = JSON.parse(substituted); } catch { s = {}; }
   }
   const spec = { ...(s || {}) };
-
   const num = (v) => {
     if (typeof v === "number") return v;
     if (typeof v === "string") {
       const n = Number(v.trim());
-      return isFinite(n) ? n : NaN;
+      return Number.isFinite(n) ? n : NaN;
     }
     return NaN;
   };
-
   const pts = Array.isArray(spec.points)
-    ? spec.points
-        .map(([x, y]) => [num(x), num(y)])
-        .filter(([x, y]) => isFinite(x) && isFinite(y))
+    ? spec.points.map(([x,y]) => [num(x), num(y)]).filter(([x,y]) => Number.isFinite(x) && Number.isFinite(y))
     : [];
   spec.points = pts;
 
@@ -173,55 +162,55 @@ function normalizeGraphSpec(s, ctx) {
   const xMaxC = num(spec.xMax);
   const yMaxC = num(spec.yMax);
 
-  spec.xMin = isFinite(xMinC) ? xMinC : 0;
-  spec.xMax = isFinite(xMaxC) ? xMaxC : (xs.length ? Math.max(...xs) * 1.05 : 1);
-  spec.yMax = isFinite(yMaxC) ? yMaxC : (ys.length ? Math.max(...ys) * 1.05 : 1);
+  spec.xMin = Number.isFinite(xMinC) ? xMinC : 0;
+  spec.xMax = Number.isFinite(xMaxC) ? xMaxC : (xs.length ? Math.max(...xs) * 1.05 : 1);
+  spec.yMax = Number.isFinite(yMaxC) ? yMaxC : (ys.length ? Math.max(...ys) * 1.05 : 1);
 
   spec.xLabel = spec.xLabel || "";
   spec.yLabel = spec.yLabel || "";
   return spec;
 }
 
-// Asset resolver: supports absolute http(s), repo-relative, and root-relative on Pages
-function resolveAsset(src) {
-  if (!src) return "";
-  if (/^https?:\/\//i.test(src)) return src; // absolute OK
-  if (src.startsWith("/")) {
-    // convert root-relative → repo root (/user/repo/)
-    const root = location.pathname.split("/").slice(0, 2).join("/") + "/";
-    return root + src.replace(/^\/+/, "");
+// ─────────────────────────────────────────────────────────────────────────────
+// 2) Image helpers (sheet cell accepts "name.svg" or "name.png")
+//    Loader assumes assets/ unless absolute http(s) or root-absolute.
+// ─────────────────────────────────────────────────────────────────────────────
+function parseArrayMaybe(strOrArr) {
+  if (!strOrArr) return [];
+  if (Array.isArray(strOrArr)) return strOrArr;
+  if (typeof strOrArr === "string") {
+    const s = strOrArr.trim();
+    if (!s) return [];
+    if (s.startsWith("[")) { try { return JSON.parse(s); } catch { return [s]; } }
+    return [s];
   }
-  return src; // relative
+  return [];
 }
-
-// accepts .png or .svg; item may be string or {src, alt}
 function appendImage(target, item) {
-  const src = typeof item === "string" ? item : (item?.src || "");
-  if (!src) return;
-  const img = document.createElement("img");
-  img.src = resolveAsset(src);
-  img.alt = (typeof item === "object" && item.alt) ? item.alt : "diagram";
+  const raw = (typeof item === "string") ? item.trim()
+            : (item && item.src ? String(item.src).trim() : "");
+  if (!raw) return;
+
+  const src = (/^https?:\/\//i.test(raw) || raw.startsWith("/")) ? raw : `assets/${raw}`;
+
+  const img = new Image();
+  img.alt = (item && item.alt) ? item.alt : "diagram";
   img.loading = "lazy";
   img.style.maxWidth = "320px";
   img.style.display = "block";
   img.style.margin = "8px 0";
   img.onerror = () => {
-    const fallback = document.createElement("div");
-    fallback.textContent = "[image unavailable]";
-    fallback.style.color = "crimson";
-    img.replaceWith(fallback);
+    const fb = document.createElement("div");
+    fb.textContent = `[image unavailable: ${src}]`;
+    fb.style.color = "crimson";
+    target.appendChild(fb);
   };
+  img.src = src;
   target.appendChild(img);
 }
 
-function parseArrayMaybe(strOrArr) {
-  if (!strOrArr) return [];
-  if (Array.isArray(strOrArr)) return strOrArr;
-  try { return JSON.parse(strOrArr); } catch { return []; }
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
-//  1) Load & render a random question
+// 3) Load & render a random question
 // ─────────────────────────────────────────────────────────────────────────────
 function loadRandomQuestion() {
   const def = window.questions[Math.floor(Math.random() * window.questions.length)];
@@ -258,17 +247,20 @@ function loadRandomQuestion() {
     // images (png/svg) before graph
     parseArrayMaybe(part.imageBelowMain).forEach((item) => appendImage(div, item));
 
-    // graph (parse placeholders from qData; appear once because you only include on partIndex 0)
-    if (part.graphSpec && part.graphSpec !== "[]") {
+    // graph (appear once because you include it only on partIndex 0)
+    const rawSpec = part.graphSpec;
+    if (rawSpec && String(rawSpec).trim().length > 2) {
       const canvas = document.createElement("canvas");
       canvas.width = 300; canvas.height = 300;
       canvas.style.border = "1px solid #000";
       div.appendChild(canvas);
       try {
-        const spec = normalizeGraphSpec(part.graphSpec, qData);
+        console.log("graphSpec raw →", rawSpec, "typeof:", typeof rawSpec);
+        const spec = normalizeGraphSpec(rawSpec, qData);
+        console.log("graphSpec parsed →", spec);
         drawGraph(canvas, spec);
       } catch (e) {
-        console.error("Graph error:", e);
+        console.error("Graph error:", e, "raw was:", rawSpec);
         const fb = document.createElement("div");
         fb.textContent = "[graph unavailable]";
         fb.style.color = "crimson";
@@ -319,12 +311,13 @@ function loadRandomQuestion() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  2) Check answer with blank-guard, numeric fallback + M/A/C/B
+// 4) Marking: blank guard, numeric (±0.5%), then M/A/C/B keywords
 // ─────────────────────────────────────────────────────────────────────────────
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
   const input = raw.replace(/%/g, "").toLowerCase();
 
+  // blank guard
   if (raw === "") {
     const fb = document.getElementById(`model-${index}`);
     fb.style.display = "block";
@@ -335,6 +328,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     return;
   }
 
+  // numeric-only fallback (single A-mark or no marks) with ±0.5%
   const numericOnly = marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
   if (numericOnly && !isNaN(parseFloat(modelAnswer))) {
     const correctNum = parseFloat(modelAnswer);
@@ -374,30 +368,39 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   }
 
+  // keyword logic
   const fb = document.getElementById(`model-${index}`);
   fb.style.display = "block";
   let aBlocked = false, aAwarded = false;
 
   function matchesKeywordGroups(groups) {
     if (!Array.isArray(groups)) return false;
+
+    // OR-of-ORs
     if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
       return groups.some((sub) => matchesKeywordGroups(sub));
     }
+    // flat OR
     if (groups.every((g) => typeof g === "string")) {
       return groups.some((kw) => input.includes(kw));
     }
+    // AND-of-ORs: every sub-group must hit at least one keyword in that group
     return groups.every((grp) => grp.some((kw) => input.includes(kw)));
   }
 
+  // M first (can block A if method absent)
   marks.filter((m) => m.type === "M").forEach((m) => {
     if (matchesKeywordGroups(m.keywords)) {
       if (!m.awarded) {
         m.awarded = true;
         totalMarksEarned++;
       }
-    } else aBlocked = true;
+    } else {
+      aBlocked = true;
+    }
   });
 
+  // A (and auto-award all Cs on success)
   if (!aBlocked) {
     const aMark = marks.find((m) => m.type === "A");
     if (aMark && matchesKeywordGroups(aMark.keywords)) {
@@ -413,6 +416,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   }
 
+  // C (if A not yet awarded)
   if (!aAwarded) {
     marks
       .filter((m) => m.type === "C" && !m.awarded)
@@ -422,9 +426,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
           m.awarded = true;
           totalMarksEarned++;
           if ((m.level || 1) > 1) {
-            const imp = marks.find(
-              (o) => o.type === "C" && (o.level || 1) < (m.level || 1)
-            );
+            const imp = marks.find((o) => o.type === "C" && (o.level || 1) < (m.level || 1));
             if (imp && !imp.awarded) {
               imp.awarded = true;
               totalMarksEarned++;
@@ -434,6 +436,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       });
   }
 
+  // B anywhere
   marks.filter((m) => m.type === "B").forEach((m) => {
     if (!m.awarded && matchesKeywordGroups(m.keywords)) {
       m.awarded = true;
@@ -441,6 +444,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   });
 
+  // feedback + score
   const earned = marks.filter((m) => m.awarded).length;
   const possible = marks.length;
   document.getElementById(`score-${index}`).textContent = `(${earned}/${possible})`;
