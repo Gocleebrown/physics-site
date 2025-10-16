@@ -112,6 +112,20 @@ function drawGraph(canvas, spec) {
   });
   ctx.stroke();
 }
+// Normalize graphSpec whether it came as an object or as a JSON string from the sheet
+function normalizeGraphSpec(s) {
+  const spec = typeof s === "string" ? JSON.parse(s) : (s || {});
+  const num = (v) => (typeof v === "string" && !isNaN(v)) ? Number(v) : v;
+
+  spec.xMin = num(spec.xMin ?? 0);
+  spec.xMax = num(spec.xMax ?? 0);
+  spec.yMax = num(spec.yMax ?? 0);
+
+  if (Array.isArray(spec.points)) {
+    spec.points = spec.points.map(([x, y]) => [num(x), num(y)]);
+  }
+  return spec;
+}
 
 // ─── 1) Load & render a random question ───
 function loadRandomQuestion() {
