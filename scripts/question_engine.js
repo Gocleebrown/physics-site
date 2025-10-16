@@ -129,6 +129,33 @@ function normalizeGraphSpec(s) {
   return spec;
 }
 
+// Add an <img> (png or svg). Accept either a string URL or {src, alt, width}.
+function appendImage(target, item) {
+  const src = typeof item === "string" ? item : (item?.src || "");
+  if (!src) return;
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = (typeof item === "object" && item.alt) ? item.alt : "diagram";
+  img.loading = "lazy";
+  img.style.maxWidth = "320px";
+  img.style.display = "block";
+  img.style.margin = "8px 0";
+  img.onerror = () => {
+    const fallback = document.createElement("div");
+    fallback.textContent = "[image unavailable]";
+    fallback.style.color = "crimson";
+    img.replaceWith(fallback);
+  };
+  target.appendChild(img);
+}
+
+function parseArrayMaybe(strOrArr) {
+  if (!strOrArr) return [];
+  if (Array.isArray(strOrArr)) return strOrArr;
+  try { return JSON.parse(strOrArr); } catch { return []; }
+}
+
+
 // ─── 1) Load & render a random question ───
 function loadRandomQuestion() {
   const def =
@@ -163,23 +190,31 @@ function loadRandomQuestion() {
     p.appendChild(span);
     div.appendChild(p);
 
-        // graph if given (parse JSON string → object)
-    if (part.graphSpec && part.graphSpec !== "[]") {
-      const canvas = document.createElement("canvas");
-      canvas.width = 300;
-      canvas.height = 300;
-      canvas.style.border = "1px solid #000";
-      div.appendChild(canvas);
-      try {
-        drawGraph(canvas, normalizeGraphSpec(part.graphSpec));
-      } catch (e) {
-        console.error("Graph error:", e);
-        const fallback = document.createElement("div");
-        fallback.textContent = "[graph unavailable]";
-        fallback.style.color = "crimson";
-        div.appendChild(fallback);
-      }
-    }
+    
+
+        /// images below main prompt (accept .png or .svg)
+parseArrayMaybe(part.imageBelowMain).forEach((item) => appendImage(div, item));
+
+// graph if given (parse JSON string → object; show once because you only put it on partIndex 0)
+if (part.graphSpec && part.graphSpec !== "[]") {
+  const canvas = document.createElement("canvas");
+  canvas.width = 300; canvas.height = 300;
+  canvas.style.border = "1px solid #000";
+  div.appendChild(canvas);
+  try {
+    drawGraph(canvas, normalizeGraphSpec(part.graphSpec));
+  } catch (e) {
+    console.error("Graph error:", e);
+    const fb = document.createElement("div");
+    fb.textContent = "[graph unavailable]";
+    fb.style.color = "crimson";
+    div.appendChild(fb);
+  }
+}
+
+// images after graph (if any)
+parseArrayMaybe(part.imageAfterPart).forEach((item) => appendImage(div, item));
+
 
 
     // answer box
