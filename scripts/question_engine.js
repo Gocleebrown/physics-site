@@ -1,30 +1,28 @@
-// scripts/question_engine.js
-
-// ─── Universal graph‑drawing helper with “nice” major + minor grid lines ───
+<!-- scripts/question_engine.js -->
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+//  Universal graph-drawing helper with “nice” major + minor grid lines
+// ─────────────────────────────────────────────────────────────────────────────
 function drawGraph(canvas, spec) {
   const ctx = canvas.getContext("2d");
-  const w = canvas.width,
-    h = canvas.height;
+  const w = canvas.width, h = canvas.height;
   const m = 40;
-  const plotW = w - 2 * m,
-    plotH = h - 2 * m;
+  const plotW = w - 2 * m, plotH = h - 2 * m;
 
-  const xMin = spec.xMin || 0;
+  // safe "nice" step
+  function niceStep(raw) {
+    if (!isFinite(raw) || raw <= 0) return 1;
+    const exp = Math.floor(Math.log10(Math.abs(raw)));
+    const base = Math.pow(10, exp);
+    const frac = raw / base;
+    return base * (frac <= 1 ? 1 : frac <= 2 ? 2 : frac <= 5 ? 5 : 10);
+  }
 
-function niceStep(raw) {
-  if (!isFinite(raw) || raw <= 0) return 1;
-  const exp = Math.floor(Math.log10(Math.abs(raw)));
-  const base = Math.pow(10, exp);
-  const frac = raw / base;
-  return base * (frac <= 1 ? 1 : frac <= 2 ? 2 : frac <= 5 ? 5 : 10);
-}
-
-
-  // compute "nice" graph maxima + divisions
-  const xRange = spec.xMax - xMin;
+  const xMin = isFinite(spec.xMin) ? spec.xMin : 0;
   const xStep = spec.xStep || niceStep(spec.xMax / 5);
   const xGraphMax = Math.ceil(spec.xMax / xStep) * xStep;
   const xDivs = Math.ceil(xGraphMax / xStep);
+
   const yStep = spec.yStep || niceStep(spec.yMax / 5);
   const yGraphMax = Math.ceil(spec.yMax / yStep) * yStep;
   const yDivs = Math.ceil(yGraphMax / yStep);
@@ -81,7 +79,7 @@ function niceStep(raw) {
   ctx.fillStyle = "#000";
   ctx.font = "12px sans-serif";
   for (let i = 0; i <= xDivs; i++) {
-    const val = xMin + i * xStep;
+    const val = xMin + i * (xStep);
     const x = m + ((val - xMin) / (xGraphMax - xMin)) * plotW;
     ctx.beginPath();
     ctx.moveTo(x, m + plotH - 5);
@@ -100,81 +98,111 @@ function niceStep(raw) {
   }
 
   // axis titles
-  ctx.fillText(spec.xLabel, m + plotW / 2 - 20, h - 5);
-  ctx.fillText(spec.yLabel, 10, m + plotH / 2);
+  ctx.fillText(spec.xLabel || "", m + plotW / 2 - 20, h - 5);
+  ctx.fillText(spec.yLabel || "", 10, m + plotH / 2);
 
   // plot data line
   ctx.strokeStyle = spec.color || "blue";
   ctx.lineWidth = 2;
   ctx.beginPath();
-   const pts = Array.isArray(spec.points) ? spec.points : [];
+  const pts = Array.isArray(spec.points) ? spec.points : [];
   pts.forEach(([xv, yv], idx) => {
     const x = m + ((xv - xMin) / (xGraphMax - xMin)) * plotW;
     const y = m + plotH - (yv / yGraphMax) * plotH;
     idx === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.stroke();
-
 }
-// Normalize graphSpec whether it came as an object or a JSON string from the sheet.
-// Coerce numeric fields, strip ${...} placeholders if any slipped through,
-// and infer xMax/yMax from points when needed.
-function normalizeGraphSpec(s) {
-  // Parse string → object
-  const rawObj = (typeof s === "string") ? JSON.parse(s) : (s || {});
-  const spec = { ...rawObj };
 
-  // helper: numeric coercion (handles "0.0168", " 3.15 ", etc.)
+// ─────────────────────────────────────────────────────────────────────────────
+//  Helpers: placeholder resolution, robust graphSpec normalization, images
+// ─────────────────────────────────────────────────────────────────────────────
+function collectContext(ctx) {
+  const bag = {};
+  const add = (o) => {
+    if (o && typeof o === "object") {
+      Object.keys(o).forEach(k => {
+        const v = o[k];
+        if (typeof v !== "object" && typeof v !== "function") bag[k] = v;
+      });
+    }
+  };
+  add(ctx);
+  add(ctx?.params);
+  add(ctx?.computedValues);
+  add(ctx?.computed);
+  add(ctx?.values);
+  add(ctx?.vars);
+  return bag;
+}
+
+function resolvePlaceholdersInString(src, ctx) {
+  if (typeof src !== "string") return src;
+  const bag = collectContext(ctx);
+  return src.replace(/\$\{([^}]+)\}/g, (_, key) => {
+    const v = bag[key];
+    return (v !== undefined && v !== null) ? String(v) : "";
+  });
+}
+
+// Normalize graphSpec: resolve ${...}, parse JSON, coerce numbers, infer limits
+function normalizeGraphSpec(s, ctx) {
+  if (typeof s === "string") {
+    const substituted = resolvePlaceholdersInString(s, ctx);
+    try { s = JSON.parse(substituted); } catch { s = {}; }
+  }
+  const spec = { ...(s || {}) };
+
   const num = (v) => {
     if (typeof v === "number") return v;
     if (typeof v === "string") {
-      const t = v.trim();
-      if (/^\$\{.+\}$/.test(t)) return NaN; // unresolved placeholder
-      const n = Number(t);
+      const n = Number(v.trim());
       return isFinite(n) ? n : NaN;
     }
     return NaN;
   };
 
-  // points: coerce and filter to finite numbers
   const pts = Array.isArray(spec.points)
     ? spec.points
         .map(([x, y]) => [num(x), num(y)])
         .filter(([x, y]) => isFinite(x) && isFinite(y))
     : [];
-
   spec.points = pts;
 
-  // Defaults / inference
   const xs = pts.map(p => p[0]);
   const ys = pts.map(p => p[1]);
 
-  const xMinCoerced = num(spec.xMin);
-  const xMaxCoerced = num(spec.xMax);
-  const yMaxCoerced = num(spec.yMax);
+  const xMinC = num(spec.xMin);
+  const xMaxC = num(spec.xMax);
+  const yMaxC = num(spec.yMax);
 
-  spec.xMin = isFinite(xMinCoerced) ? xMinCoerced : 0;
-  spec.xMax = isFinite(xMaxCoerced)
-    ? xMaxCoerced
-    : (xs.length ? Math.max(...xs) * 1.05 : 1);
-  spec.yMax = isFinite(yMaxCoerced)
-    ? yMaxCoerced
-    : (ys.length ? Math.max(...ys) * 1.05 : 1);
+  spec.xMin = isFinite(xMinC) ? xMinC : 0;
+  spec.xMax = isFinite(xMaxC) ? xMaxC : (xs.length ? Math.max(...xs) * 1.05 : 1);
+  spec.yMax = isFinite(yMaxC) ? yMaxC : (ys.length ? Math.max(...ys) * 1.05 : 1);
 
-  // Labels fallback
   spec.xLabel = spec.xLabel || "";
   spec.yLabel = spec.yLabel || "";
-
   return spec;
 }
 
+// Asset resolver: supports absolute http(s), repo-relative, and root-relative on Pages
+function resolveAsset(src) {
+  if (!src) return "";
+  if (/^https?:\/\//i.test(src)) return src; // absolute OK
+  if (src.startsWith("/")) {
+    // convert root-relative → repo root (/user/repo/)
+    const root = location.pathname.split("/").slice(0, 2).join("/") + "/";
+    return root + src.replace(/^\/+/, "");
+  }
+  return src; // relative
+}
 
-// Add an <img> (png or svg). Accept either a string URL or {src, alt, width}.
+// accepts .png or .svg; item may be string or {src, alt}
 function appendImage(target, item) {
   const src = typeof item === "string" ? item : (item?.src || "");
   if (!src) return;
   const img = document.createElement("img");
-  img.src = src;
+  img.src = resolveAsset(src);
   img.alt = (typeof item === "object" && item.alt) ? item.alt : "diagram";
   img.loading = "lazy";
   img.style.maxWidth = "320px";
@@ -195,11 +223,11 @@ function parseArrayMaybe(strOrArr) {
   try { return JSON.parse(strOrArr); } catch { return []; }
 }
 
-
-// ─── 1) Load & render a random question ───
+// ─────────────────────────────────────────────────────────────────────────────
+//  1) Load & render a random question
+// ─────────────────────────────────────────────────────────────────────────────
 function loadRandomQuestion() {
-  const def =
-    window.questions[Math.floor(Math.random() * window.questions.length)];
+  const def = window.questions[Math.floor(Math.random() * window.questions.length)];
   const qData = window.genericBuilder(def);
 
   // reset scores
@@ -230,32 +258,29 @@ function loadRandomQuestion() {
     p.appendChild(span);
     div.appendChild(p);
 
-    
+    // images (png/svg) before graph
+    parseArrayMaybe(part.imageBelowMain).forEach((item) => appendImage(div, item));
 
-        /// images below main prompt (accept .png or .svg)
-parseArrayMaybe(part.imageBelowMain).forEach((item) => appendImage(div, item));
+    // graph (parse placeholders from qData; appear once because you only include on partIndex 0)
+    if (part.graphSpec && part.graphSpec !== "[]") {
+      const canvas = document.createElement("canvas");
+      canvas.width = 300; canvas.height = 300;
+      canvas.style.border = "1px solid #000";
+      div.appendChild(canvas);
+      try {
+        const spec = normalizeGraphSpec(part.graphSpec, qData);
+        drawGraph(canvas, spec);
+      } catch (e) {
+        console.error("Graph error:", e);
+        const fb = document.createElement("div");
+        fb.textContent = "[graph unavailable]";
+        fb.style.color = "crimson";
+        div.appendChild(fb);
+      }
+    }
 
-// graph if given (parse JSON string → object; show once because you only put it on partIndex 0)
-if (part.graphSpec && part.graphSpec !== "[]") {
-  const canvas = document.createElement("canvas");
-  canvas.width = 300; canvas.height = 300;
-  canvas.style.border = "1px solid #000";
-  div.appendChild(canvas);
-  try {
-    drawGraph(canvas, normalizeGraphSpec(part.graphSpec));
-  } catch (e) {
-    console.error("Graph error:", e);
-    const fb = document.createElement("div");
-    fb.textContent = "[graph unavailable]";
-    fb.style.color = "crimson";
-    div.appendChild(fb);
-  }
-}
-
-// images after graph (if any)
-parseArrayMaybe(part.imageAfterPart).forEach((item) => appendImage(div, item));
-
-
+    // images after graph
+    parseArrayMaybe(part.imageAfterPart).forEach((item) => appendImage(div, item));
 
     // answer box
     const ta = document.createElement("textarea");
@@ -291,16 +316,19 @@ parseArrayMaybe(part.imageAfterPart).forEach((item) => appendImage(div, item));
   nextBtn.onclick = loadRandomQuestion;
   container.appendChild(nextBtn);
 
-  // hide stray canvas
-  document.getElementById("diagram-canvas").style.display = "none";
+  // hide stray canvas (legacy)
+  const stray = document.getElementById("diagram-canvas");
+  if (stray) stray.style.display = "none";
 }
 
-// ─── 2) Check answer with blank-guard, numeric fallback + M/A/C/B ───
+// ─────────────────────────────────────────────────────────────────────────────
+//  2) Check answer with blank-guard, numeric fallback + M/A/C/B
+// ─────────────────────────────────────────────────────────────────────────────
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
   const input = raw.replace(/%/g, "").toLowerCase();
 
-  // blank-guard: encourage student to write something
+  // blank-guard
   if (raw === "") {
     const fb = document.getElementById(`model-${index}`);
     fb.style.display = "block";
@@ -312,17 +340,16 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   }
 
   // numeric-only fallback (single A-mark or no marks)
-  const numericOnly =
-    marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
+  const numericOnly = marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
   if (numericOnly && !isNaN(parseFloat(modelAnswer))) {
     const correctNum = parseFloat(modelAnswer);
     const userStr = raw.toLowerCase().trim();
 
-    // exact variant matches
+    // exact variant matches (no stray toExponential() bug)
     const variants = [
       correctNum.toPrecision(2),
       correctNum.toExponential(2),
-      correctNum,
+      correctNum.toExponential(2).replace(/e\+?/, "×10^"),
       Math.round(correctNum).toString(),
       correctNum.toFixed(1),
       correctNum.toString(),
@@ -357,18 +384,12 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   // fallback to M/A/C/B
   const fb = document.getElementById(`model-${index}`);
   fb.style.display = "block";
-  let aBlocked = false,
-    aAwarded = false,
-    cAwarded = new Set();
+  let aBlocked = false, aAwarded = false;
 
   function matchesKeywordGroups(groups) {
     if (!Array.isArray(groups)) return false;
-    // OR-of-ORs
-    if (
-      Array.isArray(groups[0]) &&
-      Array.isArray(groups[0][0]) &&
-      Array.isArray(groups[0][0][0])
-    ) {
+    // OR-of-ORs (nested)
+    if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
       return groups.some((sub) => matchesKeywordGroups(sub));
     }
     // flat OR
@@ -380,18 +401,16 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   }
 
   // STEP 1: M-marks
-  marks
-    .filter((m) => m.type === "M")
-    .forEach((m) => {
-      if (matchesKeywordGroups(m.keywords)) {
-        if (!m.awarded) {
-          m.awarded = true;
-          totalMarksEarned++;
-        }
-      } else aBlocked = true;
-    });
+  marks.filter((m) => m.type === "M").forEach((m) => {
+    if (matchesKeywordGroups(m.keywords)) {
+      if (!m.awarded) {
+        m.awarded = true;
+        totalMarksEarned++;
+      }
+    } else aBlocked = true;
+  });
 
-  // STEP 2: A-marks
+  // STEP 2: A-marks (+ auto C carry-through)
   if (!aBlocked) {
     const aMark = marks.find((m) => m.type === "A");
     if (aMark && matchesKeywordGroups(aMark.keywords)) {
@@ -402,13 +421,12 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
         if (m.type === "C" && !m.awarded) {
           m.awarded = true;
           totalMarksEarned++;
-          cAwarded.add(m.level || 1);
         }
       });
     }
   }
 
-  // STEP 3: C-marks
+  // STEP 3: C-marks (ordered high→low; imply lower C if higher C awarded)
   if (!aAwarded) {
     marks
       .filter((m) => m.type === "C" && !m.awarded)
@@ -417,7 +435,6 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
         if (matchesKeywordGroups(m.keywords)) {
           m.awarded = true;
           totalMarksEarned++;
-          cAwarded.add(m.level || 1);
           if ((m.level || 1) > 1) {
             const imp = marks.find(
               (o) => o.type === "C" && (o.level || 1) < (m.level || 1)
@@ -432,21 +449,17 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   }
 
   // STEP 4: B-marks
-  marks
-    .filter((m) => m.type === "B")
-    .forEach((m) => {
-      if (!m.awarded && matchesKeywordGroups(m.keywords)) {
-        m.awarded = true;
-        totalMarksEarned++;
-      }
-    });
+  marks.filter((m) => m.type === "B").forEach((m) => {
+    if (!m.awarded && matchesKeywordGroups(m.keywords)) {
+      m.awarded = true;
+      totalMarksEarned++;
+    }
+  });
 
   // final score update
   const earned = marks.filter((m) => m.awarded).length;
   const possible = marks.length;
-  document.getElementById(
-    `score-${index}`
-  ).textContent = `(${earned}/${possible})`;
+  document.getElementById(`score-${index}`).textContent = `(${earned}/${possible})`;
 
   // feedback styling
   if (earned === possible) {
@@ -469,3 +482,4 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
 // expose globally
 window.loadRandomQuestion = loadRandomQuestion;
+</script>
