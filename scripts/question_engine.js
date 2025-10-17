@@ -1,37 +1,38 @@
 // scripts/question_engine.js
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 1) Graph helper (with “nice” grid lines) + robust spec normalisation
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Universal graph-drawing helper with “nice” major + minor grid lines ───
 function drawGraph(canvas, spec) {
   const ctx = canvas.getContext("2d");
-  const w = canvas.width, h = canvas.height;
+  const w = canvas.width,
+    h = canvas.height;
   const m = 40;
-  const plotW = w - 2 * m, plotH = h - 2 * m;
+  const plotW = w - 2 * m,
+    plotH = h - 2 * m;
+
+  const xMin = spec.xMin || 0;
 
   function niceStep(raw) {
-    if (!isFinite(raw) || raw <= 0) return 1;
     const exp = Math.floor(Math.log10(Math.abs(raw)));
     const base = Math.pow(10, exp);
     const frac = raw / base;
     return base * (frac <= 1 ? 1 : frac <= 2 ? 2 : frac <= 5 ? 5 : 10);
   }
 
-  const xMin = isFinite(spec.xMin) ? spec.xMin : 0;
-  const xStep = spec.xStep || niceStep((spec.xMax - xMin) / 5 || spec.xMax / 5 || 1);
+  // compute "nice" graph maxima + divisions
+  const xRange = spec.xMax - xMin;
+  const xStep = spec.xStep || niceStep(spec.xMax / 5);
   const xGraphMax = Math.ceil(spec.xMax / xStep) * xStep;
-  const xDivs = Math.max(1, Math.ceil((xGraphMax - xMin) / xStep));
-
-  const yStep = spec.yStep || niceStep(spec.yMax / 5 || 1);
+  const xDivs = Math.ceil(xGraphMax / xStep);
+  const yStep = spec.yStep || niceStep(spec.yMax / 5);
   const yGraphMax = Math.ceil(spec.yMax / yStep) * yStep;
-  const yDivs = Math.max(1, Math.ceil(yGraphMax / yStep));
+  const yDivs = Math.ceil(yGraphMax / yStep);
 
   // minor grid
   ctx.strokeStyle = "#f0f0f0";
   ctx.lineWidth = 1;
   for (let i = 0; i < xDivs; i++) {
     for (let k = 1; k <= 5; k++) {
-      const x = m + (((i + k / 6) * xStep) / (xGraphMax - xMin)) * plotW;
+      const x = m + (((i + k / 6) * xStep) / xGraphMax) * plotW;
       ctx.beginPath();
       ctx.moveTo(x, m);
       ctx.lineTo(x, m + plotH);
@@ -51,7 +52,7 @@ function drawGraph(canvas, spec) {
   // major grid
   ctx.strokeStyle = "#e0e0e0";
   for (let i = 0; i <= xDivs; i++) {
-    const x = m + ((i * xStep) / (xGraphMax - xMin)) * plotW;
+    const x = m + ((i * xStep) / xGraphMax) * plotW;
     ctx.beginPath();
     ctx.moveTo(x, m);
     ctx.lineTo(x, m + plotH);
@@ -70,15 +71,15 @@ function drawGraph(canvas, spec) {
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(m, m + plotH);
-  ctx.lineTo(m + plotW, m + plotH); // x-axis
-  ctx.lineTo(m + plotW, m);         // y-axis
+  ctx.lineTo(m + plotW, m + plotH);
+  ctx.lineTo(m + plotW, m);
   ctx.stroke();
 
   // ticks & labels
   ctx.fillStyle = "#000";
   ctx.font = "12px sans-serif";
   for (let i = 0; i <= xDivs; i++) {
-    const val = xMin + i * (xStep);
+    const val = xMin + i * xStep;
     const x = m + ((val - xMin) / (xGraphMax - xMin)) * plotW;
     ctx.beginPath();
     ctx.moveTo(x, m + plotH - 5);
@@ -97,15 +98,14 @@ function drawGraph(canvas, spec) {
   }
 
   // axis titles
-  ctx.fillText(spec.xLabel || "", m + plotW / 2 - 20, h - 5);
-  ctx.fillText(spec.yLabel || "", 10, m + plotH / 2);
+  ctx.fillText(spec.xLabel, m + plotW / 2 - 20, h - 5);
+  ctx.fillText(spec.yLabel, 10, m + plotH / 2);
 
   // plot data line
   ctx.strokeStyle = spec.color || "blue";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  const pts = Array.isArray(spec.points) ? spec.points : [];
-  pts.forEach(([xv, yv], idx) => {
+  spec.points.forEach(([xv, yv], idx) => {
     const x = m + ((xv - xMin) / (xGraphMax - xMin)) * plotW;
     const y = m + plotH - (yv / yGraphMax) * plotH;
     idx === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
@@ -113,107 +113,10 @@ function drawGraph(canvas, spec) {
   ctx.stroke();
 }
 
-// Collect values for ${...} replacement (params + computedValues + any flat keys)
-function collectContext(ctx) {
-  const bag = {};
-  const add = (o) => {
-    if (o && typeof o === "object") {
-      Object.keys(o).forEach(k => {
-        const v = o[k];
-        if (typeof v !== "object" && typeof v !== "function") bag[k] = v;
-      });
-    }
-  };
-  add(ctx); add(ctx?.params); add(ctx?.computedValues); add(ctx?.computed); add(ctx?.values); add(ctx?.vars);
-  return bag;
-}
-function resolvePlaceholdersInString(src, ctx) {
-  if (typeof src !== "string") return src;
-  const bag = collectContext(ctx);
-  return src.replace(/\$\{([^}]+)\}/g, (_, key) => {
-    const v = bag[key];
-    return (v !== undefined && v !== null) ? String(v) : "";
-  });
-}
-// JSON string → object; coerce numbers; infer limits from points if missing
-function normalizeGraphSpec(s, ctx) {
-  if (typeof s === "string") {
-    const substituted = resolvePlaceholdersInString(s, ctx);
-    try { s = JSON.parse(substituted); } catch { s = {}; }
-  }
-  const spec = { ...(s || {}) };
-  const num = (v) => {
-    if (typeof v === "number") return v;
-    if (typeof v === "string") {
-      const n = Number(v.trim());
-      return Number.isFinite(n) ? n : NaN;
-    }
-    return NaN;
-  };
-  const pts = Array.isArray(spec.points)
-    ? spec.points.map(([x,y]) => [num(x), num(y)]).filter(([x,y]) => Number.isFinite(x) && Number.isFinite(y))
-    : [];
-  spec.points = pts;
-
-  const xs = pts.map(p => p[0]);
-  const ys = pts.map(p => p[1]);
-
-  const xMinC = num(spec.xMin);
-  const xMaxC = num(spec.xMax);
-  const yMaxC = num(spec.yMax);
-
-  spec.xMin = Number.isFinite(xMinC) ? xMinC : 0;
-  spec.xMax = Number.isFinite(xMaxC) ? xMaxC : (xs.length ? Math.max(...xs) * 1.05 : 1);
-  spec.yMax = Number.isFinite(yMaxC) ? yMaxC : (ys.length ? Math.max(...ys) * 1.05 : 1);
-
-  spec.xLabel = spec.xLabel || "";
-  spec.yLabel = spec.yLabel || "";
-  return spec;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 2) Image helpers (sheet cell accepts "name.svg" or "name.png")
-//    Loader assumes assets/ unless absolute http(s) or root-absolute.
-// ─────────────────────────────────────────────────────────────────────────────
-function parseArrayMaybe(strOrArr) {
-  if (!strOrArr) return [];
-  if (Array.isArray(strOrArr)) return strOrArr;
-  if (typeof strOrArr === "string") {
-    const s = strOrArr.trim();
-    if (!s) return [];
-    if (s.startsWith("[")) { try { return JSON.parse(s); } catch { return [s]; } }
-    return [s];
-  }
-  return [];
-}
-function appendImage(target, item) {
-  const raw = (typeof item === "string") ? item.trim()
-            : (item && item.src ? String(item.src).trim() : "");
-  if (!raw) return;
-
-  const src = (/^https?:\/\//i.test(raw) || raw.startsWith("/")) ? raw : `assets/${raw}`;
-
-  const img = new Image();
-  img.alt = (item && item.alt) ? item.alt : "diagram";
-  img.loading = "lazy";
-  img.style.maxWidth = "320px";
-  img.style.display = "block";
-  img.style.margin = "8px 0";
-  img.onerror = () => {
-    const fb = document.createElement("div");
-    fb.textContent = `[image unavailable: ${src}]`;
-    fb.style.color = "crimson";
-    target.appendChild(fb);
-  };
-  img.src = src;
-  target.appendChild(img);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 3) Load & render a random question
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── 1) Load & render a random question ───
 function loadRandomQuestion() {
-  const def = window.questions[Math.floor(Math.random() * window.questions.length)];
+  const def =
+    window.questions[Math.floor(Math.random() * window.questions.length)];
   const qData = window.genericBuilder(def);
 
   // reset scores
@@ -244,32 +147,15 @@ function loadRandomQuestion() {
     p.appendChild(span);
     div.appendChild(p);
 
-    // images (png/svg) before graph
-    parseArrayMaybe(part.imageBelowMain).forEach((item) => appendImage(div, item));
-
-    // graph (appear once because you include it only on partIndex 0)
-    const rawSpec = part.graphSpec;
-    if (rawSpec && String(rawSpec).trim().length > 2) {
+    // graph if given (baseline behavior)
+    if (part.graphSpec) {
       const canvas = document.createElement("canvas");
-      canvas.width = 300; canvas.height = 300;
+      canvas.width = 300;
+      canvas.height = 300;
       canvas.style.border = "1px solid #000";
       div.appendChild(canvas);
-      try {
-        console.log("graphSpec raw →", rawSpec, "typeof:", typeof rawSpec);
-        const spec = normalizeGraphSpec(rawSpec, qData);
-        console.log("graphSpec parsed →", spec);
-        drawGraph(canvas, spec);
-      } catch (e) {
-        console.error("Graph error:", e, "raw was:", rawSpec);
-        const fb = document.createElement("div");
-        fb.textContent = "[graph unavailable]";
-        fb.style.color = "crimson";
-        div.appendChild(fb);
-      }
+      drawGraph(canvas, part.graphSpec);
     }
-
-    // images after graph
-    parseArrayMaybe(part.imageAfterPart).forEach((item) => appendImage(div, item));
 
     // answer box
     const ta = document.createElement("textarea");
@@ -305,19 +191,16 @@ function loadRandomQuestion() {
   nextBtn.onclick = loadRandomQuestion;
   container.appendChild(nextBtn);
 
-  // hide stray canvas (legacy)
-  const stray = document.getElementById("diagram-canvas");
-  if (stray) stray.style.display = "none";
+  // hide stray canvas
+  document.getElementById("diagram-canvas").style.display = "none";
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 4) Marking: blank guard, numeric (±0.5%), then M/A/C/B keywords
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── 2) Check answer with blank-guard, numeric fallback + M/A/C/B ───
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
   const input = raw.replace(/%/g, "").toLowerCase();
 
-  // blank guard
+  // blank-guard: encourage student to write something
   if (raw === "") {
     const fb = document.getElementById(`model-${index}`);
     fb.style.display = "block";
@@ -329,7 +212,8 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   }
 
   // numeric-only fallback (single A-mark or no marks) with ±0.5%
-  const numericOnly = marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
+  const numericOnly =
+    marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
   if (numericOnly && !isNaN(parseFloat(modelAnswer))) {
     const correctNum = parseFloat(modelAnswer);
     const userStr = raw.toLowerCase().trim();
@@ -354,6 +238,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       return;
     }
 
+    // tolerance fallback (±0.5%)
     const userNum = parseFloat(raw);
     const tol = Math.abs(correctNum) * 0.005;
     if (!isNaN(userNum) && Math.abs(userNum - correctNum) <= tol) {
@@ -368,39 +253,43 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   }
 
-  // keyword logic
+  // fallback to M/A/C/B
   const fb = document.getElementById(`model-${index}`);
   fb.style.display = "block";
-  let aBlocked = false, aAwarded = false;
+  let aBlocked = false,
+    aAwarded = false;
 
   function matchesKeywordGroups(groups) {
     if (!Array.isArray(groups)) return false;
-
     // OR-of-ORs
-    if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
+    if (
+      Array.isArray(groups[0]) &&
+      Array.isArray(groups[0][0]) &&
+      Array.isArray(groups[0][0][0])
+    ) {
       return groups.some((sub) => matchesKeywordGroups(sub));
     }
     // flat OR
     if (groups.every((g) => typeof g === "string")) {
       return groups.some((kw) => input.includes(kw));
     }
-    // AND-of-ORs: every sub-group must hit at least one keyword in that group
+    // AND-of-ORs
     return groups.every((grp) => grp.some((kw) => input.includes(kw)));
   }
 
-  // M first (can block A if method absent)
-  marks.filter((m) => m.type === "M").forEach((m) => {
-    if (matchesKeywordGroups(m.keywords)) {
-      if (!m.awarded) {
-        m.awarded = true;
-        totalMarksEarned++;
-      }
-    } else {
-      aBlocked = true;
-    }
-  });
+  // STEP 1: M-marks
+  marks
+    .filter((m) => m.type === "M")
+    .forEach((m) => {
+      if (matchesKeywordGroups(m.keywords)) {
+        if (!m.awarded) {
+          m.awarded = true;
+          totalMarksEarned++;
+        }
+      } else aBlocked = true;
+    });
 
-  // A (and auto-award all Cs on success)
+  // STEP 2: A-marks
   if (!aBlocked) {
     const aMark = marks.find((m) => m.type === "A");
     if (aMark && matchesKeywordGroups(aMark.keywords)) {
@@ -416,7 +305,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     }
   }
 
-  // C (if A not yet awarded)
+  // STEP 3: C-marks
   if (!aAwarded) {
     marks
       .filter((m) => m.type === "C" && !m.awarded)
@@ -426,7 +315,9 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
           m.awarded = true;
           totalMarksEarned++;
           if ((m.level || 1) > 1) {
-            const imp = marks.find((o) => o.type === "C" && (o.level || 1) < (m.level || 1));
+            const imp = marks.find(
+              (o) => o.type === "C" && (o.level || 1) < (m.level || 1)
+            );
             if (imp && !imp.awarded) {
               imp.awarded = true;
               totalMarksEarned++;
@@ -436,19 +327,24 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       });
   }
 
-  // B anywhere
-  marks.filter((m) => m.type === "B").forEach((m) => {
-    if (!m.awarded && matchesKeywordGroups(m.keywords)) {
-      m.awarded = true;
-      totalMarksEarned++;
-    }
-  });
+  // STEP 4: B-marks
+  marks
+    .filter((m) => m.type === "B")
+    .forEach((m) => {
+      if (!m.awarded && matchesKeywordGroups(m.keywords)) {
+        m.awarded = true;
+        totalMarksEarned++;
+      }
+    });
 
-  // feedback + score
+  // final score update
   const earned = marks.filter((m) => m.awarded).length;
   const possible = marks.length;
-  document.getElementById(`score-${index}`).textContent = `(${earned}/${possible})`;
+  document.getElementById(
+    `score-${index}`
+  ).textContent = `(${earned}/${possible})`;
 
+  // feedback styling
   if (earned === possible) {
     fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${modelAnswer}`;
     fb.style.border = "2px solid green";
