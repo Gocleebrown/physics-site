@@ -3,11 +3,9 @@
 // ─── Universal graph-drawing helper with “nice” major + minor grid lines ───
 function drawGraph(canvas, spec) {
   const ctx = canvas.getContext("2d");
-  const w = canvas.width,
-    h = canvas.height;
+  const w = canvas.width, h = canvas.height;
   const m = 40;
-  const plotW = w - 2 * m,
-    plotH = h - 2 * m;
+  const plotW = w - 2 * m, plotH = h - 2 * m;
 
   const xMin = spec.xMin || 0;
 
@@ -19,7 +17,6 @@ function drawGraph(canvas, spec) {
   }
 
   // compute "nice" graph maxima + divisions
-  const xRange = spec.xMax - xMin;
   const xStep = spec.xStep || niceStep(spec.xMax / 5);
   const xGraphMax = Math.ceil(spec.xMax / xStep) * xStep;
   const xDivs = Math.ceil(xGraphMax / xStep);
@@ -98,31 +95,30 @@ function drawGraph(canvas, spec) {
   }
 
   // axis titles
-  ctx.fillText(spec.xLabel, m + plotW / 2 - 20, h - 5);
-  ctx.fillText(spec.yLabel, 10, m + plotH / 2);
+  ctx.fillText(spec.xLabel || "", m + plotW / 2 - 20, h - 5);
+  ctx.fillText(spec.yLabel || "", 10, m + plotH / 2);
 
   // plot data line
   ctx.strokeStyle = spec.color || "blue";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  spec.points.forEach(([xv, yv], idx) => {
+  const pts = Array.isArray(spec.points) ? spec.points : [];
+  pts.forEach(([xv, yv], idx) => {
     const x = m + ((xv - xMin) / (xGraphMax - xMin)) * plotW;
     const y = m + plotH - (yv / yGraphMax) * plotH;
     idx === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.stroke();
 }
-// Accept object or JSON string; coerce numeric fields; keep backwards-compatible
+
+// Accept object or JSON string; coerce numeric fields (keeps old behaviour)
 function normalizeGraphSpec(specLike) {
   let spec = specLike;
-
-  // Parse JSON string if needed
   if (typeof spec === "string") {
     try { spec = JSON.parse(spec); } catch { spec = {}; }
   }
   if (!spec || typeof spec !== "object") spec = {};
 
-  // Coerce numeric-looking strings
   const num = (v) =>
     (typeof v === "string" && v.trim() !== "" && !isNaN(v)) ? Number(v) : v;
 
@@ -142,8 +138,7 @@ function normalizeGraphSpec(specLike) {
 
 // ─── 1) Load & render a random question ───
 function loadRandomQuestion() {
-  const def =
-    window.questions[Math.floor(Math.random() * window.questions.length)];
+  const def = window.questions[Math.floor(Math.random() * window.questions.length)];
   const qData = window.genericBuilder(def);
 
   // reset scores
@@ -173,25 +168,25 @@ function loadRandomQuestion() {
     span.style.fontWeight = "bold";
     p.appendChild(span);
     div.appendChild(p);
-// graph if given (accepts JSON string or object; coerces numbers)
-if (part.graphSpec) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 300;
-  canvas.height = 300;
-  canvas.style.border = "1px solid #000";
-  div.appendChild(canvas);
-  try {
-    const spec = normalizeGraphSpec(part.graphSpec);
-    drawGraph(canvas, spec);
-  } catch (e) {
-    console.error("Graph error:", e, part.graphSpec);
-    const fb = document.createElement("div");
-    fb.textContent = "[graph unavailable]";
-    fb.style.color = "crimson";
-    div.appendChild(fb);
-  }
 
-
+    // graph if given (accepts JSON string or object; coerces numbers)
+    if (part.graphSpec) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 300;
+      canvas.height = 300;
+      canvas.style.border = "1px solid #000";
+      div.appendChild(canvas);
+      try {
+        const spec = normalizeGraphSpec(part.graphSpec);
+        drawGraph(canvas, spec);
+      } catch (e) {
+        console.error("Graph error:", e, part.graphSpec);
+        const fb = document.createElement("div");
+        fb.textContent = "[graph unavailable]";
+        fb.style.color = "crimson";
+        div.appendChild(fb);
+      }
+    }
 
     // answer box
     const ta = document.createElement("textarea");
@@ -227,8 +222,9 @@ if (part.graphSpec) {
   nextBtn.onclick = loadRandomQuestion;
   container.appendChild(nextBtn);
 
-  // hide stray canvas
-  document.getElementById("diagram-canvas").style.display = "none";
+  // hide stray canvas (legacy)
+  const stray = document.getElementById("diagram-canvas");
+  if (stray) stray.style.display = "none";
 }
 
 // ─── 2) Check answer with blank-guard, numeric fallback + M/A/C/B ───
@@ -236,7 +232,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
   const input = raw.replace(/%/g, "").toLowerCase();
 
-  // blank-guard: encourage student to write something
+  // blank-guard
   if (raw === "") {
     const fb = document.getElementById(`model-${index}`);
     fb.style.display = "block";
@@ -248,8 +244,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   }
 
   // numeric-only fallback (single A-mark or no marks) with ±0.5%
-  const numericOnly =
-    marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
+  const numericOnly = marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
   if (numericOnly && !isNaN(parseFloat(modelAnswer))) {
     const correctNum = parseFloat(modelAnswer);
     const userStr = raw.toLowerCase().trim();
@@ -274,7 +269,6 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       return;
     }
 
-    // tolerance fallback (±0.5%)
     const userNum = parseFloat(raw);
     const tol = Math.abs(correctNum) * 0.005;
     if (!isNaN(userNum) && Math.abs(userNum - correctNum) <= tol) {
@@ -292,8 +286,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   // fallback to M/A/C/B
   const fb = document.getElementById(`model-${index}`);
   fb.style.display = "block";
-  let aBlocked = false,
-    aAwarded = false;
+  let aBlocked = false, aAwarded = false;
 
   function matchesKeywordGroups(groups) {
     if (!Array.isArray(groups)) return false;
@@ -314,16 +307,14 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   }
 
   // STEP 1: M-marks
-  marks
-    .filter((m) => m.type === "M")
-    .forEach((m) => {
-      if (matchesKeywordGroups(m.keywords)) {
-        if (!m.awarded) {
-          m.awarded = true;
-          totalMarksEarned++;
-        }
-      } else aBlocked = true;
-    });
+  marks.filter((m) => m.type === "M").forEach((m) => {
+    if (matchesKeywordGroups(m.keywords)) {
+      if (!m.awarded) {
+        m.awarded = true;
+        totalMarksEarned++;
+      }
+    } else aBlocked = true;
+  });
 
   // STEP 2: A-marks
   if (!aBlocked) {
@@ -364,21 +355,17 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   }
 
   // STEP 4: B-marks
-  marks
-    .filter((m) => m.type === "B")
-    .forEach((m) => {
-      if (!m.awarded && matchesKeywordGroups(m.keywords)) {
-        m.awarded = true;
-        totalMarksEarned++;
-      }
-    });
+  marks.filter((m) => m.type === "B").forEach((m) => {
+    if (!m.awarded && matchesKeywordGroups(m.keywords)) {
+      m.awarded = true;
+      totalMarksEarned++;
+    }
+  });
 
   // final score update
   const earned = marks.filter((m) => m.awarded).length;
   const possible = marks.length;
-  document.getElementById(
-    `score-${index}`
-  ).textContent = `(${earned}/${possible})`;
+  document.getElementById(`score-${index}`).textContent = `(${earned}/${possible})`;
 
   // feedback styling
   if (earned === possible) {
