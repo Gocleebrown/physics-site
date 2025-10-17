@@ -112,6 +112,33 @@ function drawGraph(canvas, spec) {
   });
   ctx.stroke();
 }
+// Accept object or JSON string; coerce numeric fields; keep backwards-compatible
+function normalizeGraphSpec(specLike) {
+  let spec = specLike;
+
+  // Parse JSON string if needed
+  if (typeof spec === "string") {
+    try { spec = JSON.parse(spec); } catch { spec = {}; }
+  }
+  if (!spec || typeof spec !== "object") spec = {};
+
+  // Coerce numeric-looking strings
+  const num = (v) =>
+    (typeof v === "string" && v.trim() !== "" && !isNaN(v)) ? Number(v) : v;
+
+  ["xMin", "xMax", "yMax", "xStep", "yStep"].forEach((k) => {
+    if (k in spec) spec[k] = num(spec[k]);
+  });
+
+  if (Array.isArray(spec.points)) {
+    spec.points = spec.points.map((pt) => {
+      const [x, y] = pt || [];
+      return [num(x), num(y)];
+    });
+  }
+
+  return spec;
+}
 
 // ─── 1) Load & render a random question ───
 function loadRandomQuestion() {
@@ -147,15 +174,26 @@ function loadRandomQuestion() {
     p.appendChild(span);
     div.appendChild(p);
 
-    // graph if given (baseline behavior)
-    if (part.graphSpec) {
-      const canvas = document.createElement("canvas");
-      canvas.width = 300;
-      canvas.height = 300;
-      canvas.style.border = "1px solid #000";
-      div.appendChild(canvas);
-      drawGraph(canvas, part.graphSpec);
-    }
+  // graph if given (object or JSON string)
+if (part.graphSpec) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 300;
+  canvas.height = 300;
+  canvas.style.border = "1px solid #000";
+  div.appendChild(canvas);
+
+  try {
+    const spec = normalizeGraphSpec(part.graphSpec);
+    drawGraph(canvas, spec);
+  } catch (e) {
+    console.error("Graph error:", e, part.graphSpec);
+    const fb = document.createElement("div");
+    fb.textContent = "[graph unavailable]";
+    fb.style.color = "crimson";
+    div.appendChild(fb);
+  }
+}
+
 
     // answer box
     const ta = document.createElement("textarea");
