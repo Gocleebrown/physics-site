@@ -190,7 +190,6 @@ if (part.graphSpec) {
     fb.style.color = "crimson";
     div.appendChild(fb);
   }
-}
 
 
 
