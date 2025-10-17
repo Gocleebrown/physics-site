@@ -174,13 +174,25 @@ function loadRandomQuestion() {
     p.appendChild(span);
     div.appendChild(p);
 
-  // graph if given (object or JSON string)
+ // graph if given
 if (part.graphSpec) {
   const canvas = document.createElement("canvas");
   canvas.width = 300;
   canvas.height = 300;
   canvas.style.border = "1px solid #000";
   div.appendChild(canvas);
+
+  let gs = part.graphSpec;
+  if (typeof gs === "string") {
+    try { gs = JSON.parse(gs); } catch (e) { console.error("graphSpec JSON parse error:", e.message); gs = null; }
+  }
+  if (gs && typeof gs === "object") {
+    drawGraph(canvas, gs);
+  } else {
+    console.warn("graphSpec missing or invalid for this part:", part);
+  }
+}
+
 
   try {
     const spec = normalizeGraphSpec(part.graphSpec);
