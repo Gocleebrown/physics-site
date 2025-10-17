@@ -10,7 +10,7 @@ window.makeTable = function (rows, cols) {
   return html;
 };
 
-// --- 2) String interpolation helper (with rounding for numbers) ---
+// --- 2) String interpolation helper ---
 window.interpolate = function (str, ctx) {
   return (str || "").replace(/\$\{([^}]+)\}/g, (_, expr) => {
     try {
@@ -22,19 +22,6 @@ window.interpolate = function (str, ctx) {
     }
   });
 };
-
-// --- 2b) Raw interpolation (NO rounding) for JSON blobs like graphSpec ---
-function interpolateRaw(str, ctx) {
-  return (str || "").replace(/\$\{([^}]+)\}/g, (_, expr) => {
-    try {
-      const fn = new Function(...Object.keys(ctx), `return (${expr});`);
-      const val = fn(...Object.values(ctx));
-      return (val === null || val === undefined) ? "" : String(val);
-    } catch {
-      return "";
-    }
-  });
-}
 
 // --- 3) Format number to a specific number of significant figures ---
 function formatToSigFigs(num, digits) {
@@ -69,7 +56,7 @@ function buildMarksFromRow(row, ctx) {
   types.forEach((type) => {
     const rawKey = row[type + "_keywords"];
     if (!rawKey) return;
-    const raw = window.interpolate(rawKey, ctx).trim();
+    const raw = interpolate(rawKey, ctx).trim();
     if (!raw) return;
 
     let parsed = null;
@@ -154,8 +141,8 @@ window.genericBuilder = function ({ id, type, params, parts }) {
     }
   }
 
-  // assemble mainText + image
-  const mainText = window.interpolate(mainRow.mainText || "", ctx);
+  // main text + optional image below (PNG in /assets)
+  const mainText = interpolate(mainRow.mainText || "", ctx);
   let imageBelow = "";
   if (mainRow.imageBelowMain) {
     const filename = mainRow.imageBelowMain;
@@ -169,7 +156,7 @@ window.genericBuilder = function ({ id, type, params, parts }) {
   parts
     .sort((a, b) => +a.partIndex - +b.partIndex)
     .forEach((row) => {
-      const partText = window.interpolate(row.partText || "", ctx);
+      const partText = interpolate(row.partText || "", ctx);
 
       let imageAfter = "";
       if (row.imageAfterPart) {
@@ -178,8 +165,8 @@ window.genericBuilder = function ({ id, type, params, parts }) {
         imageAfter = `<img src="assets/${imageSrc}" style="margin-top:1em;max-width:100%;" />`;
       }
 
-      const modelAnswer = window.interpolate(row.modelAnswer || "", ctx);
-      const explanation = window.interpolate(row.explanation || "", ctx);
+      const modelAnswer = interpolate(row.modelAnswer || "", ctx);
+      const explanation = interpolate(row.explanation || "", ctx);
       const marks = buildMarksFromRow(row, ctx);
 
       const partObj = {
@@ -189,14 +176,14 @@ window.genericBuilder = function ({ id, type, params, parts }) {
         marks,
       };
 
-      // ── NEW: pass graphSpec from the sheet (string or JSON), with raw interpolation (no rounding)
+      // ── Pass-through graphSpec from sheet (supports ${...} placeholders)
       if (row.graphSpec) {
-        const raw = String(row.graphSpec).trim();
-        partObj.graphSpec = interpolateRaw(raw, ctx); // leave as JSON string for the renderer
+        const gs = interpolate(row.graphSpec, ctx);
+        partObj.graphSpec = gs; // leave as string; drawGraph will parse
       }
 
-      // stress-strain special case (kept; only if CSV didn't already provide a graphSpec)
-      if (!partObj.graphSpec && type === "stress-strain" && +row.partIndex === 0) {
+      // ── Stress–strain special (kept exactly as before)
+      if (type === "stress-strain" && +row.partIndex === 0) {
         const s = ctx.max_strain;
         const m = ctx.module_plot;
         const σ_limit = s * m;
