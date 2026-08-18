@@ -242,28 +242,79 @@ function loadRandomQuestion() {
       }
     }
 
-    // answer box
-    const ta = document.createElement("textarea");
-    ta.id = `answer-${i}`;
-    ta.rows = 3;
-    ta.cols = 60;
-    div.appendChild(ta);
+    if (part.answerType === "imageChoice") {
+      // ── clickable diagram/graph options instead of a text box ──
+      const grid = document.createElement("div");
+      grid.style.display = "flex";
+      grid.style.flexWrap = "wrap";
+      grid.style.gap = "10px";
+      grid.style.marginTop = "8px";
 
-    // check button
-    const btn = document.createElement("button");
-    btn.textContent = "Check Answer";
-    btn.onclick = () =>
-      checkPartAnswer(i, part.marks, part.modelAnswer, part.explanation);
-    div.appendChild(btn);
+      const options = Array.isArray(part.imageOptions) ? part.imageOptions : [];
+      if (!options.length) {
+        const warn = document.createElement("div");
+        warn.textContent = "[no image options configured for this part]";
+        warn.style.color = "crimson";
+        div.appendChild(warn);
+      }
 
-    // feedback
-    const fb = document.createElement("div");
-    fb.id = `model-${i}`;
-    fb.style.display = "none";
-    fb.style.marginTop = "10px";
-    fb.style.padding = "10px";
-    fb.style.borderRadius = "8px";
-    div.appendChild(fb);
+      options.forEach((filename, optIdx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.style.padding = "4px";
+        btn.style.border = "2px solid #999";
+        btn.style.borderRadius = "6px";
+        btn.style.background = "white";
+        btn.style.cursor = "pointer";
+
+        const img = document.createElement("img");
+        img.src = window.resolveAssetSrc(filename);
+        img.style.width = "160px";
+        img.style.display = "block";
+        img.onerror = () => {
+          btn.style.borderColor = "crimson";
+          btn.title = `Missing asset: ${filename}`;
+        };
+        btn.appendChild(img);
+
+        btn.onclick = () =>
+          checkImageChoice(i, optIdx, part.correctImageIndex, part.marks, grid, part.explanation);
+
+        grid.appendChild(btn);
+      });
+
+      div.appendChild(grid);
+
+      // feedback area (shared with the rest of the flow)
+      const fb = document.createElement("div");
+      fb.id = `model-${i}`;
+      fb.style.display = "none";
+      fb.style.marginTop = "10px";
+      fb.style.padding = "10px";
+      fb.style.borderRadius = "8px";
+      div.appendChild(fb);
+    } else {
+      // ── standard typed-answer flow (unchanged) ──
+      const ta = document.createElement("textarea");
+      ta.id = `answer-${i}`;
+      ta.rows = 3;
+      ta.cols = 60;
+      div.appendChild(ta);
+
+      const btn = document.createElement("button");
+      btn.textContent = "Check Answer";
+      btn.onclick = () =>
+        checkPartAnswer(i, part.marks, part.modelAnswer, part.explanation);
+      div.appendChild(btn);
+
+      const fb = document.createElement("div");
+      fb.id = `model-${i}`;
+      fb.style.display = "none";
+      fb.style.marginTop = "10px";
+      fb.style.padding = "10px";
+      fb.style.borderRadius = "8px";
+      div.appendChild(fb);
+    }
 
     container.appendChild(div);
   });
@@ -281,7 +332,37 @@ function loadRandomQuestion() {
   if (stray) stray.style.display = "none";
 }
 
-// ─── 2) Check answer with blank-guard, numeric fallback ±0.5%, and M/A/C/B ───
+// ─── 2) Check an imageChoice answer: single click = single attempt ───
+function checkImageChoice(index, chosenIdx, correctIdx, marks, grid, explanation) {
+  const buttons = grid.querySelectorAll("button");
+  const correct = chosenIdx === correctIdx;
+
+  buttons.forEach((btn, idx) => {
+    btn.disabled = true;
+    btn.style.cursor = "default";
+    if (idx === correctIdx) btn.style.borderColor = "green";
+    if (idx === chosenIdx && !correct) btn.style.borderColor = "crimson";
+  });
+
+  if (correct) {
+    marks.forEach((m) => (m.awarded = true));
+    totalMarksEarned += marks.length;
+  }
+
+  const earned = marks.filter((m) => m.awarded).length;
+  document.getElementById(`score-${index}`).textContent = `(${earned}/${marks.length})`;
+
+  const fb = document.getElementById(`model-${index}`);
+  fb.style.display = "block";
+  fb.style.border = correct ? "2px solid green" : "2px solid red";
+  fb.innerHTML = correct
+    ? `<strong>Correct!</strong><br><br>${explanation || ""}`
+    : `<strong>Not quite right.</strong><br><br>${explanation || ""}`;
+
+  updateScoreDisplay();
+}
+
+// ─── 3) Check answer with blank-guard, numeric fallback ±0.5%, and M/A/C/B ───
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
   const input = raw.replace(/%/g, "").toLowerCase();
@@ -368,7 +449,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   // STEP 2: A (+auto-credit remaining C’s once A is earned)
   if (!aBlocked) {
     const aMark = marks.find((m) => m.type === "A");
-    if (aMark && matchesKeywordGroups(m.keywords)) {
+    if (aMark && matchesKeywordGroups(aMark.keywords)) {
       aMark.awarded = true; totalMarksEarned++; aAwarded = true;
       marks.forEach((m) => {
         if (m.type === "C" && !m.awarded) { m.awarded = true; totalMarksEarned++; }
