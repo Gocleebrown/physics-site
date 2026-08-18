@@ -168,7 +168,7 @@ window.genericBuilder = function ({ id, type, params, parts }) {
   const mainText = interpolate(mainRow.mainText || "", ctx);
   let imageBelow = "";
   if (mainRow.imageBelowMain) {
-    imageBelow = `<img src="${resolveAssetSrc(mainRow.imageBelowMain)}" style="margin-top:1em;max-width:100%;" />`;
+    imageBelow = `<img src="${resolveAssetSrc(mainRow.imageBelowMain)}" style="margin-top:1em;max-width:480px;width:100%;" />`;
   }
 
   const q = { id, type, mainText: mainText + imageBelow, parts: [] };
@@ -181,7 +181,7 @@ window.genericBuilder = function ({ id, type, params, parts }) {
 
       let imageAfter = "";
       if (row.imageAfterPart) {
-        imageAfter = `<img src="${resolveAssetSrc(row.imageAfterPart)}" style="margin-top:1em;max-width:100%;" />`;
+        imageAfter = `<img src="${resolveAssetSrc(row.imageAfterPart)}" style="margin-top:1em;max-width:480px;width:100%;" />`;
       }
 
       const modelAnswer = interpolate(row.modelAnswer || "", ctx);
