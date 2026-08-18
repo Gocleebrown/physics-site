@@ -1,0 +1,48 @@
+<svg viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="420" height="300" fill="white"/>
+
+  <!-- path of ball -->
+  <circle cx="180" cy="150" r="70" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="150" y="235" font-size="11">path of ball</text>
+
+  <!-- O -->
+  <circle cx="180" cy="150" r="2.5" fill="black"/>
+  <text x="168" y="145" font-size="13">O</text>
+
+  <!-- P (rightmost point of circle, line OP perpendicular to screen) -->
+  <circle cx="250" cy="150" r="2.5" fill="black"/>
+  <text x="255" y="145" font-size="13">P</text>
+  <line x1="180" y1="150" x2="250" y2="150" stroke="black" stroke-width="1"/>
+
+  <!-- B at angle theta above OP -->
+  <circle cx="233.6" cy="105" r="2.5" fill="black"/>
+  <text x="238" y="98" font-size="13">B</text>
+  <line x1="180" y1="150" x2="233.6" y2="105" stroke="black" stroke-width="1.2"/>
+  <text x="200" y="118" font-size="12">R</text>
+
+  <!-- angle theta arc -->
+  <path d="M 205 150 A 25 25 0 0 0 197 129" fill="none" stroke="black" stroke-width="1"/>
+  <text x="204" y="132" font-size="12">&#952;</text>
+
+  <!-- projection line from B to screen -->
+  <line x1="233.6" y1="105" x2="360" y2="105" stroke="black" stroke-width="0.8" stroke-dasharray="3 2"/>
+  <circle cx="360" cy="105" r="2.5" fill="black"/>
+
+  <!-- reference point on screen aligned with P (x = 0) -->
+  <circle cx="360" cy="150" r="2" fill="black"/>
+  <line x1="250" y1="150" x2="360" y2="150" stroke="black" stroke-width="0.8" stroke-dasharray="3 2"/>
+
+  <!-- screen -->
+  <line x1="360" y1="55" x2="360" y2="245" stroke="black" stroke-width="2"/>
+  <text x="365" y="60" font-size="12">screen</text>
+  <text x="330" y="255" font-size="11">shadow forms here</text>
+
+  <!-- light rays -->
+  <line x1="20" y1="130" x2="130" y2="130" stroke="black" stroke-width="1"/>
+  <polygon points="130,130 122,126 122,134" fill="black"/>
+  <line x1="20" y1="150" x2="130" y2="150" stroke="black" stroke-width="1"/>
+  <polygon points="130,150 122,146 122,154" fill="black"/>
+  <line x1="20" y1="170" x2="130" y2="170" stroke="black" stroke-width="1"/>
+  <polygon points="130,170 122,166 122,174" fill="black"/>
+  <text x="30" y="118" font-size="12">light</text>
+</svg>

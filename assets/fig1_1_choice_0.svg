@@ -1,0 +1,18 @@
+<svg viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="420" height="300" fill="white"/>
+  <circle cx="180" cy="150" r="70" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <circle cx="180" cy="150" r="2.5" fill="black"/>
+  <text x="168" y="145" font-size="13">O</text>
+  <circle cx="250" cy="150" r="2.5" fill="black"/>
+  <text x="255" y="145" font-size="13">P</text>
+  <line x1="180" y1="150" x2="250" y2="150" stroke="black" stroke-width="1"/>
+  <line x1="360" y1="55" x2="360" y2="245" stroke="black" stroke-width="2"/>
+  <text x="365" y="60" font-size="12">screen</text>
+  <line x1="20" y1="150" x2="130" y2="150" stroke="black" stroke-width="1"/>
+  <polygon points="130,150 122,146 122,154" fill="black"/>
+  <text x="30" y="140" font-size="12">light</text>
+
+  <!-- marked point A: aligned with bottom of circular path -->
+  <circle cx="360" cy="220" r="4" fill="black"/>
+  <text x="368" y="224" font-size="14" font-weight="bold">A</text>
+</svg>
