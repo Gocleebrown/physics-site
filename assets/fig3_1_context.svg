@@ -1,0 +1,11 @@
+<svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="420" height="220" fill="white"/>
+  <circle cx="150" cy="120" r="10" fill="black"/>
+  <text x="140" y="100" font-size="14">mass M</text>
+  <circle cx="320" cy="120" r="3" fill="black"/>
+  <text x="330" y="115" font-size="14">P</text>
+  <line x1="150" y1="140" x2="320" y2="140" stroke="black" stroke-width="1"/>
+  <line x1="150" y1="132" x2="150" y2="148" stroke="black" stroke-width="1"/>
+  <line x1="320" y1="132" x2="320" y2="148" stroke="black" stroke-width="1"/>
+  <text x="225" y="158" font-size="14">x</text>
+</svg>
