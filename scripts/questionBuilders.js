@@ -30,6 +30,17 @@ function formatToSigFigs(num, digits) {
   return parseFloat(num.toPrecision(precision)).toString();
 }
 
+// --- 3b) Resolve an asset filename to a src path, preserving any given
+//     extension (svg/png/jpg/...) and only defaulting to .png when the
+//     filename has no extension at all. Previously this always forced
+//     .png, which silently broke any .svg asset reference. ---
+window.resolveAssetSrc = function (filename) {
+  if (!filename) return "";
+  const hasExt = /\.[a-zA-Z0-9]+$/.test(filename);
+  const withExt = hasExt ? filename : `${filename}.png`;
+  return `assets/${withExt}`;
+};
+
 // --- 4) Compute derived values from formulas ---
 function computeValues(params, formulas) {
   const computed = {};
@@ -48,8 +59,20 @@ function computeValues(params, formulas) {
   return computed;
 }
 
-// --- 5) Build marks from keyword columns (supports B2) ---
+// --- 5) Build marks from keyword columns (supports B2), plus imageChoice ---
 function buildMarksFromRow(row, ctx) {
+  // imageChoice parts don't use keyword columns at all — they're worth a
+  // fixed number of marks (imageChoiceMarks, default 1), awarded as a
+  // block when the correct option is picked.
+  if ((row.answerType || "").trim() === "imageChoice") {
+    const n = parseInt(row.imageChoiceMarks, 10) || 1;
+    const marks = [];
+    for (let i = 0; i < n; i++) {
+      marks.push({ type: "B", keywords: null, awarded: false });
+    }
+    return marks;
+  }
+
   const types = ["A", "C2", "C1", "M", "B", "B2"];
   const marks = [];
 
@@ -141,13 +164,11 @@ window.genericBuilder = function ({ id, type, params, parts }) {
     }
   }
 
-  // main text + optional image below (PNG in /assets)
+  // main text + optional image below (PNG/SVG in /assets)
   const mainText = interpolate(mainRow.mainText || "", ctx);
   let imageBelow = "";
   if (mainRow.imageBelowMain) {
-    const filename = mainRow.imageBelowMain;
-    const imageSrc = filename.endsWith(".png") ? filename : `${filename}.png`;
-    imageBelow = `<img src="assets/${imageSrc}" style="margin-top:1em;max-width:100%;" />`;
+    imageBelow = `<img src="${resolveAssetSrc(mainRow.imageBelowMain)}" style="margin-top:1em;max-width:100%;" />`;
   }
 
   const q = { id, type, mainText: mainText + imageBelow, parts: [] };
@@ -160,9 +181,7 @@ window.genericBuilder = function ({ id, type, params, parts }) {
 
       let imageAfter = "";
       if (row.imageAfterPart) {
-        const filename = row.imageAfterPart;
-        const imageSrc = filename.endsWith(".png") ? filename : `${filename}.png`;
-        imageAfter = `<img src="assets/${imageSrc}" style="margin-top:1em;max-width:100%;" />`;
+        imageAfter = `<img src="${resolveAssetSrc(row.imageAfterPart)}" style="margin-top:1em;max-width:100%;" />`;
       }
 
       const modelAnswer = interpolate(row.modelAnswer || "", ctx);
@@ -174,7 +193,19 @@ window.genericBuilder = function ({ id, type, params, parts }) {
         modelAnswer,
         explanation,
         marks,
+        answerType: (row.answerType || "text").trim(),
       };
+
+      // ── imageChoice: pass through the option list + correct index
+      if (partObj.answerType === "imageChoice") {
+        try {
+          partObj.imageOptions = JSON.parse(row.imageOptions || "[]");
+        } catch {
+          console.warn("Bad imageOptions in", id, "part", row.partIndex);
+          partObj.imageOptions = [];
+        }
+        partObj.correctImageIndex = parseInt(row.correctImageIndex, 10);
+      }
 
       // ── Pass-through graphSpec from sheet (supports ${...} placeholders)
       if (row.graphSpec) {
