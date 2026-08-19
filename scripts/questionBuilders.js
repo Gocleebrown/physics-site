@@ -73,7 +73,7 @@ function buildMarksFromRow(row, ctx) {
     return marks;
   }
 
-  const types = ["A", "C2", "C1", "M", "B", "B2", "B3"];
+  const types = ["A", "C3", "C2", "C1", "M", "B", "B2", "B3"];
   const marks = [];
 
   types.forEach((type) => {
@@ -107,7 +107,7 @@ function buildMarksFromRow(row, ctx) {
 
     const markType =
       type.startsWith("B") ? "B" : type.startsWith("C") ? "C" : type;
-    const level = type === "C2" ? 2 : type === "C1" ? 1 : undefined;
+    const level = type === "C3" ? 3 : type === "C2" ? 2 : type === "C1" ? 1 : undefined;
 
     marks.push({ type: markType, level, keywords: groups, awarded: false });
   });
