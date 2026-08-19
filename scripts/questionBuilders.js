@@ -73,6 +73,21 @@ function buildMarksFromRow(row, ctx) {
     return marks;
   }
 
+  // table parts: one independent mark per cell, in row-major order.
+  if ((row.answerType || "").trim() === "table") {
+    let cellKeywords = [];
+    try {
+      cellKeywords = JSON.parse(interpolate(row.tableCellKeywords || "[]", ctx));
+    } catch {
+      console.warn("Bad tableCellKeywords in row", row.id, row.partIndex);
+    }
+    const marks = [];
+    cellKeywords.forEach((rowArr) =>
+      (rowArr || []).forEach(() => marks.push({ type: "B", keywords: null, awarded: false }))
+    );
+    return marks;
+  }
+
   const types = ["A", "C3", "C2", "C1", "M", "B", "B2", "B3"];
   const marks = [];
 
@@ -205,6 +220,31 @@ window.genericBuilder = function ({ id, type, params, parts }) {
           partObj.imageOptions = [];
         }
         partObj.correctImageIndex = parseInt(row.correctImageIndex, 10);
+      }
+
+      // ── table: pass through row/col labels, per-cell keywords + answers
+      if (partObj.answerType === "table") {
+        try {
+          partObj.tableRowLabels = JSON.parse(interpolate(row.tableRowLabels || "[]", ctx));
+        } catch {
+          partObj.tableRowLabels = [];
+        }
+        try {
+          partObj.tableColLabels = JSON.parse(interpolate(row.tableColLabels || "[]", ctx));
+        } catch {
+          partObj.tableColLabels = [];
+        }
+        try {
+          partObj.tableCellKeywords = JSON.parse(interpolate(row.tableCellKeywords || "[]", ctx));
+        } catch {
+          console.warn("Bad tableCellKeywords in", id, "part", row.partIndex);
+          partObj.tableCellKeywords = [];
+        }
+        try {
+          partObj.tableCellAnswers = JSON.parse(interpolate(row.tableCellAnswers || "[]", ctx));
+        } catch {
+          partObj.tableCellAnswers = [];
+        }
       }
 
       // ── Pass-through graphSpec from sheet (supports ${...} placeholders)
