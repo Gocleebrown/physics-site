@@ -362,6 +362,17 @@ function checkImageChoice(index, chosenIdx, correctIdx, marks, grid, explanation
   updateScoreDisplay();
 }
 
+// Parses a number typed in any common student style: "3.4e22", "3.4E22",
+// "3.4 x 10^22", "3.4×10^22", "3.4*10^22", or with trailing units/words
+// ("3.4x10^22 molecules"). Returns NaN if nothing numeric is found.
+function parseFlexibleNumber(str) {
+  if (!str) return NaN;
+  let s = String(str).trim().toLowerCase();
+  s = s.replace(/\s*[x×*]\s*10\s*\^?\s*/g, "e");
+  const match = s.match(/-?\d+\.?\d*(e[+-]?\d+)?/);
+  return match ? parseFloat(match[0]) : NaN;
+}
+
 // ─── 3) Check answer with blank-guard, numeric fallback ±0.5%, and M/A/C/B ───
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
@@ -380,8 +391,8 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
   // numeric-only fallback (single A-mark or no marks) with ±0.5%
   const numericOnly = marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
-  if (numericOnly && !isNaN(parseFloat(modelAnswer))) {
-    const correctNum = parseFloat(modelAnswer);
+  if (numericOnly && !isNaN(parseFlexibleNumber(modelAnswer))) {
+    const correctNum = parseFlexibleNumber(modelAnswer);
     const userStr = raw.toLowerCase().trim();
 
     const variants = [
@@ -404,7 +415,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       return;
     }
 
-    const userNum = parseFloat(raw);
+    const userNum = parseFlexibleNumber(raw);
     const tol = Math.abs(correctNum) * 0.005;
     if (!isNaN(userNum) && Math.abs(userNum - correctNum) <= tol) {
       totalMarksEarned++;
@@ -447,13 +458,28 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   });
 
   // STEP 2: A (+auto-credit remaining C’s once A is earned)
+  // An A-mark can be satisfied either by keyword match OR by the typed
+  // answer being numerically close to modelAnswer (when modelAnswer is a
+  // number) — this matters for any question worth more than 1 mark, which
+  // doesn't get the single-mark numeric shortcut above but can still have
+  // a large/awkward number (scientific notation etc.) as its final answer.
   if (!aBlocked) {
     const aMark = marks.find((m) => m.type === "A");
-    if (aMark && matchesKeywordGroups(aMark.keywords)) {
-      aMark.awarded = true; totalMarksEarned++; aAwarded = true;
-      marks.forEach((m) => {
-        if (m.type === "C" && !m.awarded) { m.awarded = true; totalMarksEarned++; }
-      });
+    if (aMark) {
+      const byKeyword = matchesKeywordGroups(aMark.keywords);
+      let byNumber = false;
+      const correctNum = parseFlexibleNumber(modelAnswer);
+      if (!isNaN(correctNum)) {
+        const userNum = parseFlexibleNumber(raw);
+        const tol = Math.abs(correctNum) * 0.005;
+        byNumber = !isNaN(userNum) && Math.abs(userNum - correctNum) <= tol;
+      }
+      if (byKeyword || byNumber) {
+        aMark.awarded = true; totalMarksEarned++; aAwarded = true;
+        marks.forEach((m) => {
+          if (m.type === "C" && !m.awarded) { m.awarded = true; totalMarksEarned++; }
+        });
+      }
     }
   }
 
