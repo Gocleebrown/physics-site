@@ -293,6 +293,64 @@ function loadRandomQuestion() {
       fb.style.padding = "10px";
       fb.style.borderRadius = "8px";
       div.appendChild(fb);
+    } else if (part.answerType === "table") {
+      // ── grid of inputs, row/col labelled, matching the paper's table ──
+      const rows = Array.isArray(part.tableRowLabels) ? part.tableRowLabels : [];
+      const cols = Array.isArray(part.tableColLabels) ? part.tableColLabels : [];
+
+      const table = document.createElement("table");
+      table.style.borderCollapse = "collapse";
+      table.style.marginTop = "8px";
+
+      const headRow = document.createElement("tr");
+      headRow.appendChild(document.createElement("th"));
+      cols.forEach((c) => {
+        const th = document.createElement("th");
+        th.textContent = c;
+        th.style.border = "1px solid #999";
+        th.style.padding = "6px";
+        headRow.appendChild(th);
+      });
+      table.appendChild(headRow);
+
+      rows.forEach((rLabel, r) => {
+        const tr = document.createElement("tr");
+        const th = document.createElement("th");
+        th.textContent = rLabel;
+        th.style.border = "1px solid #999";
+        th.style.padding = "6px";
+        tr.appendChild(th);
+
+        cols.forEach((c, cIdx) => {
+          const td = document.createElement("td");
+          td.style.border = "1px solid #999";
+          td.style.padding = "4px";
+          const input = document.createElement("input");
+          input.type = "text";
+          input.id = `table-${i}-${r}-${cIdx}`;
+          input.style.width = "160px";
+          td.appendChild(input);
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+
+      div.appendChild(table);
+
+      const btn = document.createElement("button");
+      btn.textContent = "Check Answer";
+      btn.style.marginTop = "8px";
+      btn.onclick = () =>
+        checkTableAnswer(i, part.marks, rows, cols, part.tableCellKeywords, part.tableCellAnswers, part.explanation);
+      div.appendChild(btn);
+
+      const fb = document.createElement("div");
+      fb.id = `model-${i}`;
+      fb.style.display = "none";
+      fb.style.marginTop = "10px";
+      fb.style.padding = "10px";
+      fb.style.borderRadius = "8px";
+      div.appendChild(fb);
     } else {
       // ── standard typed-answer flow (unchanged) ──
       const ta = document.createElement("textarea");
@@ -373,6 +431,66 @@ function parseFlexibleNumber(str) {
   return match ? parseFloat(match[0]) : NaN;
 }
 
+// Shared keyword-matching logic — used by both checkPartAnswer and
+// checkTableAnswer. Supports flat OR, AND-of-ORs, and OR-of-(AND-of-ORs).
+function matchesKeywordGroups(groups, input) {
+  if (!Array.isArray(groups)) return false;
+  // OR-of-ORs
+  if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
+    return groups.some((sub) => matchesKeywordGroups(sub, input));
+  }
+  // flat OR
+  if (groups.every((g) => typeof g === "string")) {
+    return groups.some((kw) => input.includes(kw));
+  }
+  // AND-of-ORs
+  return groups.every((grp) => grp.some((kw) => input.includes(kw)));
+}
+
+// ─── 3.5) Check a table-style answer (grid of inputs, one mark per cell) ───
+function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cellAnswers, explanation) {
+  let earned = 0;
+  let anyBlank = false;
+  let markIdx = 0;
+
+  const fb = document.getElementById(`model-${index}`);
+  fb.style.display = "block";
+
+  let feedbackRows = "";
+  rowLabels.forEach((rLabel, r) => {
+    colLabels.forEach((cLabel, c) => {
+      const el = document.getElementById(`table-${index}-${r}-${c}`);
+      const raw = (el ? el.value : "").trim();
+      const input = raw.toLowerCase();
+      const kw = (cellKeywords && cellKeywords[r] && cellKeywords[r][c]) || [];
+      const answer = (cellAnswers && cellAnswers[r] && cellAnswers[r][c]) || "";
+      const mark = marks[markIdx];
+      markIdx++;
+
+      if (raw === "") anyBlank = true;
+
+      const correct = raw !== "" && matchesKeywordGroups(kw, input);
+      if (mark) mark.awarded = correct;
+      if (correct) earned++;
+
+      if (el) el.style.border = raw === "" ? "1px solid #999" : correct ? "2px solid green" : "2px solid crimson";
+
+      feedbackRows += `<tr><td style="padding:2px 8px 2px 0;">${rLabel} &ndash; ${cLabel}:</td><td>${answer}</td></tr>`;
+    });
+  });
+
+  totalMarksEarned += earned;
+  document.getElementById(`score-${index}`).textContent = `(${earned}/${marks.length})`;
+
+  fb.style.border = earned === marks.length ? "2px solid green" : earned > 0 ? "2px solid orange" : "2px solid red";
+  fb.innerHTML =
+    (anyBlank ? `<strong>Try to fill in every cell.</strong><br><br>` : earned === marks.length ? `<strong>Correct!</strong><br><br>` : `<strong>Not quite right yet.</strong><br><br>`) +
+    `<em>Model answers:</em><table>${feedbackRows}</table>` +
+    (explanation ? `<br>${explanation}` : "");
+
+  updateScoreDisplay();
+}
+
 // ─── 3) Check answer with blank-guard, numeric fallback ±0.5%, and M/A/C/B ───
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
@@ -434,23 +552,9 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   fb.style.display = "block";
   let aBlocked = false, aAwarded = false;
 
-  function matchesKeywordGroups(groups) {
-    if (!Array.isArray(groups)) return false;
-    // OR-of-ORs
-    if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
-      return groups.some((sub) => matchesKeywordGroups(sub));
-    }
-    // flat OR
-    if (groups.every((g) => typeof g === "string")) {
-      return groups.some((kw) => input.includes(kw));
-    }
-    // AND-of-ORs
-    return groups.every((grp) => grp.some((kw) => input.includes(kw)));
-  }
-
   // STEP 1: M
   marks.filter((m) => m.type === "M").forEach((m) => {
-    if (matchesKeywordGroups(m.keywords)) {
+    if (matchesKeywordGroups(m.keywords, input)) {
       if (!m.awarded) { m.awarded = true; totalMarksEarned++; }
     } else {
       aBlocked = true;
@@ -466,7 +570,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   if (!aBlocked) {
     const aMark = marks.find((m) => m.type === "A");
     if (aMark) {
-      const byKeyword = matchesKeywordGroups(aMark.keywords);
+      const byKeyword = matchesKeywordGroups(aMark.keywords, input);
       let byNumber = false;
       const correctNum = parseFlexibleNumber(modelAnswer);
       if (!isNaN(correctNum)) {
@@ -489,7 +593,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       .filter((m) => m.type === "C" && !m.awarded)
       .sort((a, b) => (b.level || 1) - (a.level || 1))
       .forEach((m) => {
-        if (matchesKeywordGroups(m.keywords)) {
+        if (matchesKeywordGroups(m.keywords, input)) {
           m.awarded = true; totalMarksEarned++;
           if ((m.level || 1) > 1) {
             const imp = marks.find((o) => o.type === "C" && (o.level || 1) < (m.level || 1));
@@ -501,7 +605,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
   // STEP 4: B (independent)
   marks.filter((m) => m.type === "B").forEach((m) => {
-    if (!m.awarded && matchesKeywordGroups(m.keywords)) {
+    if (!m.awarded && matchesKeywordGroups(m.keywords, input)) {
       m.awarded = true; totalMarksEarned++;
     }
   });
