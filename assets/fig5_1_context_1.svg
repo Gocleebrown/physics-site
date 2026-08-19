@@ -1,0 +1,19 @@
+<svg viewBox="0 0 420 160" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="420" height="160" fill="white"/>
+  <circle cx="80" cy="90" r="10" fill="black"/>
+  <text x="65" y="70" font-size="14">proton</text>
+  <circle cx="340" cy="90" r="10" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="315" y="70" font-size="14">electron</text>
+  <circle cx="200" cy="90" r="3" fill="black"/>
+  <text x="190" y="75" font-size="14">P</text>
+
+  <line x1="80" y1="110" x2="200" y2="110" stroke="black" stroke-width="1"/>
+  <line x1="80" y1="102" x2="80" y2="118" stroke="black" stroke-width="1"/>
+  <line x1="200" y1="102" x2="200" y2="118" stroke="black" stroke-width="1"/>
+  <text x="130" y="130" font-size="13">x</text>
+
+  <line x1="80" y1="140" x2="340" y2="140" stroke="black" stroke-width="1"/>
+  <line x1="80" y1="132" x2="80" y2="148" stroke="black" stroke-width="1"/>
+  <line x1="340" y1="132" x2="340" y2="148" stroke="black" stroke-width="1"/>
+  <text x="195" y="158" font-size="13">separation</text>
+</svg>
