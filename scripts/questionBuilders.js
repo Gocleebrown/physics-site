@@ -252,6 +252,9 @@ window.genericBuilder = function ({ id, type, params, parts }) {
         const gs = interpolate(row.graphSpec, ctx);
         partObj.graphSpec = gs; // leave as string; drawGraph will parse
       }
+      if (row.graphSpec2) {
+        partObj.graphSpec2 = interpolate(row.graphSpec2, ctx);
+      }
 
       // ── Stress–strain special (kept exactly as before)
       if (type === "stress-strain" && +row.partIndex === 0) {
