@@ -147,10 +147,16 @@ function drawGraph(canvas, spec) {
     ctx.restore();
   }
 
-  // plot data line
-  const pts = Array.isArray(spec.points) ? spec.points : [];
-  if (pts.length) {
-    ctx.strokeStyle = spec.color || "black";
+  // plot data line(s) — either a single line (spec.points, existing behaviour)
+  // or multiple labelled lines (spec.series: [{points, color, label}, ...])
+  const seriesList = Array.isArray(spec.series) && spec.series.length
+    ? spec.series
+    : [{ points: Array.isArray(spec.points) ? spec.points : [], color: spec.color }];
+
+  seriesList.forEach((s) => {
+    const pts = Array.isArray(s.points) ? s.points : [];
+    if (!pts.length) return;
+    ctx.strokeStyle = s.color || "black";
     ctx.lineWidth = 2;
     ctx.beginPath();
     pts.forEach(([xv, yv], idx) => {
@@ -160,7 +166,18 @@ function drawGraph(canvas, spec) {
       else ctx.lineTo(x, y);
     });
     ctx.stroke();
-  }
+  });
+
+  // series labels, drawn near the end of each line
+  seriesList.forEach((s) => {
+    if (!s.label || !Array.isArray(s.points) || !s.points.length) return;
+    const [lx, ly] = s.points[s.points.length - 1];
+    ctx.fillStyle = s.color || "black";
+    ctx.font = "12px sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(s.label, xToPx(Number(lx)) + 6, yToPx(Number(ly)));
+  });
 }
 
 // Accept object or JSON string; coerce numeric fields (keeps old behaviour)
@@ -185,6 +202,20 @@ function normalizeGraphSpec(specLike) {
         return [num(x), num(y)];
       })
       .filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+  }
+
+  if (Array.isArray(spec.series)) {
+    spec.series = spec.series.map((s) => ({
+      ...s,
+      points: Array.isArray(s.points)
+        ? s.points
+            .map((pt) => {
+              const [x, y] = pt || [];
+              return [num(x), num(y)];
+            })
+            .filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y))
+        : [],
+    }));
   }
 
   return spec;
@@ -229,6 +260,7 @@ function loadRandomQuestion() {
       canvas.width = 300;
       canvas.height = 300;
       canvas.style.border = "1px solid #000";
+      canvas.style.marginRight = "10px";
       div.appendChild(canvas);
       try {
         const spec = normalizeGraphSpec(part.graphSpec);
@@ -237,6 +269,26 @@ function loadRandomQuestion() {
         console.error("Graph error:", e, part.graphSpec);
         const fb = document.createElement("div");
         fb.textContent = "[graph unavailable]";
+        fb.style.color = "crimson";
+        div.appendChild(fb);
+      }
+    }
+
+    // optional second graph, shown alongside the first (e.g. two related
+    // figures the student needs to read together)
+    if (part.graphSpec2) {
+      const canvas2 = document.createElement("canvas");
+      canvas2.width = 300;
+      canvas2.height = 300;
+      canvas2.style.border = "1px solid #000";
+      div.appendChild(canvas2);
+      try {
+        const spec2 = normalizeGraphSpec(part.graphSpec2);
+        drawGraph(canvas2, spec2);
+      } catch (e) {
+        console.error("Graph 2 error:", e, part.graphSpec2);
+        const fb = document.createElement("div");
+        fb.textContent = "[second graph unavailable]";
         fb.style.color = "crimson";
         div.appendChild(fb);
       }
