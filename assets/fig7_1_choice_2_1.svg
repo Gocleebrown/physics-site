@@ -1,0 +1,27 @@
+<svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="420" height="220" fill="white"/>
+
+  <!-- fuselage -->
+  <polygon points="330,110 305,102 160,104 140,110 160,116 305,118" fill="black"/>
+  <!-- main wings to P (top) and Q (bottom) -->
+  <polygon points="215,104 235,104 225,50" fill="black"/>
+  <polygon points="215,116 235,116 225,170" fill="black"/>
+  <!-- tail wings -->
+  <polygon points="160,107 175,107 165,80" fill="black"/>
+  <polygon points="160,113 175,113 165,140" fill="black"/>
+
+  <circle cx="225" cy="50" r="3" fill="white" stroke="black"/>
+  <text x="233" y="48" font-size="14">P</text>
+  <text x="185" y="48" font-size="17" font-weight="bold">0</text>
+
+  <circle cx="225" cy="170" r="3" fill="white" stroke="black"/>
+  <text x="233" y="178" font-size="14">Q</text>
+  <text x="185" y="178" font-size="17" font-weight="bold">0</text>
+
+  <!-- velocity arrow -->
+  <line x1="140" y1="80" x2="195" y2="80" stroke="black" stroke-width="1.5"/>
+  <polygon points="195,80 187,76 187,84" fill="black"/>
+  <text x="145" y="72" font-size="13">v</text>
+
+  <text x="115" y="205" font-size="12">no potential difference</text>
+</svg>
