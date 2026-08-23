@@ -593,23 +593,76 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
 
       if (el) el.style.border = raw === "" ? "1px solid #999" : correct ? "2px solid green" : "2px solid crimson";
 
-      feedbackRows += `<tr><td style="padding:2px 8px 2px 0;">${rLabel} &ndash; ${cLabel}:</td><td>${answer}</td></tr>`;
+      const icon = correct ? "&#10003;" : "&#10007;";
+      const iconColor = correct ? "green" : "crimson";
+      feedbackRows += `<tr><td style="padding:2px 8px 2px 0;color:${iconColor};">${icon} ${rLabel} &ndash; ${cLabel}:</td><td>${answer}</td></tr>`;
     });
   });
 
   totalMarksEarned += earned;
   document.getElementById(`score-${index}`).textContent = `(${earned}/${marks.length})`;
 
+  // per-cell keyword breakdown, for reporting suspected marking issues during beta testing
+  let breakdownRows = "";
+  markIdx = 0;
+  rowLabels.forEach((rLabel, r) => {
+    colLabels.forEach((cLabel, c) => {
+      const kw = (cellKeywords && cellKeywords[r] && cellKeywords[r][c]) || [];
+      const mark = marks[markIdx];
+      markIdx++;
+      const icon = mark && mark.awarded ? "&#10003;" : "&#10007;";
+      const color = mark && mark.awarded ? "green" : "crimson";
+      breakdownRows += `<div style="color:${color};">${icon} ${rLabel} &ndash; ${cLabel}: needed ${describeKeywordRequirement(kw)}</div>`;
+    });
+  });
+
   fb.style.border = earned === marks.length ? "2px solid green" : earned > 0 ? "2px solid orange" : "2px solid red";
   fb.innerHTML =
     (anyBlank ? `<strong>Try to fill in every cell.</strong><br><br>` : earned === marks.length ? `<strong>Correct!</strong><br><br>` : `<strong>Not quite right yet.</strong><br><br>`) +
     `<em>Model answers:</em><table>${feedbackRows}</table>` +
-    (explanation ? `<br>${explanation}` : "");
+    (explanation ? `<br>${explanation}` : "") +
+    `<div style="margin-top:10px;font-size:0.9em;border-top:1px solid #ccc;padding-top:6px;">` +
+    `<em>Marking breakdown (for reporting issues during beta testing):</em><br>${breakdownRows}</div>`;
 
   updateScoreDisplay(true);
 }
 
 // ─── 3) Check answer with blank-guard, numeric fallback ±0.5%, and M/A/C/B ───
+// Produces a short, human-readable description of what a keyword group
+// requires - used in the marking breakdown shown after checking an answer,
+// so during beta testing a student (or the site owner, via a screenshot)
+// can see exactly what wording was needed for a mark, not just whether it
+// was awarded.
+function describeKeywordRequirement(groups) {
+  if (!Array.isArray(groups) || groups.length === 0) return "any reasonable answer";
+  // OR-of-(AND-of-OR): rare, deepest nesting case
+  if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
+    return groups.map(describeKeywordRequirement).join(" &nbsp;OR&nbsp; ");
+  }
+  // flat OR: array of strings
+  if (groups.every((g) => typeof g === "string")) {
+    return groups.map((g) => `&ldquo;${g}&rdquo;`).join(" or ");
+  }
+  // AND-of-OR: array of arrays of strings
+  return groups.map((grp) => "(" + grp.map((kw) => `&ldquo;${kw}&rdquo;`).join(" or ") + ")").join(" and ");
+}
+
+// Builds the "Marking breakdown" block: one line per mark, showing whether
+// it was awarded and what wording/answer was needed for it. Shown for every
+// outcome (correct, partial, wrong) so a screenshot always shows the full
+// picture, not just the final score.
+function buildMarkingBreakdown(marks) {
+  if (!marks || !marks.length) return "";
+  const rows = marks.map((m, i) => {
+    const icon = m.awarded ? "&#10003;" : "&#10007;";
+    const color = m.awarded ? "green" : "crimson";
+    const req = m.keywords ? describeKeywordRequirement(m.keywords) : "correct final answer";
+    return `<div style="color:${color};">${icon} Mark ${i + 1} (${m.type}): needed ${req}</div>`;
+  });
+  return `<div style="margin-top:10px;font-size:0.9em;border-top:1px solid #ccc;padding-top:6px;">` +
+    `<em>Marking breakdown (for reporting issues during beta testing):</em><br>${rows.join("")}</div>`;
+}
+
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
   const input = raw.replace(/%/g, "").toLowerCase();
@@ -647,7 +700,8 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       const fb = document.getElementById(`model-${index}`);
       fb.style.display = "block";
       fb.style.border = "2px solid green";
-      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${modelAnswer}`;
+      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${modelAnswer}` +
+        buildMarkingBreakdown([{ type: "A", awarded: true, keywords: null }]);
       return;
     }
 
@@ -660,7 +714,8 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       const fb = document.getElementById(`model-${index}`);
       fb.style.display = "block";
       fb.style.border = "2px solid green";
-      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${modelAnswer}`;
+      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${modelAnswer}` +
+        buildMarkingBreakdown([{ type: "A", awarded: true, keywords: null }]);
       return;
     }
   }
@@ -735,17 +790,17 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
   // feedback
   if (earned === possible) {
-    fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${modelAnswer}`;
+    fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${modelAnswer}` + buildMarkingBreakdown(marks);
     fb.style.border = "2px solid green";
   } else if (earned > 0) {
     fb.innerHTML =
       `<strong>You're nearly there!</strong><br><br><em>Key Idea:</em><br>${explanation}` +
-      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
+      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}` + buildMarkingBreakdown(marks);
     fb.style.border = "2px solid orange";
   } else {
     fb.innerHTML =
       `<strong>Not quite right.</strong><br><br><em>Key Idea:</em><br>${explanation}` +
-      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}`;
+      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}` + buildMarkingBreakdown(marks);
     fb.style.border = "2px solid red";
   }
 
