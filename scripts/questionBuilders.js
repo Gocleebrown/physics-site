@@ -138,7 +138,7 @@ window.genericBuilder = function ({ id, type, params, parts }) {
   for (const k in params) {
     if (Array.isArray(params[k]) && typeof params[k][0] === "number") {
       const [min, max] = params[k];
-      ctx[k] = +(Math.random() * (max - min) + min).toFixed(6);
+      ctx[k] = Math.random() * (max - min) + min;
     } else {
       ctx[k] = params[k];
     }
