@@ -1,0 +1,11 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="400" height="300" fill="white"/>
+  <line x1="50" y1="60" x2="50" y2="240" stroke="black" stroke-width="1.5"/>
+  <line x1="50" y1="240" x2="350" y2="240" stroke="black" stroke-width="1.5"/>
+  <text x="10" y="65" font-size="13">E&#8342;</text>
+  <text x="30" y="255" font-size="12">h&#8342;&#7522;&#8344;</text>
+  <text x="330" y="255" font-size="12">h&#7595;&#7524;&#8348;</text>
+  <text x="150" y="20" font-size="14">E&#8342; against h</text>
+  
+  <path d="M50,70 C120,180 160,240 200,240 C240,240 280,180 350,70" fill="none" stroke="black" stroke-width="2.5"/>
+</svg>
