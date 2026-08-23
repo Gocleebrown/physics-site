@@ -1,0 +1,10 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="400" height="300" fill="white"/>
+  <line x1="50" y1="60" x2="50" y2="240" stroke="black" stroke-width="1.5"/>
+  <line x1="50" y1="240" x2="350" y2="240" stroke="black" stroke-width="1.5"/>
+  <text x="10" y="65" font-size="13">A</text>
+  <text x="20" y="245" font-size="12">0</text>
+  <text x="330" y="255" font-size="12">t</text>
+  <text x="150" y="20" font-size="14">A against t</text>
+  <path d="M50,80 C90,140 120,175 160,195 C200,212 260,225 350,232" fill="none" stroke="black" stroke-width="2.5"/>
+</svg>
