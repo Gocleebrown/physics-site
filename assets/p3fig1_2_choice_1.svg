@@ -1,0 +1,9 @@
+<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="400" height="220" fill="white"/>
+  <line x1="60" y1="180" x2="200" y2="30" stroke="black" stroke-width="1.5"/>
+  <line x1="340" y1="180" x2="200" y2="30" stroke="black" stroke-width="1.5"/>
+  <circle cx="200" cy="100" r="8" fill="black"/>
+  <line x1="200" y1="100" x2="200" y2="40" stroke="black" stroke-width="2.5"/><polygon points="200,40 195,52 205,52" fill="black"/><text x="205" y="70" font-size="12">weight</text>
+  <line x1="200" y1="100" x2="150" y2="60" stroke="black" stroke-width="2.5"/><polygon points="150,60 160,63 157,72" fill="black"/><text x="90" y="60" font-size="12">normal force</text>
+  <text x="140" y="205" font-size="12">weight up (wrong), normal perpendicular</text>
+</svg>

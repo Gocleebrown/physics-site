@@ -1,0 +1,12 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="400" height="300" fill="white"/>
+  <line x1="50" y1="150" x2="350" y2="150" stroke="black" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="50" y1="60" x2="50" y2="240" stroke="black" stroke-width="1.5"/>
+  <line x1="50" y1="240" x2="350" y2="240" stroke="black" stroke-width="1.5"/>
+  <text x="50" y="255" font-size="11">R</text><text x="125" y="255" font-size="11">2R</text><text x="200" y="255" font-size="11">3R</text><text x="275" y="255" font-size="11">4R</text>
+  <text x="10" y="65" font-size="12">potential</text>
+  <text x="320" y="255" font-size="12">x</text>
+  <text x="120" y="20" font-size="13">&#966; against x</text>
+  
+  <path d="M50,240 C110,190 140,175 125,150 C160,120 260,105 350,95" fill="none" stroke="black" stroke-width="2.5"/>
+</svg>
