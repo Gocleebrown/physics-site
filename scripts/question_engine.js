@@ -221,15 +221,81 @@ function normalizeGraphSpec(specLike) {
   return spec;
 }
 
+// ─── Weighted question selection, based on locally-saved practice history ───
+// Each question's most recent score (as a percentage) is saved in
+// localStorage, keyed by question id. Questions are bucketed by that score
+// and drawn with different weights, so weaker/unattempted questions come up
+// far more often than ones already scoring well. This is per-device
+// (localStorage), not per-login-account — it survives closing the tab/
+// browser, but doesn't sync across devices or distinguish students sharing
+// one browser.
+const SCORE_STORAGE_KEY = "physicsPracticeScores";
+
+// Bucket boundaries are inclusive upper limits; weight = relative draw
+// frequency. A question with no saved score (never attempted) is treated
+// the same as a 0% score - both need attention.
+const SCORE_BUCKETS = [
+  { max: 0, weight: 10 },   // exactly 0%, or never attempted
+  { max: 20, weight: 6 },   // 0-20%
+  { max: 50, weight: 4 },   // 20-50%
+  { max: 70, weight: 2 },   // 50-70%
+  { max: 100, weight: 1 },  // 70-100%
+];
+
+function loadPracticeScores() {
+  try {
+    return JSON.parse(localStorage.getItem(SCORE_STORAGE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+// Exposed on window so main.js's updateScoreDisplay() can call it.
+window.saveScoreForQuestion = function (questionId, percent) {
+  try {
+    const scores = loadPracticeScores();
+    scores[questionId] = percent;
+    localStorage.setItem(SCORE_STORAGE_KEY, JSON.stringify(scores));
+  } catch (e) {
+    // localStorage can be unavailable (e.g. some private-browsing modes) -
+    // fail quietly rather than break question loading/marking.
+    console.warn("Could not save practice history:", e);
+  }
+};
+
+function weightForPercent(percent) {
+  const p = percent === undefined || percent === null ? 0 : percent;
+  for (const bucket of SCORE_BUCKETS) {
+    if (p <= bucket.max) return bucket.weight;
+  }
+  return SCORE_BUCKETS[SCORE_BUCKETS.length - 1].weight;
+}
+
+function pickWeightedQuestion() {
+  const scores = loadPracticeScores();
+  const weighted = window.questions.map((q) => ({
+    q,
+    weight: weightForPercent(scores[q.id]),
+  }));
+  const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
+  let r = Math.random() * totalWeight;
+  for (const w of weighted) {
+    if (r < w.weight) return w.q;
+    r -= w.weight;
+  }
+  return weighted[weighted.length - 1].q; // floating-point fallback
+}
+
 // ─── 1) Load & render a random question ───
 function loadRandomQuestion() {
-  const def = window.questions[Math.floor(Math.random() * window.questions.length)];
+  const def = pickWeightedQuestion();
+  window.currentQuestionId = def.id;
   const qData = window.genericBuilder(def);
 
   // reset scores
   resetQuestionScores();
   totalMarksPossible = qData.parts.reduce((sum, p) => sum + p.marks.length, 0);
-  updateScoreDisplay();
+  updateScoreDisplay(); // no persistAttempt arg - this is just initial display, not a real attempt
 
   const container = document.getElementById("question-container");
   container.innerHTML = "";
@@ -469,7 +535,7 @@ function checkImageChoice(index, chosenIdx, correctIdx, marks, grid, explanation
     ? `<strong>Correct!</strong><br><br>${explanation || ""}`
     : `<strong>Not quite right.</strong><br><br>${explanation || ""}`;
 
-  updateScoreDisplay();
+  updateScoreDisplay(true);
 }
 
 // Parses a number typed in any common student style: "3.4e22", "3.4E22",
@@ -540,7 +606,7 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
     `<em>Model answers:</em><table>${feedbackRows}</table>` +
     (explanation ? `<br>${explanation}` : "");
 
-  updateScoreDisplay();
+  updateScoreDisplay(true);
 }
 
 // ─── 3) Check answer with blank-guard, numeric fallback ±0.5%, and M/A/C/B ───
@@ -576,7 +642,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
     if (variants.includes(userStr)) {
       totalMarksEarned++;
-      updateScoreDisplay();
+      updateScoreDisplay(true);
       document.getElementById(`score-${index}`).textContent = `(1/1)`;
       const fb = document.getElementById(`model-${index}`);
       fb.style.display = "block";
@@ -589,7 +655,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     const tol = Math.abs(correctNum) * 0.005;
     if (!isNaN(userNum) && Math.abs(userNum - correctNum) <= tol) {
       totalMarksEarned++;
-      updateScoreDisplay();
+      updateScoreDisplay(true);
       document.getElementById(`score-${index}`).textContent = `(1/1)`;
       const fb = document.getElementById(`model-${index}`);
       fb.style.display = "block";
@@ -683,7 +749,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     fb.style.border = "2px solid red";
   }
 
-  updateScoreDisplay();
+  updateScoreDisplay(true);
 }
 
 // expose globally
