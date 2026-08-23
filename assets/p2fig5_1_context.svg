@@ -1,0 +1,13 @@
+<svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="300" height="220" fill="white"/>
+  <line x1="30" y1="90" x2="270" y2="90" stroke="black" stroke-width="1.5"/>
+  <text x="235" y="82" font-size="12">liquid surface</text>
+
+  <rect x="110" y="60" width="80" height="90" fill="none" stroke="black" stroke-width="2"/>
+  <text x="130" y="105" font-size="13">block</text>
+
+  <line x1="230" y1="90" x2="230" y2="150" stroke="black" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="222" y1="90" x2="238" y2="90" stroke="black" stroke-width="1"/>
+  <line x1="222" y1="150" x2="238" y2="150" stroke="black" stroke-width="1"/>
+  <text x="240" y="123" font-size="14">h</text>
+</svg>
