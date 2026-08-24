@@ -21,8 +21,8 @@
         "
       />
       <p>
-        Welcome! Practise real past‐paper style questions and master every
-        concept step‐by‐step. Start whenever you’re ready!
+        Welcome! Practise real past&#8209;paper style questions and master every
+        concept step&#8209;by&#8209;step. Start whenever you&#8217;re ready!
       </p>
       <button id="start-btn">Start Practice</button>
     </div>
@@ -32,6 +32,25 @@
       <div id="score-display" style="font-size: 1.2em; margin: 1rem 0">
         Question Score: 0 / 0 | Session Score: 0 / 0
       </div>
+
+      <!-- SHORTCUTS TOOLBAR -->
+      <details id="shortcuts-panel" style="margin: 0.5rem 0 1rem; border: 1px solid #ccc; border-radius: 8px; padding: 6px 12px; background: #f9f9f9;">
+        <summary style="cursor: pointer; font-weight: bold; user-select: none;">&#9000;&#65039; Typing shortcuts &amp; tips <span style="font-weight:normal;font-size:0.85em;">(click to expand)</span></summary>
+        <div style="margin-top: 10px; font-size: 0.9em;">
+          <p style="margin: 0 0 8px;"><strong>Click a button to insert it into the answer box you last typed in:</strong></p>
+          <div id="shortcut-buttons" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+          </div>
+          <p style="margin: 4px 0 2px;"><strong>How to type numbers in standard form:</strong></p>
+          <ul style="margin: 2px 0 8px; padding-left: 20px;">
+            <li><code>3.4e22</code> or <code>3.4E22</code> &mdash; works like a calculator</li>
+            <li><code>3.4x10^22</code> &mdash; with a letter x</li>
+            <li><code>3.4&#215;10^22</code> &mdash; using the &#215; button above</li>
+            <li>All three are accepted as the same answer</li>
+          </ul>
+          <p style="margin: 4px 0 2px;"><strong>Units:</strong> You don&#8217;t need to type units in your answer &mdash; the marking only checks the number.</p>
+        </div>
+      </details>
+
       <div id="question-container"></div>
       <canvas
         id="diagram-canvas"
@@ -46,14 +65,75 @@
  <script src="scripts/main.js"></script>
  <script src="scripts/question_engine.js"></script>
     <script>
+      // ── Shortcuts toolbar ──────────────────────────────────────────────
+      // Each entry: [label shown on button, text to insert]
+      const SHORTCUTS = [
+        ['×10^( )',  '×10^('],
+        ['×',        '×'],
+        ['÷',        '÷'],
+        ['²',        '²'],
+        ['³',        '³'],
+        ['√',        '√('],
+        ['°',        '°'],
+        ['∝',        '∝'],
+        ['∞',        '∞'],
+        ['Δ',        'Δ'],
+        ['α',        'α'],
+        ['β',        'β'],
+        ['γ',        'γ'],
+        ['λ',        'λ'],
+        ['ω',        'ω'],
+        ['θ',        'θ'],
+        ['φ',        'φ'],
+        ['σ',        'σ'],
+        ['ε₀',       'ε₀'],
+        ['μ₀',       'μ₀'],
+        ['π',        'π'],
+        ['≈',        '≈'],
+        ['≤',        '≤'],
+        ['≥',        '≥'],
+      ];
+
+      let lastFocused = null;
+
+      // Track which answer box was last focused, so shortcuts insert there
+      document.addEventListener('focusin', (e) => {
+        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
+          lastFocused = e.target;
+        }
+      });
+
+      function insertAtCursor(text) {
+        const el = lastFocused;
+        if (!el) return;
+        const start = el.selectionStart ?? el.value.length;
+        const end   = el.selectionEnd   ?? el.value.length;
+        el.value = el.value.slice(0, start) + text + el.value.slice(end);
+        const newPos = start + text.length;
+        el.setSelectionRange(newPos, newPos);
+        el.focus();
+      }
+
+      const btnContainer = document.getElementById('shortcut-buttons');
+      SHORTCUTS.forEach(([label, insert]) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.title = `Insert: ${insert}`;
+        btn.style.cssText = 'padding:4px 8px;font-size:1em;cursor:pointer;border:1px solid #bbb;border-radius:4px;background:#fff;';
+        btn.addEventListener('mousedown', (e) => {
+          e.preventDefault(); // prevent focus leaving the answer box
+          insertAtCursor(insert);
+        });
+        btnContainer.appendChild(btn);
+      });
+
+      // ── Start button ───────────────────────────────────────────────────
       document
         .getElementById("start-btn")
         .addEventListener("click", async () => {
-          // swap pages
           document.getElementById("home-page").style.display = "none";
           document.getElementById("practice-page").style.display = "block";
-                  // now loadQuestionsFromSheet will exist
-       window.questions = await loadQuestionsFromSheet();
+          window.questions = await loadQuestionsFromSheet();
           loadRandomQuestion();
         });
     </script>
