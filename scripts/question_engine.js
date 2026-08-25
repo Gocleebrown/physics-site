@@ -106,6 +106,15 @@ function drawGraph(canvas, spec) {
   ctx.textBaseline = "top";
   ctx.textAlign = "center";
 
+  // tick label formatter: rounds to avoid floating-point noise like
+  // 0.30000000000000004, while preserving enough precision to distinguish
+  // nearby tick values (e.g. 0.1, 0.2, 0.3 on a tight microsecond axis).
+  function tickLabel(val) {
+    if (Math.abs(val) < 1e-12) return "0";
+    // 4 significant figures is more than enough for a graph axis label
+    return parseFloat(val.toPrecision(4)).toString();
+  }
+
   // x-axis ticks & labels
   for (let i = 0; i <= nX; i++) {
     const val = xGraphMin + i * xStep;
@@ -114,7 +123,7 @@ function drawGraph(canvas, spec) {
     ctx.moveTo(x, m + plotH - 5);
     ctx.lineTo(x, m + plotH + 5);
     ctx.stroke();
-    ctx.fillText((Math.abs(val) < 1e-12 ? 0 : val).toString(), x, m + plotH + 8);
+    ctx.fillText(tickLabel(val), x, m + plotH + 8);
   }
 
   // y-axis ticks & labels
@@ -128,7 +137,7 @@ function drawGraph(canvas, spec) {
     ctx.moveTo(m - 5, y);
     ctx.lineTo(m + 5, y);
     ctx.stroke();
-    ctx.fillText((Math.abs(val) < 1e-12 ? 0 : val).toString(), m - 8, y);
+    ctx.fillText(tickLabel(val), m - 8, y);
   }
 
   // axis titles
