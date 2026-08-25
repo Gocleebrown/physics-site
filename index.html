@@ -5,7 +5,6 @@
     <title>Physics Practice</title>
     <link rel="stylesheet" href="styles/style.css" />
     <style>
-      /* ── Sticky shortcuts toolbar ── */
       #shortcuts-panel {
         position: sticky;
         top: 0;
@@ -21,17 +20,17 @@
         cursor: pointer;
         font-weight: bold;
         user-select: none;
-        list-style: none; /* Chrome */
+        list-style: none;
       }
       #shortcuts-panel summary::-webkit-details-marker { display:none; }
-      #shortcut-buttons {
+      .btn-row {
         display: flex;
         flex-wrap: wrap;
         gap: 5px;
-        margin: 8px 0 6px;
+        margin: 6px 0 4px;
       }
       .shortcut-btn {
-        padding: 4px 8px;
+        padding: 4px 9px;
         font-size: 1em;
         cursor: pointer;
         border: 1px solid #bbb;
@@ -41,7 +40,6 @@
         position: relative;
       }
       .shortcut-btn:hover { background: #e8f4ff; border-color: #5a9; }
-      /* Tooltip */
       .shortcut-btn::after {
         content: attr(data-tooltip);
         position: absolute;
@@ -60,6 +58,14 @@
         z-index: 200;
       }
       .shortcut-btn:hover::after { opacity: 1; }
+      .section-label {
+        margin: 8px 0 2px;
+        color: #666;
+        font-size: 0.8em;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
     </style>
   </head>
   <body>
@@ -88,22 +94,20 @@
 
       <!-- STICKY SHORTCUTS TOOLBAR -->
       <details id="shortcuts-panel">
-        <summary>&#9000;&#65039; Symbols, constants &amp; tips <span style="font-weight:normal;font-size:0.85em;">(click to expand &#9660;)</span></summary>
+        <summary>&#9000;&#65039; Equation &amp; symbol shortcuts <span style="font-weight:normal;font-size:0.85em;">(click to expand &#9660;)</span></summary>
+        <div style="font-size:0.88em;">
 
-        <div style="margin-top:8px;font-size:0.88em;">
-          <p style="margin:0 0 4px;"><strong>Click to insert at your cursor. Hover for description.</strong></p>
+          <p class="section-label">Operators</p>
+          <div class="btn-row" id="op-buttons"></div>
 
-          <!-- SYMBOLS & OPERATORS -->
-          <p style="margin:6px 0 3px;color:#555;font-size:0.85em;">&#9632; OPERATORS &amp; SYMBOLS</p>
-          <div id="shortcut-buttons"></div>
+          <p class="section-label">Greek &amp; physics symbols</p>
+          <div class="btn-row" id="greek-buttons"></div>
 
-          <!-- DATA BOOKLET CONSTANTS (pages 2–3) -->
-          <p style="margin:8px 0 3px;color:#555;font-size:0.85em;">&#9632; DATA BOOKLET CONSTANTS (given in every paper)</p>
-          <div id="constant-buttons"></div>
+          <p class="section-label">Constants (hover to see value &amp; units, click to insert symbol)</p>
+          <div class="btn-row" id="const-buttons"></div>
 
-          <!-- TIPS -->
-          <div style="margin-top:8px;border-top:1px solid #ddd;padding-top:6px;">
-            <strong>Standard form:</strong> type <code>3.4e22</code> or <code>3.4x10^22</code> or use <strong>&#215;10^(</strong> above &mdash; all accepted.<br>
+          <div style="margin-top:8px;border-top:1px solid #ddd;padding-top:6px;color:#555;">
+            <strong>Standard form:</strong> type <code>3.4e22</code> or <code>3.4x10^22</code> — both accepted.<br>
             <strong>Units:</strong> you don&#8217;t need to type units &mdash; the marking only checks the number.
           </div>
         </div>
@@ -120,62 +124,60 @@
     <script src="scripts/main.js"></script>
     <script src="scripts/question_engine.js"></script>
     <script>
-      // ── Shortcut data ──────────────────────────────────────────────────
-      // [label, text to insert, tooltip description]
-      const SYMBOL_SHORTCUTS = [
-        ['×10^(', '×10^(',  'Standard form — e.g. 3.4×10^(22)'],
-        ['×',     '×',      'Multiply / times'],
-        ['÷',     '÷',      'Divide'],
-        ['²',     '²',      'Squared (superscript 2)'],
-        ['³',     '³',      'Cubed (superscript 3)'],
-        ['⁻¹',   '⁻¹',    'Per unit (superscript −1, e.g. m s⁻¹)'],
-        ['⁻²',   '⁻²',    'Per unit squared (superscript −2)'],
-        ['√(',    '√(',     'Square root'],
-        ['≈',     '≈',      'Approximately equal to'],
-        ['∝',     '∝',      'Proportional to'],
-        ['Δ',     'Δ',      'Δ — change in (e.g. Δx, ΔT)'],
-        ['°',     '°',      'Degrees (angle or Celsius)'],
-        ['∞',     '∞',      'Infinity'],
-        ['α',     'α',      'α — alpha particle / alpha decay'],
-        ['β',     'β',      'β — beta particle / beta decay'],
-        ['γ',     'γ',      'γ — gamma ray / photon'],
-        ['λ',     'λ',      'λ — wavelength (m)'],
-        ['ω',     'ω',      'ω — angular frequency / angular velocity (rad s⁻¹)'],
-        ['θ',     'θ',      'θ — angle (rad or °)'],
-        ['φ',     'φ',      'φ — phase angle / work function / gravitational potential'],
-        ['σ',     'σ',      'σ — Stefan–Boltzmann constant (see constants below)'],
-        ['ρ',     'ρ',      'ρ — density (kg m⁻³)'],
-        ['ε',     'ε',      'ε — permittivity'],
-        ['μ',     'μ',      'μ — permeability / micro (10⁻⁶)'],
-        ['π',     'π',      'π = 3.14159…'],
-        ['τ',     'τ',      'τ — time constant (s)'],
-        ['η',     'η',      'η — efficiency'],
-        ['≤',     '≤',      'Less than or equal to'],
-        ['≥',     '≥',      'Greater than or equal to'],
-        ['±',     '±',      'Plus or minus'],
+      // ── Shortcut definitions ────────────────────────────────────────────
+      // All constants insert just the symbol — tooltip shows the value/units
+      // so the student knows they're picking the right one.
+      // Format: [button label, text to insert, tooltip]
+
+      const OPERATORS = [
+        ['×10^(',  '×10^(',   'Standard form — e.g. 3.4×10^(22)'],
+        ['×',      '×',       'Multiply'],
+        ['÷',      '÷',       'Divide'],
+        ['²',      '²',       'Squared (superscript 2)'],
+        ['³',      '³',       'Cubed (superscript 3)'],
+        ['⁻¹',    '⁻¹',     'Inverse (superscript −1), e.g. m s⁻¹'],
+        ['⁻²',    '⁻²',     'Inverse squared (superscript −2)'],
+        ['√(',     '√(',      'Square root'],
+        ['°',      '°',       'Degrees — angle or Celsius'],
+        ['Δ',      'Δ',       'Δ — change in, e.g. ΔT, Δx'],
       ];
 
-      // Constants from CIE 9702 data booklet (pages 2–3 of every paper)
-      // [label, insert text, tooltip with name and value]
-      const CONSTANT_SHORTCUTS = [
-        ['c',   'c = 3.00×10^(8)',  'Speed of light in free space  c = 3.00 × 10⁸ m s⁻¹'],
-        ['μ₀',  'μ₀ = 4π×10^(-7)', 'Permeability of free space  μ₀ = 4π × 10⁻⁷ H m⁻¹'],
-        ['ε₀',  'ε₀ = 8.85×10^(-12)', 'Permittivity of free space  ε₀ = 8.85 × 10⁻¹² F m⁻¹'],
-        ['1/4πε₀', '8.99×10^(9)', 'Coulomb constant  1/(4πε₀) = 8.99 × 10⁹ m F⁻¹'],
-        ['e',   'e = 1.60×10^(-19)', 'Elementary charge  e = 1.60 × 10⁻¹⁹ C'],
-        ['h',   'h = 6.63×10^(-34)', 'Planck constant  h = 6.63 × 10⁻³⁴ J s'],
-        ['u',   'u = 1.66×10^(-27)', 'Unified atomic mass unit  u = 1.66 × 10⁻²⁷ kg'],
-        ['mₑ',  'me = 9.11×10^(-31)', 'Rest mass of electron  mₑ = 9.11 × 10⁻³¹ kg'],
-        ['mₚ',  'mp = 1.67×10^(-27)', 'Rest mass of proton  mₚ = 1.67 × 10⁻²⁷ kg'],
-        ['R',   'R = 8.31',          'Molar gas constant  R = 8.31 J K⁻¹ mol⁻¹'],
-        ['Nₐ',  'NA = 6.02×10^(23)', 'Avogadro constant  Nₐ = 6.02 × 10²³ mol⁻¹'],
-        ['k',   'k = 1.38×10^(-23)', 'Boltzmann constant  k = 1.38 × 10⁻²³ J K⁻¹'],
-        ['G',   'G = 6.67×10^(-11)', 'Gravitational constant  G = 6.67 × 10⁻¹¹ N m² kg⁻²'],
-        ['g',   'g = 9.81',          'Gravitational field strength (Earth surface)  g = 9.81 m s⁻²'],
-        ['σ',   'σ = 5.67×10^(-8)', 'Stefan–Boltzmann constant  σ = 5.67 × 10⁻⁸ W m⁻² K⁻⁴'],
+      const GREEK = [
+        ['α',  'α',  'α — alpha particle / alpha radiation'],
+        ['β',  'β',  'β — beta particle / beta radiation'],
+        ['γ',  'γ',  'γ — gamma ray'],
+        ['λ',  'λ',  'λ — wavelength (m)'],
+        ['ω',  'ω',  'ω — angular frequency or angular velocity (rad s⁻¹)'],
+        ['θ',  'θ',  'θ — angle (rad or °)'],
+        ['φ',  'φ',  'φ — phase angle / work function / gravitational potential'],
+        ['ρ',  'ρ',  'ρ — density (kg m⁻³)'],
+        ['σ',  'σ',  'σ — Stefan–Boltzmann constant (5.67×10⁻⁸ W m⁻² K⁻⁴)'],
+        ['ε',  'ε',  'ε — permittivity (ε₀ = 8.85×10⁻¹² F m⁻¹)'],
+        ['μ',  'μ',  'μ — permeability, or micro (10⁻⁶)'],
+        ['τ',  'τ',  'τ — time constant (s)'],
+        ['η',  'η',  'η — efficiency'],
+        ['π',  'π',  'π = 3.14159…'],
       ];
 
-      // ── Focus tracking & insertion ─────────────────────────────────────
+      // Constants: insert just the symbol; tooltip has full name and value
+      const CONSTANTS = [
+        ['c',    'c',   'Speed of light in free space  c = 3.00 × 10⁸ m s⁻¹'],
+        ['μ₀',   'μ₀',  'Permeability of free space  μ₀ = 4π × 10⁻⁷ H m⁻¹'],
+        ['ε₀',   'ε₀',  'Permittivity of free space  ε₀ = 8.85 × 10⁻¹² F m⁻¹'],
+        ['e',    'e',   'Elementary charge  e = 1.60 × 10⁻¹⁹ C'],
+        ['h',    'h',   'Planck constant  h = 6.63 × 10⁻³⁴ J s'],
+        ['u',    'u',   'Unified atomic mass unit  u = 1.66 × 10⁻²⁷ kg'],
+        ['mₑ',   'me',  'Rest mass of electron  mₑ = 9.11 × 10⁻³¹ kg'],
+        ['mₚ',   'mp',  'Rest mass of proton  mₚ = 1.67 × 10⁻²⁷ kg'],
+        ['R',    'R',   'Molar gas constant  R = 8.31 J K⁻¹ mol⁻¹'],
+        ['Nₐ',   'NA',  'Avogadro constant  Nₐ = 6.02 × 10²³ mol⁻¹'],
+        ['k',    'k',   'Boltzmann constant  k = 1.38 × 10⁻²³ J K⁻¹'],
+        ['G',    'G',   'Gravitational constant  G = 6.67 × 10⁻¹¹ N m² kg⁻²'],
+        ['g',    'g',   'Gravitational field strength at Earth\'s surface  g = 9.81 m s⁻²'],
+        ['σ',    'σ',   'Stefan–Boltzmann constant  σ = 5.67 × 10⁻⁸ W m⁻² K⁻⁴'],
+      ];
+
+      // ── Focus tracking & insertion ──────────────────────────────────────
       let lastFocused = null;
       document.addEventListener('focusin', (e) => {
         if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
@@ -194,25 +196,26 @@
         el.focus();
       }
 
-      function makeButton(label, insert, tooltip, container) {
+      function makeBtn(label, insert, tooltip, container) {
         const btn = document.createElement('button');
         btn.className = 'shortcut-btn';
         btn.textContent = label;
         btn.setAttribute('data-tooltip', tooltip);
         btn.addEventListener('mousedown', (e) => {
-          e.preventDefault();
+          e.preventDefault(); // keep focus in answer box
           insertAtCursor(insert);
         });
         container.appendChild(btn);
       }
 
-      const symContainer = document.getElementById('shortcut-buttons');
-      SYMBOL_SHORTCUTS.forEach(([label, insert, tooltip]) => makeButton(label, insert, tooltip, symContainer));
+      const opContainer    = document.getElementById('op-buttons');
+      const greekContainer = document.getElementById('greek-buttons');
+      const constContainer = document.getElementById('const-buttons');
+      OPERATORS.forEach(([l,i,t]) => makeBtn(l,i,t, opContainer));
+      GREEK.forEach(([l,i,t])     => makeBtn(l,i,t, greekContainer));
+      CONSTANTS.forEach(([l,i,t]) => makeBtn(l,i,t, constContainer));
 
-      const constContainer = document.getElementById('constant-buttons');
-      CONSTANT_SHORTCUTS.forEach(([label, insert, tooltip]) => makeButton(label, insert, tooltip, constContainer));
-
-      // ── Start button ───────────────────────────────────────────────────
+      // ── Start button ────────────────────────────────────────────────────
       document.getElementById('start-btn').addEventListener('click', async () => {
         document.getElementById('home-page').style.display = 'none';
         document.getElementById('practice-page').style.display = 'block';
