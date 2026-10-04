@@ -83,6 +83,10 @@
         Welcome! Practise real past&#8209;paper style questions and master every
         concept step&#8209;by&#8209;step. Start whenever you&#8217;re ready!
       </p>
+      <p style="font-size:0.85em;color:#666;border:1px solid #ddd;border-radius:6px;padding:10px;background:#fafafa;max-width:500px;">
+        📝 <strong>Spelling tip:</strong> Spelling errors may be marked incorrect. To enable spell-check underlining in Chrome, go to
+        <strong>Settings → Spell check</strong> and select <strong>Basic</strong> (not Enhanced).
+      </p>
       <button id="start-btn">Start Practice</button>
     </div>
 
@@ -124,11 +128,6 @@
     <script src="scripts/main.js"></script>
     <script src="scripts/question_engine.js"></script>
     <script>
-      // ── Shortcut definitions ────────────────────────────────────────────
-      // All constants insert just the symbol — tooltip shows the value/units
-      // so the student knows they're picking the right one.
-      // Format: [button label, text to insert, tooltip]
-
       const OPERATORS = [
         ['×10^(',  '×10^(',   'Standard form — e.g. 3.4×10^(22)'],
         ['×',      '×',       'Multiply'],
@@ -159,7 +158,6 @@
         ['π',  'π',  'π = 3.14159…'],
       ];
 
-      // Constants: insert just the symbol; tooltip has full name and value
       const CONSTANTS = [
         ['c',    'c',   'Speed of light in free space  c = 3.00 × 10⁸ m s⁻¹'],
         ['μ₀',   'μ₀',  'Permeability of free space  μ₀ = 4π × 10⁻⁷ H m⁻¹'],
@@ -177,7 +175,6 @@
         ['σ',    'σ',   'Stefan–Boltzmann constant  σ = 5.67 × 10⁻⁸ W m⁻² K⁻⁴'],
       ];
 
-      // ── Focus tracking & insertion ──────────────────────────────────────
       let lastFocused = null;
       document.addEventListener('focusin', (e) => {
         if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
@@ -202,7 +199,7 @@
         btn.textContent = label;
         btn.setAttribute('data-tooltip', tooltip);
         btn.addEventListener('mousedown', (e) => {
-          e.preventDefault(); // keep focus in answer box
+          e.preventDefault();
           insertAtCursor(insert);
         });
         container.appendChild(btn);
@@ -215,7 +212,6 @@
       GREEK.forEach(([l,i,t])     => makeBtn(l,i,t, greekContainer));
       CONSTANTS.forEach(([l,i,t]) => makeBtn(l,i,t, constContainer));
 
-      // ── Start button ────────────────────────────────────────────────────
       document.getElementById('start-btn').addEventListener('click', async () => {
         document.getElementById('home-page').style.display = 'none';
         document.getElementById('practice-page').style.display = 'block';
