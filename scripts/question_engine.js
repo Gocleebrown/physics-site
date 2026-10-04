@@ -485,6 +485,7 @@ function loadRandomQuestion() {
       ta.rows = 3;
       ta.cols = 60;
       ta.setAttribute("spellcheck", "true");  
+      ta.setAttribute("lang", "en");
       div.appendChild(ta);
 
       const btn = document.createElement("button");
