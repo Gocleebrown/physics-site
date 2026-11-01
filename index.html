@@ -1,3 +1,4 @@
+<!-- ##v2 -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,6 +6,7 @@
     <title>Physics Practice</title>
     <link rel="stylesheet" href="styles/style.css" />
     <style>
+      /* ── Shortcuts toolbar (unchanged) ── */
       #shortcuts-panel {
         position: sticky;
         top: 0;
@@ -66,10 +68,98 @@
         text-transform: uppercase;
         letter-spacing: 0.04em;
       }
+
+      /* ── Selection page ── */
+      #level-sections {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin: 1.2rem 0;
+        align-items: flex-start;
+      }
+      .level-card {
+        flex: 1;
+        min-width: 200px;
+        max-width: 320px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 16px;
+        background: #fafafa;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .level-card h3 {
+        margin: 0 0 4px;
+        font-size: 1.3em;
+      }
+      .topics-scroll {
+        max-height: 220px;
+        overflow-y: auto;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 8px 10px;
+        background: #fff;
+        min-height: 44px;
+      }
+      .topics-scroll label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 3px 0;
+        cursor: pointer;
+        font-size: 0.95em;
+      }
+      .topics-scroll label:hover { background: #f0f6ff; border-radius: 3px; }
+      .topics-scroll input[type=checkbox] { cursor: pointer; }
+      .level-btn {
+        width: 100%;
+        padding: 9px;
+        font-size: 0.95em;
+        cursor: pointer;
+        border: 1px solid #bbb;
+        border-radius: 6px;
+        background: #fff;
+      }
+      .level-btn:not(:disabled):hover { background: #e8f4ff; border-color: #5a9; }
+      .level-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+      .level-btn.primary {
+        background: #3a7bd5;
+        color: #fff;
+        border-color: #2d64b3;
+        font-weight: 600;
+      }
+      .level-btn.primary:not(:disabled):hover { background: #2d64b3; }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 0.5rem;
+        color: #555;
+        text-decoration: none;
+        font-size: 0.9em;
+      }
+      .back-link:hover { color: #000; }
+      #load-error {
+        display: none;
+        color: #c00;
+        border: 1px solid #f99;
+        border-radius: 6px;
+        padding: 10px;
+        background: #fff0f0;
+        margin: 8px 0;
+      }
+      .count-note {
+        font-size: 0.8em;
+        color: #888;
+        margin: 0;
+      }
     </style>
   </head>
   <body>
-    <!-- HOME PAGE -->
+
+    <!-- ══════════════════════════════════════
+         HOME PAGE
+    ══════════════════════════════════════ -->
     <div id="home-page">
       <h1>Physics Practice</h1>
       <h2>Your place to master Cambridge Physics 9702!</h2>
@@ -90,7 +180,60 @@
       <button id="start-btn">Start Practice</button>
     </div>
 
-    <!-- PRACTICE PAGE -->
+    <!-- ══════════════════════════════════════
+         SELECTION PAGE
+    ══════════════════════════════════════ -->
+    <div id="selection-page" style="display:none">
+      <h1>Physics Practice</h1>
+      <h2>Choose your level and topics</h2>
+      <a href="#" class="back-link" id="back-to-home">← Back to home</a>
+
+      <div id="load-error">
+        ⚠️ Could not load questions. Check your internet connection and
+        <a href="#" id="retry-load">try again</a>.
+      </div>
+
+      <div id="level-sections">
+
+        <!-- ── IGCSE ── -->
+        <div class="level-card" id="card-IGCSE">
+          <h3>IGCSE</h3>
+          <p class="count-note" id="count-IGCSE">Loading…</p>
+          <button class="level-btn" id="whole-IGCSE" disabled>Whole Papers</button>
+          <div class="topics-scroll" id="topics-IGCSE">
+            <p style="color:#aaa;margin:4px 0;font-size:0.9em;">Loading topics…</p>
+          </div>
+          <button class="level-btn primary" id="selected-IGCSE" disabled>Selected Topics</button>
+        </div>
+
+        <!-- ── AS ── -->
+        <div class="level-card" id="card-AS">
+          <h3>AS</h3>
+          <p class="count-note" id="count-AS">Loading…</p>
+          <button class="level-btn" id="whole-AS" disabled>Whole Papers</button>
+          <div class="topics-scroll" id="topics-AS">
+            <p style="color:#aaa;margin:4px 0;font-size:0.9em;">Loading topics…</p>
+          </div>
+          <button class="level-btn primary" id="selected-AS" disabled>Selected Topics</button>
+        </div>
+
+        <!-- ── A2 ── -->
+        <div class="level-card" id="card-A2">
+          <h3>A2</h3>
+          <p class="count-note" id="count-A2">Loading…</p>
+          <button class="level-btn" id="whole-A2" disabled>Whole Papers</button>
+          <div class="topics-scroll" id="topics-A2">
+            <p style="color:#aaa;margin:4px 0;font-size:0.9em;">Loading topics…</p>
+          </div>
+          <button class="level-btn primary" id="selected-A2" disabled>Selected Topics</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PRACTICE PAGE
+    ══════════════════════════════════════ -->
     <div id="practice-page" style="display:none">
       <div id="score-display" style="font-size:1.2em;margin:1rem 0">
         Question Score: 0 / 0 | Session Score: 0 / 0
@@ -128,6 +271,7 @@
     <script src="scripts/main.js"></script>
     <script src="scripts/question_engine.js"></script>
     <script>
+      // ── Shortcut toolbar data (unchanged) ──
       const OPERATORS = [
         ['×10^(',  '×10^(',   'Standard form — e.g. 3.4×10^(22)'],
         ['×',      '×',       'Multiply'],
@@ -175,6 +319,7 @@
         ['σ',    'σ',   'Stefan–Boltzmann constant  σ = 5.67 × 10⁻⁸ W m⁻² K⁻⁴'],
       ];
 
+      // ── Focus tracking for shortcut insertions (unchanged) ──
       let lastFocused = null;
       document.addEventListener('focusin', (e) => {
         if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
@@ -212,11 +357,148 @@
       GREEK.forEach(([l,i,t])     => makeBtn(l,i,t, greekContainer));
       CONSTANTS.forEach(([l,i,t]) => makeBtn(l,i,t, constContainer));
 
-      document.getElementById('start-btn').addEventListener('click', async () => {
-        document.getElementById('home-page').style.display = 'none';
-        document.getElementById('practice-page').style.display = 'block';
-        window.questions = await loadQuestionsFromSheet();
+      // ══════════════════════════════════════
+      //  PAGE NAVIGATION
+      // ══════════════════════════════════════
+
+      function showPage(id) {
+        ['home-page', 'selection-page', 'practice-page'].forEach(p => {
+          document.getElementById(p).style.display = (p === id) ? 'block' : 'none';
+        });
+      }
+
+      // Home → Selection
+      document.getElementById('start-btn').addEventListener('click', () => {
+        showPage('selection-page');
+        startLoadingTopics();
+      });
+
+      // Selection → Home (back link)
+      document.getElementById('back-to-home').addEventListener('click', (e) => {
+        e.preventDefault();
+        showPage('home-page');
+      });
+
+      // ══════════════════════════════════════
+      //  TOPIC LOADING & SELECTION PAGE LOGIC
+      // ══════════════════════════════════════
+
+      const LEVELS = ['IGCSE', 'AS', 'A2'];
+      let topicsLoaded = false;
+
+      function startLoadingTopics() {
+        if (topicsLoaded) return; // already done, don't re-fetch
+        document.getElementById('load-error').style.display = 'none';
+
+        loadQuestionsFromSheet()
+          .then(defs => {
+            topicsLoaded = true;
+            populateSelectionPage(defs);
+          })
+          .catch(err => {
+            console.error('[Selection] failed to load questions:', err);
+            document.getElementById('load-error').style.display = 'block';
+            LEVELS.forEach(level => {
+              document.getElementById(`count-${level}`).textContent = 'Load failed';
+            });
+          });
+      }
+
+      document.getElementById('retry-load').addEventListener('click', (e) => {
+        e.preventDefault();
+        topicsLoaded = false;
+        LEVELS.forEach(level => {
+          document.getElementById(`count-${level}`).textContent = 'Loading…';
+          document.getElementById(`topics-${level}`).innerHTML =
+            '<p style="color:#aaa;margin:4px 0;font-size:0.9em;">Loading topics…</p>';
+        });
+        startLoadingTopics();
+      });
+
+      function populateSelectionPage(defs) {
+        LEVELS.forEach(level => {
+          const levelDefs  = defs.filter(q => q.level === level);
+          const topics     = getTopicsForLevel(level);
+          const countEl    = document.getElementById(`count-${level}`);
+          const listEl     = document.getElementById(`topics-${level}`);
+          const wholeBtn   = document.getElementById(`whole-${level}`);
+          const selectedBtn = document.getElementById(`selected-${level}`);
+
+          countEl.textContent = `${levelDefs.length} question${levelDefs.length !== 1 ? 's' : ''} available`;
+
+          listEl.innerHTML = '';
+
+          if (levelDefs.length === 0) {
+            listEl.innerHTML = '<p style="color:#aaa;font-style:italic;margin:4px 0;font-size:0.9em;">No questions yet — coming soon!</p>';
+            wholeBtn.disabled = true;
+            selectedBtn.disabled = true;
+            return;
+          }
+
+          // Enable whole-papers button
+          wholeBtn.disabled = false;
+
+          if (topics.length === 0) {
+            listEl.innerHTML = '<p style="color:#aaa;font-style:italic;margin:4px 0;font-size:0.9em;">No topic tags assigned yet.</p>';
+            selectedBtn.disabled = true;
+          } else {
+            topics.forEach(topic => {
+              const label = document.createElement('label');
+              const cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.value = topic;
+              cb.className = `topic-cb topic-cb-${level}`;
+              cb.addEventListener('change', () => updateSelectedBtn(level));
+              label.appendChild(cb);
+              label.appendChild(document.createTextNode(' ' + topic));
+              listEl.appendChild(label);
+            });
+            // Selected Topics button starts disabled until at least one box is ticked
+            selectedBtn.disabled = true;
+          }
+        });
+      }
+
+      function updateSelectedBtn(level) {
+        const anyChecked = document.querySelectorAll(`.topic-cb-${level}:checked`).length > 0;
+        document.getElementById(`selected-${level}`).disabled = !anyChecked;
+      }
+
+      // ── Navigate to practice with the chosen filter ──
+      function startPractice(level, topicSet) {
+        if (!window.allDefinitions) {
+          alert('Questions are still loading — please wait a moment.');
+          return;
+        }
+
+        const filtered = filterQuestionsByLevelAndTopics(level, topicSet);
+
+        if (filtered.length === 0) {
+          const detail = topicSet && topicSet.size > 0
+            ? ' with the selected topics'
+            : '';
+          alert(`No questions found for ${level}${detail}. Please try different settings.`);
+          return;
+        }
+
+        window.questions = filtered;
+        console.log(`[Nav] ${level} – ${filtered.length} questions${topicSet ? ' (topic-filtered)' : ' (whole papers)'}`);
+
+        showPage('practice-page');
         loadRandomQuestion();
+      }
+
+      // Wire up each level's buttons
+      LEVELS.forEach(level => {
+        document.getElementById(`whole-${level}`).addEventListener('click', () => {
+          startPractice(level, null);
+        });
+
+        document.getElementById(`selected-${level}`).addEventListener('click', () => {
+          const checked = document.querySelectorAll(`.topic-cb-${level}:checked`);
+          const topicSet = new Set(Array.from(checked).map(cb => cb.value));
+          startPractice(level, topicSet);
+        });
       });
     </script>
   </body>
