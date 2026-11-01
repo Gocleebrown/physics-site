@@ -1,0 +1,16 @@
+<svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="400" height="320" fill="white"/>
+  <rect x="0" y="0" width="400" height="320" fill="#e8f4f8"/>
+  <rect x="0" y="0" width="400" height="320" fill="white" opacity="0.6"/>
+  <text x="15" y="30" font-size="12" fill="gray">↑ up</text>
+  <circle cx="200" cy="160" r="20" fill="#aaa" stroke="black" stroke-width="1.5"/>
+  <line x1="200" y1="180" x2="200" y2="260" stroke="black" stroke-width="2.5"/>
+  <polygon points="200,260 195,251 205,251" fill="black"/>
+  <text x="210" y="265" font-size="13">W</text>
+  <line x1="200" y1="140" x2="200" y2="95" stroke="black" stroke-width="2.5"/>
+  <polygon points="200,95 195,104 205,104" fill="black"/>
+  <text x="210" y="100" font-size="13">U</text>
+  <line x1="200" y1="140" x2="200" y2="105" stroke="black" stroke-width="2.5"/>
+  <polygon points="200,105 195,114 205,114" fill="black"/>
+  <text x="210" y="110" font-size="13">drag</text>
+</svg>

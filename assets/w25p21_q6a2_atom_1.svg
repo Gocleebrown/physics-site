@@ -1,0 +1,11 @@
+<svg viewBox="0 0 380 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="380" height="300" fill="white"/>
+  <circle cx="190" cy="155" r="85" fill="none" stroke="black" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <circle cx="190" cy="155" r="22" fill="#ddd" stroke="black" stroke-width="1.5"/>
+  <text x="190" y="151" font-size="11" text-anchor="middle" font-weight="bold">2p</text>
+  <text x="190" y="165" font-size="11" text-anchor="middle">1n</text>
+  <circle cx="250.1" cy="215.1" r="5" fill="black"/>
+  <text x="257.1" y="219.1" font-size="11">e⁻</text>
+  <circle cx="161.6" cy="74.9" r="5" fill="black"/>
+  <text x="168.6" y="78.9" font-size="11">e⁻</text>
+</svg>

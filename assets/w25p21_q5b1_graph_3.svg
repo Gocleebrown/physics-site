@@ -1,0 +1,11 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="400" height="300" fill="white"/>
+  <line x1="55" y1="30" x2="55" y2="228" stroke="black" stroke-width="1.5"/>
+  <polygon points="55,228 51,218 59,218" fill="black"/>
+  <line x1="47" y1="220" x2="320" y2="220" stroke="black" stroke-width="1.5"/>
+  <polygon points="320,220 310,216 310,224" fill="black"/>
+  <text x="324" y="224" font-size="13">T / °C</text>
+  <text x="49" y="24" font-size="13" text-anchor="middle">R / Ω</text>
+  <text x="200" y="22" font-size="14" text-anchor="middle" font-weight="bold">R against T</text>
+  <line x1="55" y1="60" x2="308" y2="215" stroke="black" stroke-width="2.5"/>
+</svg>
