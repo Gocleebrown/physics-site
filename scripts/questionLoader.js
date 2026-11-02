@@ -16,7 +16,9 @@ async function loadQuestionsFromSheet() {
   if (!res.ok) {
     throw new Error(`[Loader] CSV fetch failed: ${res.status} ${res.statusText}`);
   }
-  const csv = await res.text();
+  const rawCsv = await res.text();
+  // Google Sheets prepends a "## Sheet name: …" line — strip it before parsing
+  const csv = rawCsv.replace(/^##[^\n]*\n/, '');
 
   const { data: rows } = Papa.parse(csv, {
     header: true,
