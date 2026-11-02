@@ -1,5 +1,11 @@
 // scripts/question_engine.js
 
+// Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
+// newlines (Alt+Enter in Sheets) become <br> tags.
+function renderText(s) {
+  return (s || '').replace(/\n/g, '<br>');
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Universal graph-drawing helper with “nice” major + minor grid lines
 //  ‣ Expects spec as object with optional:
@@ -543,8 +549,8 @@ function checkImageChoice(index, chosenIdx, correctIdx, marks, grid, explanation
   fb.style.display = "block";
   fb.style.border = correct ? "2px solid green" : "2px solid red";
   fb.innerHTML = correct
-    ? `<strong>Correct!</strong><br><br>${explanation || ""}`
-    : `<strong>Not quite right.</strong><br><br>${explanation || ""}`;
+    ? `<strong>Correct!</strong><br><br>${renderText(explanation)}`
+    : `<strong>Not quite right.</strong><br><br>${renderText(explanation)}`;
 
   updateScoreDisplay(true);
 }
@@ -631,7 +637,7 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
   fb.innerHTML =
     (anyBlank ? `<strong>Try to fill in every cell.</strong><br><br>` : earned === marks.length ? `<strong>Correct!</strong><br><br>` : `<strong>Not quite right yet.</strong><br><br>`) +
     `<em>Model answers:</em><table>${feedbackRows}</table>` +
-    (explanation ? `<br>${explanation}` : "") +
+    (explanation ? `<br>${renderText(explanation)}` : "") +
     `<div style="margin-top:10px;font-size:0.9em;border-top:1px solid #ccc;padding-top:6px;">` +
     `<em>Marking breakdown (for reporting issues during beta testing):</em><br>${breakdownRows}</div>`;
 
@@ -685,7 +691,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     fb.style.border = "2px solid red";
     fb.innerHTML =
       `<strong>Try to always put something down.</strong><br><br>` +
-      `<em>Key Idea:</em><br>${explanation}`;
+      `<em>Key Idea:</em><br>${renderText(explanation)}`;
     return;
   }
 
@@ -711,7 +717,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       const fb = document.getElementById(`model-${index}`);
       fb.style.display = "block";
       fb.style.border = "2px solid green";
-      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${modelAnswer}` +
+      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${renderText(modelAnswer)}` +
         buildMarkingBreakdown([{ type: "A", awarded: true, keywords: null }]);
       return;
     }
@@ -725,7 +731,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
       const fb = document.getElementById(`model-${index}`);
       fb.style.display = "block";
       fb.style.border = "2px solid green";
-      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${modelAnswer}` +
+      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${renderText(modelAnswer)}` +
         buildMarkingBreakdown([{ type: "A", awarded: true, keywords: null }]);
       return;
     }
@@ -801,17 +807,17 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
   // feedback
   if (earned === possible) {
-    fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${modelAnswer}` + buildMarkingBreakdown(marks);
+    fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks);
     fb.style.border = "2px solid green";
   } else if (earned > 0) {
     fb.innerHTML =
-      `<strong>You're nearly there!</strong><br><br><em>Key Idea:</em><br>${explanation}` +
-      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}` + buildMarkingBreakdown(marks);
+      `<strong>You're nearly there!</strong><br><br><em>Key Idea:</em><br>${renderText(explanation)}` +
+      `<br><br><strong>Model Answer:</strong><br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks);
     fb.style.border = "2px solid orange";
   } else {
     fb.innerHTML =
-      `<strong>Not quite right.</strong><br><br><em>Key Idea:</em><br>${explanation}` +
-      `<br><br><strong>Model Answer:</strong><br>${modelAnswer}` + buildMarkingBreakdown(marks);
+      `<strong>Not quite right.</strong><br><br><em>Key Idea:</em><br>${renderText(explanation)}` +
+      `<br><br><strong>Model Answer:</strong><br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks);
     fb.style.border = "2px solid red";
   }
 
