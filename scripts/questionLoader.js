@@ -1,4 +1,4 @@
-// scripts/questionLoader.js ##v2
+// scripts/questionLoader.js ##v3
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1mspkPndqlydcum52DiVx_oq0cbmV8F06igR8kISehTI/export?format=csv&gid=0";
@@ -17,8 +17,12 @@ async function loadQuestionsFromSheet() {
     throw new Error(`[Loader] CSV fetch failed: ${res.status} ${res.statusText}`);
   }
   const rawCsv = await res.text();
-  // Google Sheets prepends a "## Sheet name: …" line — strip it before parsing
-  const csv = rawCsv.replace(/^##[^\n]*\n/, '');
+  // Google Sheets may prepend a UTF-8 BOM and/or one or more "## …" comment lines.
+  // Strip them all so PapaParse sees a clean CSV header on line 1.
+  const rawNoBom = rawCsv.replace(/^﻿/, '');
+  const lines = rawNoBom.split(/\r?\n/);
+  const dataStart = lines.findIndex(l => l.trim().length > 0 && !l.trim().startsWith('#'));
+  const csv = dataStart > 0 ? lines.slice(dataStart).join('\n') : rawNoBom;
 
   const { data: rows } = Papa.parse(csv, {
     header: true,
