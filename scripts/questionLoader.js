@@ -1,4 +1,4 @@
-// scripts/questionLoader.js ##v3
+// scripts/questionLoader.js ##v4
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1mspkPndqlydcum52DiVx_oq0cbmV8F06igR8kISehTI/export?format=csv&gid=0";
@@ -33,14 +33,21 @@ async function loadQuestionsFromSheet() {
   const byId = {};
   rows.forEach((r) => {
     const id = r.id?.trim();
-    if (!id) return;
+    // Skip blank ids and any header row that slipped through as data
+    if (!id || id === 'id') return;
     if (!byId[id]) {
+      let parsedParams = {};
+      try {
+        parsedParams = JSON.parse(r.params || "{}");
+      } catch (e) {
+        console.warn("[Loader] bad params for id=" + id + ":", r.params);
+      }
       byId[id] = {
         id,
         type:   r.type?.trim()  || "general",
-        level:  r.level?.trim() || "A2",       // NEW: defaults A2 for existing rows
-        tags:   parseTags(r.tags),              // NEW: tags as a clean array
-        params: JSON.parse(r.params || "{}"),
+        level:  r.level?.trim() || "A2",
+        tags:   parseTags(r.tags),
+        params: parsedParams,
         parts:  [],
       };
     }
