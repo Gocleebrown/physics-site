@@ -1,4 +1,4 @@
-// scripts/question_engine.js ##v3
+// scripts/question_engine.js ##v4
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
@@ -60,12 +60,20 @@ function extractNumbers(str) {
   return out;
 }
 
+// Drop the words "the", "a", "an" (only when they stand alone between spaces), so
+// "divided by the potential difference" matches "divided by potential difference".
+function stripArticles(s) {
+  return String(s).replace(/(^|\s)(?:the|an|a)(?=\s|$)/g, " ").replace(/\s+/g, " ").trim();
+}
+
 function prepareInput(rawInput) {
   const norm = normaliseText(rawInput);
   let nums = null;
   return {
     norm,
     squash: norm.replace(/\s+/g, ""),
+    get noArt() { return stripArticles(norm); },
+    get noArtSquash() { return stripArticles(norm).replace(/\s+/g, ""); },
     get nums() { return nums || (nums = extractNumbers(rawInput)); },
   };
 }
@@ -97,6 +105,8 @@ function classifyKeyword(kw) {
     const lo = extractNumbers(r[1])[0], hi = extractNumbers(r[2])[0];
     if (lo && hi) return { kind: "range", k, lo: Math.min(lo.value, hi.value), hi: Math.max(lo.value, hi.value) };
   }
+  // "exact:V0" means the WHOLE answer must be exactly V0 (not just contain it).
+  if (k.startsWith("exact:") && k.length > 6) return { kind: "exact", k: k.slice(6).trim() };
   let numText = null;
   if (NUMBER_ONLY_RE.test(k)) numText = k;
   else { const u = k.match(NUMBER_UNIT_RE); if (u) numText = u[1]; }
@@ -113,7 +123,12 @@ function altMatches(kw, inp, tolPercent) {
   if (!c.k) return false;
   if (c.kind === "range") return inp.nums.some((t) => t.value >= c.lo && t.value <= c.hi);
   if (c.kind === "number") return inp.nums.some((t) => numbersAgree(t, c.e, tolPercent));
-  return inp.norm.includes(c.k) || inp.squash.includes(c.k.replace(/\s+/g, ""));
+  if (c.kind === "exact") return inp.squash.replace(/[.\s]+$/, "") === c.k.replace(/\s+/g, "");
+  if (inp.norm.includes(c.k) || inp.squash.includes(c.k.replace(/\s+/g, ""))) return true;
+  // same test ignoring the words the / a / an
+  const sk = stripArticles(c.k);
+  const cmp = sk.length >= 4 && /^[a-z0-9]/.test(sk) ? sk : c.k;
+  return inp.noArt.includes(cmp) || inp.noArtSquash.includes(cmp.replace(/\s+/g, ""));
 }
 
 // Keyword groups: flat OR list, AND-of-ORs, or OR-of-(AND-of-ORs)
@@ -800,6 +815,7 @@ function describeAlternative(kw, tolPercent) {
   if (c.kind === "number") {
     return `&ldquo;${c.k}&rdquo; (at least ${c.e.sf} s.f.${tolPercent > 0 ? `, or within ±${tolPercent}%` : ""})`;
   }
+  if (c.kind === "exact") return `exactly &ldquo;${c.k}&rdquo;`;
   return `&ldquo;${c.k}&rdquo;`;
 }
 
