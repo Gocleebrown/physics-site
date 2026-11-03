@@ -1,4 +1,4 @@
-// scripts/question_engine.js
+// scripts/question_engine.js ##v2
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
@@ -36,11 +36,12 @@ function drawGraph(canvas, spec) {
   }
 
   const xStep = Number.isFinite(spec.xStep) ? Number(spec.xStep) : niceStep((xMax - xMin) / 5);
-  const yStep = Number.isFinite(spec.yStep) ? Number(spec.yStep) : niceStep(yMax / 5);
+  const yMin_spec = Number.isFinite(spec.yMin) ? Number(spec.yMin) : 0;
+  const yStep = Number.isFinite(spec.yStep) ? Number(spec.yStep) : niceStep((yMax - yMin_spec) / 5);
 
   const xGraphMax = Math.ceil(xMax / xStep) * xStep;
   const xGraphMin = Math.floor(xMin / xStep) * xStep; // in case you ever set negative xMin
-  const yGraphMin = 0;                                // force baseline at 0 for typical F–x
+  const yGraphMin = Math.floor(yMin_spec / yStep) * yStep; // supports negative y (e.g. ln(I/I₀) graphs)
   const yGraphMax = Math.ceil(yMax / yStep) * yStep;
 
   const nX = Math.max(1, Math.round((xGraphMax - xGraphMin) / xStep));
