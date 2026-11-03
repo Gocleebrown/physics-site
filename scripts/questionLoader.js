@@ -1,13 +1,23 @@
-// scripts/questionLoader.js ##v4
+// scripts/questionLoader.js ##v5
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1mspkPndqlydcum52DiVx_oq0cbmV8F06igR8kISehTI/export?format=csv&gid=0";
 
 // Parse a comma-separated tags string into a clean array.
 // e.g. "Circular motion, Gravitation" → ["Circular motion", "Gravitation"]
+// The AS topic "Forces, density and pressure" contains a comma, so protect it
+// before splitting on commas.
+const COMMA_TOPICS = ["Forces, density and pressure"];
 function parseTags(tagsStr) {
   if (!tagsStr || !tagsStr.trim()) return [];
-  return tagsStr.split(',').map(t => t.trim()).filter(Boolean);
+  let s = tagsStr;
+  COMMA_TOPICS.forEach((topic, i) => {
+    s = s.split(topic).join("\u0001" + i + "\u0001");
+  });
+  return s
+    .split(',')
+    .map(t => t.trim().replace(/\u0001(\d+)\u0001/g, (_, i) => COMMA_TOPICS[+i]))
+    .filter(Boolean);
 }
 
 async function loadQuestionsFromSheet() {
