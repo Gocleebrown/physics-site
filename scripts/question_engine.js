@@ -1,10 +1,183 @@
-// scripts/question_engine.js ##v2
+// scripts/question_engine.js ##v3
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
 function renderText(s) {
   return (s || '').replace(/\n/g, '<br>');
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Marking helpers — follow the Cambridge (CIE) mark-scheme conventions:
+//   • B = independent mark.
+//   • M = mandatory mark; if an M mark is missed the A mark cannot be awarded.
+//   • C = compensatory mark (C1 lowest … C3 highest). A higher C implies the
+//     lower ones, and a correct final answer (A) awards every C automatically.
+//   • A = answer mark.
+//  Numbers: "credit correct answers when rounded to the number of significant
+//  figures given in the mark scheme" — a student's answer is accepted if it has
+//  at least that many s.f. and rounds to the mark-scheme value. Standard form
+//  may be typed as 6.17e-21, 6.17 x 10^-21, 6.17×10⁻²¹ etc.
+// ─────────────────────────────────────────────────────────────────────────────
+const SUPERSCRIPT_DIGITS = { "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁻": "-", "⁺": "+" };
+
+// lower-case, unify minus/dashes, turn superscripts into ^digits, squash spaces
+function normaliseText(s) {
+  return String(s == null ? "" : s)
+    .toLowerCase()
+    .replace(/[−–—]/g, "-")
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+/g, (m) => "^" + m.replace(/./g, (c) => SUPERSCRIPT_DIGITS[c]))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const NUM_PATTERN = "[+-]?(?:\\d+\\.?\\d*|\\.\\d+)";
+const EXP_PATTERN = "(?:\\s*(?:x|×|\\*)\\s*10\\s*\\^?\\s*\\(?\\s*[+-]?\\d+\\s*\\)?|\\s*e\\s*[+-]?\\d+)";
+const NUM_TOKEN_RE = () =>
+  new RegExp("(" + NUM_PATTERN + ")(?:\\s*(?:x|×|\\*)\\s*10\\s*\\^?\\s*\\(?\\s*([+-]?\\d+)\\s*\\)?|\\s*e\\s*([+-]?\\d+))?", "g");
+const NUMBER_ONLY_RE = new RegExp("^" + NUM_PATTERN + EXP_PATTERN + "?$");
+const NUMBER_UNIT_RE = new RegExp("^(" + NUM_PATTERN + EXP_PATTERN + "?)\\s*(?:wb|kj|mj|j|kn|n|km|cm|mm|m|ms|s|hz|khz|mhz|kv|v|kw|w|pa|mol|ev|mev|kev|kg|g|k|ma|a|pf|nf|µf|μf|f|ω|ohm|t|mt)$");
+const RANGE_RE = new RegExp("^(" + NUM_PATTERN + "(?:\\s*e\\s*[+-]?\\d+)?)\\s+to\\s+(" + NUM_PATTERN + "(?:\\s*e\\s*[+-]?\\d+)?)$");
+
+function countSigFigs(mantissa) {
+  const digits = mantissa.replace(/[+-]/g, "").replace(".", "").replace(/^0+/, "");
+  return Math.max(1, digits.length);
+}
+
+// Every number written in a student's answer: [{ value, sf }, …]
+function extractNumbers(str) {
+  let s = normaliseText(str);
+  s = s.replace(/([a-zµμωΩ°%])\s*\^\s*[+-]?\d+/g, "$1");   // drop unit powers: m s^-1
+  s = s.replace(/(\d),(?=\d{3}(?!\d))/g, "$1");            // 22,100 -> 22100
+  const out = [];
+  const re = NUM_TOKEN_RE();
+  let m;
+  while ((m = re.exec(s))) {
+    const exp = m[2] !== undefined ? m[2] : m[3];
+    const value = parseFloat(exp !== undefined ? m[1] + "e" + exp : m[1]);
+    if (Number.isFinite(value)) out.push({ value, sf: countSigFigs(m[1]) });
+    if (m[0].length === 0) re.lastIndex++;
+  }
+  return out;
+}
+
+function prepareInput(rawInput) {
+  const norm = normaliseText(rawInput);
+  let nums = null;
+  return {
+    norm,
+    squash: norm.replace(/\s+/g, ""),
+    get nums() { return nums || (nums = extractNumbers(rawInput)); },
+  };
+}
+
+// student number t agrees with mark-scheme number e?
+//  1) identical value, or
+//  2) student gave at least as many s.f. as the mark scheme AND rounds to it, or
+//  3) within the optional row tolerance (%), e.g. for values read from a graph.
+function numbersAgree(t, e, tolPercent) {
+  if (t.value === e.value) return true;
+  if (t.sf >= e.sf && e.value !== 0) {
+    // "rounds to the mark-scheme value": within half a unit of its last significant figure
+    const unit = Math.pow(10, Math.floor(Math.log10(Math.abs(e.value))) - e.sf + 1);
+    if (Math.abs(t.value - e.value) <= (unit / 2) * (1 + 1e-9)) return true;
+  }
+  if (tolPercent > 0 && e.value !== 0 && Math.abs(t.value - e.value) <= (Math.abs(e.value) * tolPercent) / 100) return true;
+  return false;
+}
+
+function cleanKeyword(kw) {
+  return normaliseText(kw).replace(/^["'“”‘’]+|["'“”‘’]+$/g, "").trim();
+}
+
+// Classify one keyword alternative:  {kind:'range'|'number'|'text', …}
+function classifyKeyword(kw) {
+  const k = cleanKeyword(kw);
+  const r = k.match(RANGE_RE);
+  if (r) {
+    const lo = extractNumbers(r[1])[0], hi = extractNumbers(r[2])[0];
+    if (lo && hi) return { kind: "range", k, lo: Math.min(lo.value, hi.value), hi: Math.max(lo.value, hi.value) };
+  }
+  let numText = null;
+  if (NUMBER_ONLY_RE.test(k)) numText = k;
+  else { const u = k.match(NUMBER_UNIT_RE); if (u) numText = u[1]; }
+  if (numText) {
+    const e = extractNumbers(numText)[0];
+    if (e) return { kind: "number", k, e };
+  }
+  return { kind: "text", k };
+}
+
+// Does the student's answer satisfy ONE keyword alternative?
+function altMatches(kw, inp, tolPercent) {
+  const c = classifyKeyword(kw);
+  if (!c.k) return false;
+  if (c.kind === "range") return inp.nums.some((t) => t.value >= c.lo && t.value <= c.hi);
+  if (c.kind === "number") return inp.nums.some((t) => numbersAgree(t, c.e, tolPercent));
+  return inp.norm.includes(c.k) || inp.squash.includes(c.k.replace(/\s+/g, ""));
+}
+
+// Keyword groups: flat OR list, AND-of-ORs, or OR-of-(AND-of-ORs)
+function matchGroups(groups, inp, tolPercent) {
+  if (!Array.isArray(groups)) return false;
+  if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
+    return groups.some((sub) => matchGroups(sub, inp, tolPercent));
+  }
+  if (groups.every((g) => typeof g === "string")) return groups.some((kw) => altMatches(kw, inp, tolPercent));
+  return groups.every((grp) => grp.some((kw) => altMatches(kw, inp, tolPercent)));
+}
+
+function matchesKeywordGroups(groups, rawInput, tolPercent) {
+  return matchGroups(groups, prepareInput(rawInput), tolPercent);
+}
+
+// Award marks for one typed answer using the CIE M / A / C / B rules.
+function applyCieMarking(marks, rawInput) {
+  const inp = prepareInput(rawInput);
+  const hit = (m) => matchGroups(m.keywords, inp, m.tol);
+
+  // M marks are mandatory: a missed M blocks the A mark.
+  let aBlocked = false;
+  marks.filter((m) => m.type === "M").forEach((m) => {
+    if (!m.awarded && hit(m)) m.awarded = true;
+    if (!m.awarded) aBlocked = true;
+  });
+
+  // A mark; a correct answer awards every C mark automatically (AFC).
+  let aAwarded = false;
+  const aMark = marks.find((m) => m.type === "A");
+  if (aMark && !aBlocked && (aMark.awarded || hit(aMark))) {
+    aMark.awarded = true;
+    aAwarded = true;
+    marks.forEach((m) => { if (m.type === "C") m.awarded = true; });
+  }
+
+  // C marks, highest level first; a higher C implies all the lower ones.
+  if (!aAwarded) {
+    marks
+      .filter((m) => m.type === "C")
+      .sort((a, b) => (b.level || 1) - (a.level || 1))
+      .forEach((m) => {
+        if (m.awarded) return;
+        if (hit(m)) {
+          m.awarded = true;
+          marks.forEach((o) => { if (o.type === "C" && (o.level || 1) < (m.level || 1)) o.awarded = true; });
+        }
+      });
+  }
+
+  // B marks are independent.
+  marks.filter((m) => m.type === "B").forEach((m) => {
+    if (!m.awarded && hit(m)) m.awarded = true;
+  });
+}
+
+// Keep the on-screen score equal to the marks actually awarded (safe to call
+// after every check, so re-checking an answer can never inflate the score).
+function recountMarks() {
+  const parts = window.currentParts || [];
+  totalMarksEarned = parts.reduce((sum, p) => sum + p.marks.filter((m) => m.awarded).length, 0);
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Universal graph-drawing helper with “nice” major + minor grid lines
@@ -207,7 +380,7 @@ function normalizeGraphSpec(specLike) {
   const num = (v) =>
     (typeof v === "string" && v.trim() !== "" && !isNaN(v)) ? Number(v) : v;
 
-  ["xMin", "xMax", "yMax", "xStep", "yStep"].forEach((k) => {
+  ["xMin", "xMax", "yMin", "yMax", "xStep", "yStep"].forEach((k) => {
     if (k in spec) spec[k] = num(spec[k]);
   });
 
@@ -310,6 +483,7 @@ function loadRandomQuestion() {
 
   // reset scores
   resetQuestionScores();
+  window.currentParts = qData.parts; // used by recountMarks()
   totalMarksPossible = qData.parts.reduce((sum, p) => sum + p.marks.length, 0);
   updateScoreDisplay(); // no persistAttempt arg - this is just initial display, not a real attempt
 
@@ -540,7 +714,6 @@ function checkImageChoice(index, chosenIdx, correctIdx, marks, grid, explanation
 
   if (correct) {
     marks.forEach((m) => (m.awarded = true));
-    totalMarksEarned += marks.length;
   }
 
   const earned = marks.filter((m) => m.awarded).length;
@@ -553,35 +726,10 @@ function checkImageChoice(index, chosenIdx, correctIdx, marks, grid, explanation
     ? `<strong>Correct!</strong><br><br>${renderText(explanation)}`
     : `<strong>Not quite right.</strong><br><br>${renderText(explanation)}`;
 
+  recountMarks();
   updateScoreDisplay(true);
 }
 
-// Parses a number typed in any common student style: "3.4e22", "3.4E22",
-// "3.4 x 10^22", "3.4×10^22", "3.4*10^22", or with trailing units/words
-// ("3.4x10^22 molecules"). Returns NaN if nothing numeric is found.
-function parseFlexibleNumber(str) {
-  if (!str) return NaN;
-  let s = String(str).trim().toLowerCase();
-  s = s.replace(/\s*[x×*]\s*10\s*\^?\s*/g, "e");
-  const match = s.match(/-?\d+\.?\d*(e[+-]?\d+)?/);
-  return match ? parseFloat(match[0]) : NaN;
-}
-
-// Shared keyword-matching logic — used by both checkPartAnswer and
-// checkTableAnswer. Supports flat OR, AND-of-ORs, and OR-of-(AND-of-ORs).
-function matchesKeywordGroups(groups, input) {
-  if (!Array.isArray(groups)) return false;
-  // OR-of-ORs
-  if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
-    return groups.some((sub) => matchesKeywordGroups(sub, input));
-  }
-  // flat OR
-  if (groups.every((g) => typeof g === "string")) {
-    return groups.some((kw) => input.includes(kw));
-  }
-  // AND-of-ORs
-  return groups.every((grp) => grp.some((kw) => input.includes(kw)));
-}
 
 // ─── 3.5) Check a table-style answer (grid of inputs, one mark per cell) ───
 function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cellAnswers, explanation) {
@@ -597,7 +745,6 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
     colLabels.forEach((cLabel, c) => {
       const el = document.getElementById(`table-${index}-${r}-${c}`);
       const raw = (el ? el.value : "").trim();
-      const input = raw.toLowerCase();
       const kw = (cellKeywords && cellKeywords[r] && cellKeywords[r][c]) || [];
       const answer = (cellAnswers && cellAnswers[r] && cellAnswers[r][c]) || "";
       const mark = marks[markIdx];
@@ -605,7 +752,7 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
 
       if (raw === "") anyBlank = true;
 
-      const correct = raw !== "" && matchesKeywordGroups(kw, input);
+      const correct = raw !== "" && matchesKeywordGroups(kw, raw);
       if (mark) mark.awarded = correct;
       if (correct) earned++;
 
@@ -617,7 +764,7 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
     });
   });
 
-  totalMarksEarned += earned;
+  recountMarks();
   document.getElementById(`score-${index}`).textContent = `(${earned}/${marks.length})`;
 
   // per-cell keyword breakdown, for reporting suspected marking issues during beta testing
@@ -645,24 +792,29 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
   updateScoreDisplay(true);
 }
 
-// ─── 3) Check answer with blank-guard, numeric fallback ±0.5%, and M/A/C/B ───
-// Produces a short, human-readable description of what a keyword group
-// requires - used in the marking breakdown shown after checking an answer,
-// so during beta testing a student (or the site owner, via a screenshot)
-// can see exactly what wording was needed for a mark, not just whether it
-// was awarded.
-function describeKeywordRequirement(groups) {
+// Human-readable description of what a keyword group needs — shown in the
+// marking breakdown after an answer is checked.
+function describeAlternative(kw, tolPercent) {
+  const c = classifyKeyword(kw);
+  if (c.kind === "range") return `any value from ${c.lo} to ${c.hi}`;
+  if (c.kind === "number") {
+    return `&ldquo;${c.k}&rdquo; (at least ${c.e.sf} s.f.${tolPercent > 0 ? `, or within ±${tolPercent}%` : ""})`;
+  }
+  return `&ldquo;${c.k}&rdquo;`;
+}
+
+function describeKeywordRequirement(groups, tolPercent) {
   if (!Array.isArray(groups) || groups.length === 0) return "any reasonable answer";
   // OR-of-(AND-of-OR): rare, deepest nesting case
   if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
-    return groups.map(describeKeywordRequirement).join(" &nbsp;OR&nbsp; ");
+    return groups.map((g) => describeKeywordRequirement(g, tolPercent)).join(" &nbsp;OR&nbsp; ");
   }
   // flat OR: array of strings
   if (groups.every((g) => typeof g === "string")) {
-    return groups.map((g) => `&ldquo;${g}&rdquo;`).join(" or ");
+    return groups.map((g) => describeAlternative(g, tolPercent)).join(" or ");
   }
   // AND-of-OR: array of arrays of strings
-  return groups.map((grp) => "(" + grp.map((kw) => `&ldquo;${kw}&rdquo;`).join(" or ") + ")").join(" and ");
+  return groups.map((grp) => "(" + grp.map((kw) => describeAlternative(kw, tolPercent)).join(" or ") + ")").join(" and ");
 }
 
 // Builds the "Marking breakdown" block: one line per mark, showing whether
@@ -674,7 +826,7 @@ function buildMarkingBreakdown(marks) {
   const rows = marks.map((m, i) => {
     const icon = m.awarded ? "&#10003;" : "&#10007;";
     const color = m.awarded ? "green" : "crimson";
-    const req = m.keywords ? describeKeywordRequirement(m.keywords) : "correct final answer";
+    const req = m.keywords ? describeKeywordRequirement(m.keywords, m.tol) : "correct final answer";
     return `<div style="color:${color};">${icon} Mark ${i + 1} (${m.type}): needed ${req}</div>`;
   });
   return `<div style="margin-top:10px;font-size:0.9em;border-top:1px solid #ccc;padding-top:6px;">` +
@@ -683,11 +835,10 @@ function buildMarkingBreakdown(marks) {
 
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
   const raw = document.getElementById(`answer-${index}`).value.trim();
-  const input = raw.replace(/%/g, "").toLowerCase();
+  const fb = document.getElementById(`model-${index}`);
 
   // blank-guard
   if (raw === "") {
-    const fb = document.getElementById(`model-${index}`);
     fb.style.display = "block";
     fb.style.border = "2px solid red";
     fb.innerHTML =
@@ -696,117 +847,24 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
     return;
   }
 
-  // numeric-only fallback (single A-mark or no marks) with ±0.5%
-  const numericOnly = marks.length === 0 || (marks.length === 1 && marks[0].type === "A");
-  if (numericOnly && !isNaN(parseFlexibleNumber(modelAnswer))) {
-    const correctNum = parseFlexibleNumber(modelAnswer);
-    const userStr = raw.toLowerCase().trim();
-
-    const variants = [
-      correctNum.toPrecision(2),
-      Number.isFinite(correctNum) ? Number(correctNum).toExponential(2) : "",
-      Number.isFinite(correctNum) ? Number(correctNum).toExponential(2).replace(/e\+?/, "×10^") : "",
-      Math.round(correctNum).toString(),
-      Number.isFinite(correctNum) ? Number(correctNum).toFixed(1) : "",
-      correctNum.toString(),
-    ].map((v) => String(v).toLowerCase().trim());
-
-    if (variants.includes(userStr)) {
-      totalMarksEarned++;
-      updateScoreDisplay(true);
-      document.getElementById(`score-${index}`).textContent = `(1/1)`;
-      const fb = document.getElementById(`model-${index}`);
-      fb.style.display = "block";
-      fb.style.border = "2px solid green";
-      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${renderText(modelAnswer)}` +
-        buildMarkingBreakdown([{ type: "A", awarded: true, keywords: null }]);
-      return;
-    }
-
-    const userNum = parseFlexibleNumber(raw);
-    const tol = Math.abs(correctNum) * 0.005;
-    if (!isNaN(userNum) && Math.abs(userNum - correctNum) <= tol) {
-      totalMarksEarned++;
-      updateScoreDisplay(true);
-      document.getElementById(`score-${index}`).textContent = `(1/1)`;
-      const fb = document.getElementById(`model-${index}`);
-      fb.style.display = "block";
-      fb.style.border = "2px solid green";
-      fb.innerHTML = `<strong>Correct!</strong><br>Model Answer: ${renderText(modelAnswer)}` +
-        buildMarkingBreakdown([{ type: "A", awarded: true, keywords: null }]);
-      return;
-    }
-  }
-
-  // M/A/C/B keyword marking
-  const fb = document.getElementById(`model-${index}`);
   fb.style.display = "block";
-  let aBlocked = false, aAwarded = false;
 
-  // STEP 1: M
-  marks.filter((m) => m.type === "M").forEach((m) => {
-    if (matchesKeywordGroups(m.keywords, input)) {
-      if (!m.awarded) { m.awarded = true; totalMarksEarned++; }
-    } else {
-      aBlocked = true;
-    }
-  });
-
-  // STEP 2: A (+auto-credit remaining C’s once A is earned)
-  // An A-mark can be satisfied either by keyword match OR by the typed
-  // answer being numerically close to modelAnswer (when modelAnswer is a
-  // number) — this matters for any question worth more than 1 mark, which
-  // doesn't get the single-mark numeric shortcut above but can still have
-  // a large/awkward number (scientific notation etc.) as its final answer.
-  if (!aBlocked) {
-    const aMark = marks.find((m) => m.type === "A");
-    if (aMark) {
-      const byKeyword = matchesKeywordGroups(aMark.keywords, input);
-      let byNumber = false;
-      const correctNum = parseFlexibleNumber(modelAnswer);
-      if (!isNaN(correctNum)) {
-        const userNum = parseFlexibleNumber(raw);
-        const tol = Math.abs(correctNum) * 0.005;
-        byNumber = !isNaN(userNum) && Math.abs(userNum - correctNum) <= tol;
-      }
-      if (byKeyword || byNumber) {
-        aMark.awarded = true; totalMarksEarned++; aAwarded = true;
-        marks.forEach((m) => {
-          if (m.type === "C" && !m.awarded) { m.awarded = true; totalMarksEarned++; }
-        });
-      }
-    }
+  // No mark scheme encoded for this part: nothing to score, just show the answer.
+  if (!marks.length) {
+    fb.style.border = "2px solid #999";
+    fb.innerHTML =
+      `<strong>Compare with the model answer.</strong><br><br>Model Answer:<br>${renderText(modelAnswer)}` +
+      (explanation ? `<br><br><em>Key Idea:</em><br>${renderText(explanation)}` : "");
+    return;
   }
 
-  // STEP 3: C (with implicit lower-level C catch-up)
-  if (!aAwarded) {
-    marks
-      .filter((m) => m.type === "C" && !m.awarded)
-      .sort((a, b) => (b.level || 1) - (a.level || 1))
-      .forEach((m) => {
-        if (matchesKeywordGroups(m.keywords, input)) {
-          m.awarded = true; totalMarksEarned++;
-          if ((m.level || 1) > 1) {
-            const imp = marks.find((o) => o.type === "C" && (o.level || 1) < (m.level || 1));
-            if (imp && !imp.awarded) { imp.awarded = true; totalMarksEarned++; }
-          }
-        }
-      });
-  }
+  applyCieMarking(marks, raw);
+  recountMarks();
 
-  // STEP 4: B (independent)
-  marks.filter((m) => m.type === "B").forEach((m) => {
-    if (!m.awarded && matchesKeywordGroups(m.keywords, input)) {
-      m.awarded = true; totalMarksEarned++;
-    }
-  });
-
-  // final score display
   const earned = marks.filter((m) => m.awarded).length;
   const possible = marks.length;
   document.getElementById(`score-${index}`).textContent = `(${earned}/${possible})`;
 
-  // feedback
   if (earned === possible) {
     fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks);
     fb.style.border = "2px solid green";
@@ -824,6 +882,7 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
 
   updateScoreDisplay(true);
 }
+
 
 // expose globally
 window.loadRandomQuestion = loadRandomQuestion;

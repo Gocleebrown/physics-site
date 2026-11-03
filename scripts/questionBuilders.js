@@ -1,4 +1,4 @@
-// scripts/questionBuilders.js
+// scripts/questionBuilders.js ##v2
 
 // --- 1) Table-builder helper ---
 window.makeTable = function (rows, cols) {
@@ -59,12 +59,27 @@ function computeValues(params, formulas) {
   return computed;
 }
 
-// --- 5) Build marks from keyword columns (supports B2), plus imageChoice ---
+// --- 4b) Which answer widget does this row use? Column AA (answerType) wins;
+//     otherwise infer it from the question type in column D so an imageChoice
+//     row can never silently turn into a plain text box. ---
+function resolveAnswerType(row) {
+  const a = (row.answerType || "").trim();
+  if (a) return a;
+  const t = (row.type || "").trim();
+  if (t === "imageChoice") return "imageChoice";
+  if (t === "table" && (row.tableRowLabels || "").trim()) return "table";
+  if ((row.imageOptions || "").trim()) return "imageChoice";
+  return "text";
+}
+window.resolveAnswerType = resolveAnswerType;
+
+// --- 5) Build marks from keyword columns (A, C3-C1, M, B, B2, B3), plus imageChoice/table ---
 function buildMarksFromRow(row, ctx) {
+  const answerType = resolveAnswerType(row);
   // imageChoice parts don't use keyword columns at all — they're worth a
   // fixed number of marks (imageChoiceMarks, default 1), awarded as a
   // block when the correct option is picked.
-  if ((row.answerType || "").trim() === "imageChoice") {
+  if (answerType === "imageChoice") {
     const n = parseInt(row.imageChoiceMarks, 10) || 1;
     const marks = [];
     for (let i = 0; i < n; i++) {
@@ -74,7 +89,7 @@ function buildMarksFromRow(row, ctx) {
   }
 
   // table parts: one independent mark per cell, in row-major order.
-  if ((row.answerType || "").trim() === "table") {
+  if (answerType === "table") {
     let cellKeywords = [];
     try {
       cellKeywords = JSON.parse(interpolate(row.tableCellKeywords || "[]", ctx));
@@ -87,6 +102,12 @@ function buildMarksFromRow(row, ctx) {
     );
     return marks;
   }
+
+  // Optional numeric tolerance in % (column "tolerance"). Rows that draw a graph
+  // for the student to read default to 5% so a slight misreading is not marked
+  // wrong; set the column to 0 to switch that off for a row.
+  const tolRaw = parseFloat(row.tolerance);
+  const tol = Number.isFinite(tolRaw) ? tolRaw : row.graphSpec ? 5 : 0;
 
   const types = ["A", "C3", "C2", "C1", "M", "B", "B2", "B3"];
   const marks = [];
@@ -114,7 +135,7 @@ function buildMarksFromRow(row, ctx) {
       groups = parsed.map((g) => g.map((e) => String(e).toLowerCase().trim()));
     } else {
       const flat = raw
-        .split(/[,;]+/)
+        .split(raw.includes("|") ? /\|/ : /[,;]+/) // "|" separates alternatives; older rows use , or ;
         .map((e) => e.toLowerCase().trim())
         .filter(Boolean);
       if (flat.length) groups = [flat];
@@ -124,7 +145,7 @@ function buildMarksFromRow(row, ctx) {
       type.startsWith("B") ? "B" : type.startsWith("C") ? "C" : type;
     const level = type === "C3" ? 3 : type === "C2" ? 2 : type === "C1" ? 1 : undefined;
 
-    marks.push({ type: markType, level, keywords: groups, awarded: false });
+    marks.push({ type: markType, level, keywords: groups, awarded: false, tol });
   });
 
   return marks;
@@ -138,7 +159,8 @@ window.genericBuilder = function ({ id, type, params, parts }) {
   for (const k in params) {
     if (Array.isArray(params[k]) && typeof params[k][0] === "number") {
       const [min, max] = params[k];
-      ctx[k] = Math.random() * (max - min) + min;
+      // 3 s.f. so the number the student sees is exactly the number used in the answer
+      ctx[k] = Number((Math.random() * (max - min) + min).toPrecision(3));
     } else {
       ctx[k] = params[k];
     }
@@ -208,7 +230,7 @@ window.genericBuilder = function ({ id, type, params, parts }) {
         modelAnswer,
         explanation,
         marks,
-        answerType: (row.answerType || "text").trim(),
+        answerType: resolveAnswerType(row),
       };
 
       // ── imageChoice: pass through the option list + correct index
