@@ -135,7 +135,7 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - **Backup:** tab "backup AS 26-21 to 26-24 (old)" = copy of old rows 189–319 (header + 131 rows). Live rows 189–319 still in place until each rebuilt paper replaces them.
 
 **Open concerns (not fixed):**
-- AS 26-22..26-24 are **not yet rebuilt**; 26-21 is rebuilt and randomised. The wire graph (F_max=12, x_max_mm=0.8) is static.
+- AS 26-23..26-24 are **not yet rebuilt**; 26-21 and 26-22 are rebuilt and randomised. The wire graph (F_max=12, x_max_mm=0.8) is static.
 - 26-21 rows Q1bii (252) and Q1bv (253) are a wire force–extension graph sitting inside the rocket question Q1; Q4cii is a resistance graph in Q4 (probably OK). Check against the real paper.
 - Row 266 (26-23 Q2, "Use Fig. 2.1 to determine the extension") has no graph beside it and 0% tolerance on a graph-read value; suggest 5%.
 - Figures/graphs/tables referred to but missing: 26-21 Q3, 26-22 Q1, 26-24 Q4 (Fig. 4.1), "Table 9.1"/"figure" in p41, p43, p44 Q9.
@@ -168,3 +168,5 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 
 ## 11. DECIDED — DON'T REVISIT
 1. Drawing questions → imageChoice, 4 PNGs, correct first. 2. One id per WHOLE question (Rule 8) — this supersedes the earlier "one id per sub-part". 3. imageOptions = JSON array of short filenames. 4. Tags are exact Cambridge names. 5. "Define"/"State what is meant by" = `definition`. 6. `Uₐ`→`U` approved for p44 Q4ci/Q4cii only. 7. Precision follows CIE (≥ MS s.f. and same rounding; graph readings get extra tolerance). 8. Marks follow B/M/C/A/AFC rules. 9. ECF is not auto-marked (students compare with earlier answer).
+
+- **26-22 status: DONE** (rows 223–254, 6 questions, 32 parts, 60 marks; assets `as2622_q1v_*.svg`; helpers for plank/ropes, wave interference, circuits are in `tools/rebuild/jshelpers.py`). Lessons: the engine's s.f. rule already accepts a correctly rounded answer, so an A-mark `tolerance` is relative to the ROUNDED key (use 0 when the mark scheme rejects a neighbouring value, e.g. 8.8 vs 8.7); a table cannot share one mark across cells, so scalar/vector (2 marks) was done as a text part with two AND-groups; use `sf(x,n)` (String(+x.toPrecision(n))) for answer keys, never raw toPrecision (gives 1.0e+2).
