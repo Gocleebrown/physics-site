@@ -1,5 +1,5 @@
-const fs=require('fs');const load=require('/home/claude/gocleebrown/physics-site/tools/harness.js');
-const h=load('/home/claude/gocleebrown/physics-site/scripts');
+const fs=require('fs');const load=require('/home/claude/physics-site/tools/harness.js');
+const h=load('/home/claude/physics-site/scripts');
 const rows=JSON.parse(fs.readFileSync('new21.json','utf8'));
 const FIX={ '9702-26-21-Q1':{M6:2.83,r4:2.0,a0:2.5,tbp:60},'9702-26-21-Q2':{mp:0.086,xp:0.026,dp:0.015},'9702-26-21-Q3':{Tp:0.24,vp:75,ppp:24},'9702-26-21-Q4':{rho0p:1.57,alp:4.2,thp:20,Lp:2.0,dp:0.60,Ip:5.6,np:8.5},'9702-26-21-Q5':{sp:0.5}};
 // MS-quality answers by partIndex

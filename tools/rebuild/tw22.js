@@ -1,5 +1,5 @@
-const fs=require('fs');const load=require('/home/claude/gocleebrown/physics-site/tools/harness.js');
-const h=load('/home/claude/gocleebrown/physics-site/scripts');
+const fs=require('fs');const load=require('/home/claude/physics-site/tools/harness.js');
+const h=load('/home/claude/physics-site/scripts');
 const rows=JSON.parse(fs.readFileSync(process.argv[2]||'new22.json','utf8'));
 const FIX={
 '9702-26-22-Q1':{t1p:10,v1p:12,t2p:35,tpr:13/21,a2p:0.25},

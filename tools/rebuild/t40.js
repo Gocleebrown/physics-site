@@ -1,5 +1,5 @@
 // Student-simulation test for a rebuilt paper.  node t40.js <scriptsDir> <sheet.json> <idPrefix> [loads]
-const fs=require('fs');const load=require('/home/claude/gocleebrown/physics-site/tools/harness.js');
+const fs=require('fs');const load=require('/home/claude/physics-site/tools/harness.js');
 const h=load(process.argv[2]);const rows=JSON.parse(fs.readFileSync(process.argv[3],'utf8')).filter(r=>r.id.startsWith(process.argv[4]));
 const LOADS=+process.argv[5]||100;
 const groups={};rows.forEach(r=>{(groups[r.id]=groups[r.id]||[]).push(r)});
