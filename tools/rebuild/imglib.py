@@ -51,3 +51,36 @@ def string(loops, ends='node', marks=None):
 def save(outdir,name,content):
     os.makedirs(outdir,exist_ok=True)
     open(os.path.join(outdir,name),'w',encoding='utf-8').write(content)
+
+# ---- AS 26-22 Q1(b)(v): displacement-time sketches. nominal t1=10,t2=35,t3=40,end=80 ----
+def sdisp(kind):
+    W,H=320,210; L,R,T,B=40,14,14,46; pw=W-L-R; ph=H-T-B
+    t1,t2,t3,te=10,35,40,80
+    def s_true(t):
+        if t<=t1: return t*t/20.0
+        if t<=t2: return 5+(t-10)
+        if t<=t3: return 30+(t-35)-(t-35)**2/10.0
+        return 32.5-0.0104*(t-40)**2
+    def s_lin(t):                                   # straight segments only (gradient jumps)
+        pts=[(0,0),(t1,5),(t2,30),(t3,32.5),(te,32.5-0.0104*1600)]
+        for (a,sa),(b,sb) in zip(pts,pts[1:]):
+            if a<=t<=b: return sa+(sb-sa)*(t-a)/(b-a)
+    def s_up(t):                                    # right to 40 s, then keeps rising
+        return s_true(t) if t<=t3 else 32.5+0.0104*(t-40)**2
+    def v_shape(t):                                 # the velocity-time graph drawn instead
+        if t<=t1: return t/10.0*12
+        if t<=t2: return 12
+        if t<=t3: return 12*(t3-t)/5.0
+        return -0.25*(t-40)
+    f={'a':s_true,'b':s_lin,'c':s_up,'d':v_shape}[kind]
+    N=320; ts=[te*i/N for i in range(N+1)]; ys=[f(t) for t in ts]
+    lo=min(0,min(ys)); hi=max(ys)
+    sx=lambda t:L+pw*t/te; sy=lambda y:T+ph-(y-lo)/(hi-lo)*ph
+    body='<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="#000"/>'%(L,T,L,T+ph)
+    body+='<line x1="%d" y1="%.1f" x2="%d" y2="%.1f" stroke="#000"/>'%(L,sy(0),L+pw,sy(0))
+    body+='<text x="%d" y="%.1f" text-anchor="end">0</text>'%(L-6,sy(0)+4)
+    body+='<text transform="translate(12,%d) rotate(-90)" text-anchor="middle">%s</text>'%(T+ph/2,'displacement' if kind!='d' else 'displacement')
+    for t,l in ((0,'0'),(t1,'t&#8321;'),(t2,'t&#8322;'),(t3,'40'),(te,'80')):
+        body+='<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#000"/><text x="%.1f" y="%.1f" text-anchor="middle">%s</text>'%(sx(t),sy(0)-3,sx(t),sy(0)+3,sx(t),T+ph+16,l)
+    body+='<text x="%d" y="%d" text-anchor="end">t / s</text>'%(L+pw,T+ph+36)
+    return svg(W,H,body+poly([(sx(t),sy(y)) for t,y in zip(ts,ys)]))
