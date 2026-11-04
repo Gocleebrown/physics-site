@@ -1,5 +1,5 @@
-const fs=require('fs');const load=require('/home/claude/gocleebrown/physics-site/tools/harness.js');
-const h=load('/home/claude/gocleebrown/physics-site/scripts');
+const fs=require('fs');const load=require('/home/claude/physics-site/tools/harness.js');
+const h=load('/home/claude/physics-site/scripts');
 const rows=JSON.parse(fs.readFileSync('new21.json','utf8'));
 const score=(q,i,txt)=>{const p=q.parts[i];p.marks.forEach(m=>m.awarded=false);h.win.currentParts=q.parts;h.win.applyCieMarking(p.marks,txt);return p.marks.filter(m=>m.awarded).length+'/'+p.marks.length};
 let bad=0;
