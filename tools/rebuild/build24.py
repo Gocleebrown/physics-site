@@ -11,7 +11,7 @@ def kwv(*alts):
         out.append(a)
         if '-' in a:
             out.append(a.replace('-','−')); out.append(a.replace('-','–'))
-    return '|'.join(out)
+    return '|'.join(dict.fromkeys(out))
 ALL=[]
 SF="(x,n)=>String(+x.toPrecision(n))"
 EX="(x,d)=>x.toExponential(d).replace('e+','e')"
@@ -197,7 +197,7 @@ G4={'sf':SF,
  'W':'mo*9.81','U':'rl*Vo*9.81','D':'W-U','Wd':'W.toFixed(2)','Ud':'U.toFixed(2)','D_ans':'sf(D,2)','mos':'mo.toFixed(3)'}
 P4={'mop':[0.050,0.090],'Vop':[0.8,1.4],'rlp':[1000,1300]}
 parts=[]
-parts.append(dict(pi=0,type='table',
+parts.append(dict(pi=0,type='definition',
  K=lab('(a)')+'An object is held at rest just below the surface of a liquid of uniform density as shown in Figure 4.1.'+FIG41.replace("'<svg","<svg").replace("</p>'","</p>")+'The object is released and accelerates downwards until it reaches terminal velocity.<br><br>The magnitude of the weight of the object is <i>W</i>.<br>The magnitude of the upthrust acting on the object is <i>U</i>.<br>The magnitude of the drag force acting on the object is <i>D</i>.<br><br>Complete Table 4.1 to show what happens to the magnitude of the three forces acting on the object as it accelerates. Type <i>increases</i>, <i>stays the same</i> or <i>decreases</i> in each box.',
  answerType='table',
  tableRowLabels='["W","D","U"]',
@@ -316,7 +316,7 @@ parts.append(dict(pi=2,type='numeric',
  U='nucleon number = ${Af}; proton number = ${Z}  (${nucf})',
  V='The nucleon number falls by 4 for each α-particle emitted: ${A0} − 4 × ${k} = ${Af}. The proton number is the same as before, ${Z}, because it is another isotope of ${en}.'))
 parts.append(dict(pi=3,type='definition',K=lab('(b)(i)')+'State the quark composition of a proton.',
- B=kwv('uud','udu','duu','up up down','up, up, down','up up and down','two up and one down','two up and a down','2 up and 1 down','2 up 1 down','u u d','u,u,d','up up anti','2 up quarks and 1 down','two up quarks and one down','two up quarks and a down','u, u, d'),
+ B=kwv('uud','udu','duu','up up down','up, up, down','up up and down','two up and one down','two up and a down','2 up and 1 down','2 up 1 down','u u d','u,u,d','2 up quarks and 1 down','two up quarks and one down','two up quarks and a down','u, u, d'),
  U='up, up, down (uud)',V='A proton is a baryon made of two up quarks (+⅔e each) and one down quark (−⅓e): total charge +1e.'))
 parts.append(dict(pi=4,type='definition',K=lab('(b)(ii)')+'Describe the change to the quark composition of the proton when it undergoes β<sup>+</sup> decay.',
  B=kwv('up to down','u to d','up quark to down','up quark changes to a down','up becomes down','up changes to down','one up becomes one down','u→d','u->d','u−>d','u–>d','u → d','one up quark changes to one down','uud to udd','uud→udd','uud -> udd','uud −> udd','uud –> udd','uud → udd','up to a down','changes to udd','becomes udd','up quark turns into a down','up quark turns to a down','up quark is changed to a down','an up quark changes to a down quark'),
