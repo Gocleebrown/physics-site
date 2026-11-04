@@ -225,7 +225,7 @@ parts.append(dict(pi=2,type='calculation',K=lab('(b)(ii)')+'Calculate the power 
  U='P = V² / R = ${V}² / ${R} = ${P_ans} W',
  V='Use P = V²/R with the p.d. across the LDR and its resistance (or find I = V/R first and then P = VI).'))
 parts.append(dict(pi=3,type='calculation',K=lab('(b)(iii)')+'Determine the internal resistance of the cell.',
- C1=kwv('e=v+ir','e=i(r+r)','e=i(r+r)','e=ir+v','e=i(r+r)','lost volts','${E}-${V}','${E}−${V}','${E}-${V}=','(${E}-${V})×${R}/${V}','(${E}-${V})*${R}/${V}','${V}/${E}=${R}/(${R}+r)','${V}/${E}','i=${V}/${R}','i=v/r'),
+ C1=kwv('e=v+ir','e=i(r+r)','e=ir+v','lost volts','${E}-${V}','${E}−${V}','${E}-${V}=','(${E}-${V})×${R}/${V}','(${E}-${V})*${R}/${V}','${V}/${E}=${R}/(${R}+r)','${V}/${E}','i=${V}/${R}','i=v/r'),
  A='${r_ans}|${r_raw}',tolerance='2',
  U='E = V + Ir with I = V / R, so r = (E − V)R / V = (${E} − ${V}) × ${R} / ${V} = ${r_ans} Ω',
  V='The e.m.f. is shared between the internal resistance (lost volts Ir) and the LDR: E = V + Ir. The current is I = V/R for the LDR, then r = (E − V)/I.'))
