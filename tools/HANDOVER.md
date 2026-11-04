@@ -1,4 +1,4 @@
-##v7
+##v8
 # CIE 9702 Physics Practice Site — Complete Handover (read this first)
 
 Last updated 4 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
@@ -135,7 +135,7 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - **Backup:** tab "backup AS 26-21 to 26-24 (old)" = copy of old rows 189–319 (header + 131 rows). Live rows 189–319 still in place until each rebuilt paper replaces them.
 
 **Open concerns (not fixed):**
-- AS 26-21..26-24 are **not randomised** (fixed paper numbers); the pilot rebuild addresses this. The wire graph (F_max=12, x_max_mm=0.8) is static.
+- AS 26-22..26-24 are **not yet rebuilt**; 26-21 is rebuilt and randomised. The wire graph (F_max=12, x_max_mm=0.8) is static.
 - 26-21 rows Q1bii (252) and Q1bv (253) are a wire force–extension graph sitting inside the rocket question Q1; Q4cii is a resistance graph in Q4 (probably OK). Check against the real paper.
 - Row 266 (26-23 Q2, "Use Fig. 2.1 to determine the extension") has no graph beside it and 0% tolerance on a graph-read value; suggest 5%.
 - Figures/graphs/tables referred to but missing: 26-21 Q3, 26-22 Q1, 26-24 Q4 (Fig. 4.1), "Table 9.1"/"figure" in p41, p43, p44 Q9.
@@ -150,6 +150,21 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - Rows 2–188 (25-xx and others) not audited.
 
 **Next actions:** (1) owner uploads 26-21 QP+MS PDFs → pilot rebuild; (2) then 26-22, 26-23, 26-24; (3) build the AK max-marks column (engine ##v5); (4) optional per-paper preview page; (5) optional part labels and subscript normalisation (approval needed); (6) audit rows 2–188.
+
+
+## 12. LESSONS FROM THE 26-21 REBUILD (4 Nov 2026) — READ BEFORE REBUILDING 22–24
+- **Source PDFs:** `pdftotext -layout` gives the text; figures are vector (no embedded images), so render pages with `pdftoppm -r 80 -png` and look at them.
+- **Figures from parameters:** do NOT use graphSpec (small 300px canvas). Put an SVG helper in G (`gsvg` for grid graphs, `wave31` for a wave diagram; both in `tools/rebuild/jshelpers.py`), build the points from the params, and drop `${fig}` into the part text where the figure sits in the paper. innerHTML renders it. Each G must carry its own copy of the helper (G is merged per id only).
+- **Sketch/drawing parts:** convert to imageChoice with 4 SVGs (generator `tools/rebuild/imglib.py`), axes labelled symbolically (A, T) so random values still fit. Put the correct image at a varying index (engine does not shuffle; correct-first is guessable).
+- **Part labels:** every K starts `<b>(b)(ii)</b> ` and mainText is `Question N`, so references like “1(b)(iii)” make sense.
+- **Numbers in keywords are numeric, not substrings.** `[["5.6"],["8.5"]]` with the student typing `8.5e28` fails; write `8.5e28`. Use `x.toExponential(n)` strings for anything with a power of ten. Display strings (`M6s`, `T2s` via toFixed/toPrecision) keep trailing zeros; keep the raw number for the keyword.
+- **Ranges:** `lo to hi` as plain decimals (no exponents) works for graph readings; CIE’s 1 s.f. allowances are asymmetric, so use e.g. 0.8x to 1.3x.
+- **Model answer shown to students may contain `<sup>`; tests convert it to `^`.** Show numbers with a `sci(x,n)` helper (in G).
+- **Tests:** `tools/rebuild/t40.js` (model answers full marks, blank = 0, wrong number does not earn A, 100 loads/id), `tpaper21.js`/`tq5.js` (fix the params to the real paper’s values and mark mark-scheme-quality answers; partial and wrong answers). Always run MS-quality answers at the paper’s own values: it catches tolerance mistakes (e.g. 1800 vs 1742 m/s).
+- **Engine gaps hit again:** “name two leptons” (any 2 of N) is approximated; “correct answer only” earns all C marks (AFC). A max-marks column (AK) would fix the first.
+- **Writing rows:** `update_values` with the JSON of each question (`tools/rebuild/build21.py` shows how rows are assembled). Delete old rows (`deleteDimension`, bottom first), `insertDimension`, write, then re-download and diff: must be 0 diffs.
+- **AS tag vocabulary in use on the live site:** Dynamics, Kinematics, Energy, Materials, Measurement, Units, Waves, Electricity, Pressure, Particle physics (not the exact Cambridge names; the filter lists whatever is in the sheet).
+- **26-21 status: DONE** (rows 189–222, 5 questions, 34 parts, all 60 marks; figures drawn from parameters; assets `as2621_q3*.svg` pushed). Old rows are in the backup tab.
 
 ## 11. DECIDED — DON'T REVISIT
 1. Drawing questions → imageChoice, 4 PNGs, correct first. 2. One id per WHOLE question (Rule 8) — this supersedes the earlier "one id per sub-part". 3. imageOptions = JSON array of short filenames. 4. Tags are exact Cambridge names. 5. "Define"/"State what is meant by" = `definition`. 6. `Uₐ`→`U` approved for p44 Q4ci/Q4cii only. 7. Precision follows CIE (≥ MS s.f. and same rounding; graph readings get extra tolerance). 8. Marks follow B/M/C/A/AFC rules. 9. ECF is not auto-marked (students compare with earlier answer).
