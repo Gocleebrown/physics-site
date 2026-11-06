@@ -1,6 +1,6 @@
 """Helpers to build sheet rows for a whole question (Rule 8). Used by build21.py etc."""
 import json, csv
-HDR = ['level','id','paper','type','tags','params','computedValues','tableRequest','mainText','partIndex','partText','imageBelowMain','imageAfterPart','A_keywords','C3_keywords','C2_keywords','C1_keywords','M_keywords','B_keywords','B2_keywords','modelAnswer','explanation','graphSpec','graph_straight_line_spec','will not work alone','make image','answerType','imageOptions','correctImageIndex','imageChoiceMarks','B3_keywords','tableRowLabels','tableColLabels','tableCellKeywords','tableCellAnswers','tolerance']
+HDR = ['level','id','paper','type','tags','params','computedValues','tableRequest','mainText','partIndex','partText','imageBelowMain','imageAfterPart','A_keywords','C3_keywords','C2_keywords','C1_keywords','M_keywords','B_keywords','B2_keywords','modelAnswer','explanation','graphSpec','graph_straight_line_spec','will not work alone','make image','answerType','imageOptions','correctImageIndex','imageChoiceMarks','B3_keywords','tableRowLabels','tableColLabels','tableCellKeywords','tableCellAnswers','tolerance','maxMarks']
 KW = {'A':'A_keywords','C3':'C3_keywords','C2':'C2_keywords','C1':'C1_keywords','M':'M_keywords','B':'B_keywords','B2':'B2_keywords','B3':'B3_keywords'}
 
 def kw(*alts):
@@ -28,7 +28,7 @@ def question(level, qid, paper, qtype, tags, params, G, mainText, parts):
         for k, col in KW.items():
             if k in p: r[col] = p[k]
         for k in ('tolerance','graphSpec','answerType','imageOptions','correctImageIndex','imageChoiceMarks',
-                  'tableRowLabels','tableColLabels','tableCellKeywords','tableCellAnswers','imageAfterPart','imageBelowMain'):
+                  'tableRowLabels','tableColLabels','tableCellKeywords','tableCellAnswers','imageAfterPart','imageBelowMain','maxMarks'):
             if k in p: r[k] = p[k] if isinstance(p[k], str) else json.dumps(p[k], ensure_ascii=False)
         rows.append(r)
     return rows
