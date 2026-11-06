@@ -19,11 +19,11 @@ ST="(a,b)=>'<span style=\"display:inline-flex;flex-direction:column;vertical-ali
 HD="'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 '+W+' '+H+'\" style=\"max-width:'+W+'px;width:100%;background:#fff;display:block;margin:10px 0\" font-family=\"Arial,sans-serif\" font-size=\"14\">'"
 AH="'<defs><marker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0,0 L10,5 L0,10 z\" fill=\"#000\"/></marker></defs>'"
 
-# ---- Figure 3.1: stationary wave on a string (4 loops, as in the paper) ----
-FIG31 = r"""(Ls)=>{const W=560,H=270,x0=130,x1=430,cy=100,A=40;
+# ---- Figure 3.1: stationary wave on a string (n loops; the paper shows 4) ----
+FIG31 = r"""(Ls,n)=>{const W=560,H=270,x0=130,x1=430,cy=100,A=40;
 let s=""" + HD + "+" + AH + r""";
 const ln=(a,b,c,d,x)=>'<line x1="'+a+'" y1="'+b+'" x2="'+c+'" y2="'+d+'" stroke="#000" stroke-width="1.4"'+(x||'')+'/>';
-let p1=[],p2=[];for(let i=0;i<=300;i++){const u=i/300,x=x0+(x1-x0)*u,y=Math.sin(Math.PI*4*u)*A;p1.push(x.toFixed(1)+','+(cy-y).toFixed(1));p2.push(x.toFixed(1)+','+(cy+y).toFixed(1));}
+let p1=[],p2=[];for(let i=0;i<=300;i++){const u=i/300,x=x0+(x1-x0)*u,y=Math.sin(Math.PI*n*u)*A;p1.push(x.toFixed(1)+','+(cy-y).toFixed(1));p2.push(x.toFixed(1)+','+(cy+y).toFixed(1));}
 s+='<polyline fill="none" stroke="#000" stroke-width="1.8" points="'+p1.join(' ')+'"/><polyline fill="none" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3" points="'+p2.join(' ')+'"/>';
 s+=ln(x0,30,x0,cy,' stroke-dasharray="3,3"')+ln(x1,30,x1,cy,' stroke-dasharray="3,3"')+ln(x0,40,x1,40,' marker-start="url(#ah)" marker-end="url(#ah)"')+'<text x="'+((x0+x1)/2)+'" y="32" text-anchor="middle">'+Ls+' m</text>';
 s+='<text x="40" y="70">fixed point</text>'+ln(100,76,x0-2,cy-2,'')+'<text x="448" y="62">fixed point</text>'+ln(446,66,x1+2,cy-2,'');
@@ -158,9 +158,13 @@ ALL+=question(LV,'9702-26-24-Q2',PAPER,'definition','Materials,Measurement',P2,G
 
 # ===================================================================== Q3
 G3={'sf':SF,'fig31':FIG31,
- 'L':'+Lp.toPrecision(2)','Ls':'L.toFixed(1)','f':'Math.round(fp)','lam':'L/2','lam_s':'lam.toFixed(2)','lam_t':'sf(lam,2)','v':'f*lam','v_ans':'sf(v,2)',
- 'f31':'fig31(Ls)'}
-P3={'Lp':[1.2,2.8],'fp':[20,40]}
+ 'L':'+Lp.toPrecision(2)','Ls':'L.toFixed(1)','f':'Math.round(fp)','n':'2*(Math.floor(np)+1)','hn':'n/2','lam':'L/hn','lam_s':'lam.toFixed(2)','lam_t':'sf(lam,2)','v':'f*lam','v_ans':'sf(v,2)',
+ 'f31':'fig31(Ls,n)','lamd':'2*lam','lamd_s':'lamd.toFixed(2)','nd':'n/2',
+ 'wv':"['one wavelength','two wavelengths','three wavelengths'][hn-1]",'ci':'Math.floor(cip)','ci2':'Math.floor(cip2)',
+ 'bo':"(()=>{const o=[];let j=0;const w=['b','c','d'];for(let k=0;k<4;k++)o.push(k===ci?'as2624_q3b_n'+n+'_a.svg':'as2624_q3b_n'+n+'_'+w[j++]+'.svg');return o})()",
+ 'dopt':"(()=>{const W={2:[2,3,4],4:[1,3,4],6:[2,4,6]}[n];const o=[];let j=0;for(let k=0;k<4;k++)o.push('as2624_q3d_n'+(k===ci2?nd:W[j++])+'.svg');return o})()",
+ 'b0':'bo[0]','b1':'bo[1]','b2':'bo[2]','b3':'bo[3]','d0':'dopt[0]','d1':'dopt[1]','d2':'dopt[2]','d3':'dopt[3]'}
+P3={'Lp':[1.2,2.8],'fp':[20,40],'np':[0,2.99],'cip':[0,3.99],'cip2':[0,3.99]}
 parts=[]
 parts.append(dict(pi=0,type='explain',
  K=lab('(a)')+'A stretched string is attached to two fixed points and a vibration generator as shown in Figure 3.1.${f31}The vibration generator oscillates vertically and a stationary wave is formed on the string.<br><br>Explain how the stationary wave is formed on the string.',
@@ -171,24 +175,24 @@ parts.append(dict(pi=0,type='explain',
 parts.append(dict(pi=1,type='imageChoice',
  K=lab('(b)')+'On the string in Figure 3.1, a cross (×) is drawn at the position of a node. Which sketch shows the cross at the position of a node?',
  answerType='imageChoice',
- imageOptions=['as2624_q3b_c.svg','as2624_q3b_d.svg','as2624_q3b_a.svg','as2624_q3b_b.svg'],
- correctImageIndex='2',imageChoiceMarks='1',
+ imageOptions=['${b0}','${b1}','${b2}','${b3}'],
+ correctImageIndex='${ci}',imageChoiceMarks='1',
  U='The cross is on the string at a point where the displacement is always zero (a node, vertically aligned with a node of the stationary wave).',
  V='Nodes are points of zero amplitude, where the string always passes through its equilibrium position. Antinodes are the points of maximum amplitude.'))
 parts.append(dict(pi=2,type='calculation',
  K=lab('(c)')+'The distance between the fixed points is ${Ls} m. The vibration generator oscillates at a frequency of ${f} Hz.<br><br>Calculate the speed of progressive waves on the string.',
- C2=kwv('λ=${Ls}/2','λ=l/2','2λ=${Ls}','λ=${lam_s}','λ=${lam_t}','wavelength=${Ls}/2','${Ls}/2'),
+ C2=kwv('λ=${Ls}/${hn}','λ=l/${hn}','${hn}λ=${Ls}','λ=${lam_s}','λ=${lam_t}','wavelength=${Ls}/${hn}','${Ls}/${hn}','λ=2l/${n}','λ=2×${Ls}/${n}','λ=2x${Ls}/${n}','2l/${n}','${n}λ/2=${Ls}','${n}λ/2=l'),
  C1=kwv('v=fλ','v=f×λ','v=λf','v=λ×f','v=λ/t','v=λ/T','v=fl','c=fλ','v=f*λ','v=${f}×${lam_s}','v=${f}×${lam_t}','${f}×${lam_s}','${f}×${lam_t}'),
  A='${v_ans}',tolerance='2',
- U='The string has two wavelengths between the fixed points: λ = ${Ls} / 2 = ${lam_s} m. v = fλ = ${f} × ${lam_s} = ${v_ans} m s⁻¹',
- V='Figure 3.1 shows four loops, i.e. two complete wavelengths between the fixed points, so λ = ${Ls} / 2. Then use v = fλ.'))
+ U='The string has ${wv} between the fixed points (${n} loops): λ = ${Ls} / ${hn} = ${lam_s} m. v = fλ = ${f} × ${lam_s} = ${v_ans} m s⁻¹',
+ V='Figure 3.1 shows ${n} loops, i.e. ${wv} between the fixed points, so λ = ${Ls} / ${hn}. Then use v = fλ.'))
 parts.append(dict(pi=3,type='imageChoice',
  K=lab('(d)')+'The frequency of the vibration generator is now halved and a new stationary wave is formed on the string. The speed of progressive waves on the string is unchanged.<br><br>Which sketch shows the string at an instant when it has maximum displacement?',
  answerType='imageChoice',
- imageOptions=['as2624_q3d_d.svg','as2624_q3d_b.svg','as2624_q3d_c.svg','as2624_q3d_a.svg'],
- correctImageIndex='3',imageChoiceMarks='2',
- U='A sinusoidal line from fixed point to fixed point that crosses the equilibrium line once, in the middle: one complete wavelength between the fixed points (two loops).',
- V='v = fλ with v unchanged: halving f doubles λ. The wavelength was ${Ls}/2 = ${lam_s} m, so it becomes ${Ls} m: one complete wavelength between the fixed points (two loops), with a node at the centre.'))
+ imageOptions=['${d0}','${d1}','${d2}','${d3}'],
+ correctImageIndex='${ci2}',imageChoiceMarks='2',
+ U='A sinusoidal line from fixed point to fixed point with ${nd} loops: the wavelength is doubled.',
+ V='v = fλ with v unchanged: halving f doubles λ. The wavelength was ${lam_s} m, so it becomes ${lamd_s} m, and the string has half as many loops: ${nd}.'))
 ALL+=question(LV,'9702-26-24-Q3',PAPER,'definition','Waves',P3,G3,'Question 3',parts)
 
 # ===================================================================== Q4
