@@ -1,4 +1,4 @@
-// scripts/question_engine.js ##v4
+// scripts/question_engine.js ##v5
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
@@ -20,10 +20,26 @@ function renderText(s) {
 // ─────────────────────────────────────────────────────────────────────────────
 const SUPERSCRIPT_DIGITS = { "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁻": "-", "⁺": "+" };
 
-// lower-case, unify minus/dashes, turn superscripts into ^digits, squash spaces
+// Subscript characters are typed in many ways (g₀, g0, g_0), so they are turned
+// into plain characters. Both the student's answer and every keyword go through
+// this same function, so one keyword covers all the ways of typing it.
+const SUBSCRIPT_CHARS = {
+  "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9",
+  "₊": "+", "₋": "-", "ₐ": "a", "ₑ": "e", "ₕ": "h", "ᵢ": "i", "ⱼ": "j", "ₖ": "k", "ₗ": "l", "ₘ": "m",
+  "ₙ": "n", "ₒ": "o", "ₚ": "p", "ᵣ": "r", "ₛ": "s", "ₜ": "t", "ᵤ": "u", "ᵥ": "v", "ₓ": "x",
+};
+const SUBSCRIPT_RE = /[₀-₉₊₋ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ]/g;
+
+// lower-case, unify minus/dashes, turn superscripts into ^digits, subscripts into
+// plain characters, squash spaces
 function normaliseText(s) {
   return String(s == null ? "" : s)
     .toLowerCase()
+    .replace(SUBSCRIPT_RE, (c) => SUBSCRIPT_CHARS[c])
+    .replace(/_/g, "")                       // E_k = Ek
+    .replace(/×/g, "x")                      // 4× = 4x
+    .replace(/[µ]/g, "μ")                    // micro sign -> Greek mu
+    .replace(/[ϕφ]/g, "φ")                   // phi variants
     .replace(/[−–—]/g, "-")
     .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+/g, (m) => "^" + m.replace(/./g, (c) => SUPERSCRIPT_DIGITS[c]))
     .replace(/\s+/g, " ")
@@ -45,7 +61,7 @@ function countSigFigs(mantissa) {
 
 // Every number written in a student's answer: [{ value, sf }, …]
 function extractNumbers(str) {
-  let s = normaliseText(str);
+  let s = normaliseText(String(str == null ? "" : str).replace(SUBSCRIPT_RE, ""));
   s = s.replace(/([a-zµμωΩ°%])\s*\^\s*[+-]?\d+/g, "$1");   // drop unit powers: m s^-1
   s = s.replace(/(\d),(?=\d{3}(?!\d))/g, "$1");            // 22,100 -> 22100
   const out = [];
@@ -190,7 +206,17 @@ function applyCieMarking(marks, rawInput) {
 // after every check, so re-checking an answer can never inflate the score).
 function recountMarks() {
   const parts = window.currentParts || [];
-  totalMarksEarned = parts.reduce((sum, p) => sum + p.marks.filter((m) => m.awarded).length, 0);
+  totalMarksEarned = parts.reduce((sum, p) => sum + markEarned(p.marks), 0);
+}
+
+// Marks available / earned for one part. Normally every mark counts. When the
+// sheet's "maxMarks" column is filled (e.g. "any 2 of 5 points") the builder sets
+// marks.cap, the part is worth that many marks, and extra points earn nothing more.
+function markTotal(marks) {
+  return marks && marks.cap ? marks.cap : marks.length;
+}
+function markEarned(marks) {
+  return Math.min(marks.filter((m) => m.awarded).length, markTotal(marks));
 }
 
 
@@ -499,7 +525,7 @@ function loadRandomQuestion() {
   // reset scores
   resetQuestionScores();
   window.currentParts = qData.parts; // used by recountMarks()
-  totalMarksPossible = qData.parts.reduce((sum, p) => sum + p.marks.length, 0);
+  totalMarksPossible = qData.parts.reduce((sum, p) => sum + markTotal(p.marks), 0);
   updateScoreDisplay(); // no persistAttempt arg - this is just initial display, not a real attempt
 
   const container = document.getElementById("question-container");
@@ -520,7 +546,7 @@ function loadRandomQuestion() {
     p.innerHTML = part.partText + " ";
     const span = document.createElement("span");
     span.id = `score-${i}`;
-    span.textContent = `(0/${part.marks.length})`;
+    span.textContent = `(0/${markTotal(part.marks)})`;
     span.style.fontWeight = "bold";
     p.appendChild(span);
     div.appendChild(p);
@@ -845,6 +871,7 @@ function buildMarkingBreakdown(marks) {
     const req = m.keywords ? describeKeywordRequirement(m.keywords, m.tol) : "correct final answer";
     return `<div style="color:${color};">${icon} Mark ${i + 1} (${m.type}): needed ${req}</div>`;
   });
+  if (marks.cap) rows.unshift(`<div>This part is worth ${marks.cap} mark${marks.cap > 1 ? "s" : ""}: any ${marks.cap} of the points below.</div>`);
   return `<div style="margin-top:10px;font-size:0.9em;border-top:1px solid #ccc;padding-top:6px;">` +
     `<em>Marking breakdown (for reporting issues during beta testing):</em><br>${rows.join("")}</div>`;
 }
@@ -877,8 +904,8 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   applyCieMarking(marks, raw);
   recountMarks();
 
-  const earned = marks.filter((m) => m.awarded).length;
-  const possible = marks.length;
+  const earned = markEarned(marks);
+  const possible = markTotal(marks);
   document.getElementById(`score-${index}`).textContent = `(${earned}/${possible})`;
 
   if (earned === possible) {
