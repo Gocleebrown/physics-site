@@ -146,7 +146,7 @@ parts.append(dict(pi=2,type='calculation',
  K=lab('(b)(ii)')+'Determine the ratio<br><br>kinetic energy of the boat and sack after the collision / kinetic energy of the sack before the collision.',
  C2=kwv('${KEb_2}','${KEa_2}'),
  C1=kwv('½mv²','½mv^2','0.5mv²','0.5mv^2','1/2mv²','1/2mv^2','ke=½mv','e=½mv','ek=½mv','½×${Mt}','0.5×${Mt}','1/2×${Mt}','½×${m}','0.5×${m}','1/2×${m}','½(${Mt})','½(${m})','0.5(${Mt})','0.5(${m})'),
- A='${rats}',tolerance='3',
+ A='${rats}',tolerance='1',
  U='E before = ½ × ${m} × ${u}² = ${KEb_2} J;  E after = ½ × ${Mt} × ${vd}² = ${KEa_2} J;  ratio = ${rats}',
  V='Use E = ½mv² for each situation. After the collision the moving mass is the boat and sack together (${Mt} kg); before the collision it is the sack alone (${m} kg).'))
 G2['KEb_2']='sf(KEb,3)';G2['KEa_2']='sf(KEa,3)'
