@@ -181,3 +181,11 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - Q1(b)(ii) acceleration requires the negative sign (MS answer is negative); a positive 3.2 scores 0.
 - Hooke's law (Q2(a)) cannot accept "F = kx" alone (AND of three groups).
 - Live-site visual check of 26-23 and 26-24 figures is still to be done by eye.
+
+### Engine ##v5 / builders ##v3 (7 Nov 2026, approved by owner)
+- **Generated answer sketches:** an `imageOptions` entry (AB) may contain `${name}`; if it comes out as an `<svg …>` drawing it is shown directly (data URI), so sketches can follow the random numbers. `correctImageIndex` (AC) may also be `${ci}` so the correct option moves. Plain file names behave exactly as before. See 26-24 Q5 (G values `ivo`, `opts`, `o0`..`o3`, `ci`).
+- **maxMarks column (AK):** whole number 1..(number of marks listed). Part is worth that many marks; extra points earn nothing more ("any 2 of 5"). Blank = old behaviour. Invalid value is ignored with a console warning. Header cell AK1 = `maxMarks` (added). Not used by imageChoice or table parts. Not yet used in any row.
+- **Text normalisation:** subscripts (₀–₉, ₐ ₑ ₓ …), underscores, `×`→`x`, µ→μ, ϕ/φ unified, in both student answers and keywords. Numbers ignore subscripts exactly as before. The site's own symbol toolbar inserts subscripts (ε₀, mₑ, Nₐ), which now match plain keywords.
+- **Tests:** `tools/rebuild/tdiff.js` (old vs new engine over every question: no score decreases, no layout changes) and `tools/rebuild/tnew.js` (new-feature unit tests). Run both after any engine change.
+- 26-24 Q5 is now fully randomised: e.m.f. (0.74–0.80 V), both resistors, diode curve, circuits and the four sketches (all 1024 parameter combinations checked for distinct options, in-range curve and clean text).
+- To do (owner): subscript-related keyword clean-up in old rows is optional now; IGCSE questions will go on a new sheet tab "IGCSE" (loader currently reads gid=0 only, so the loader needs a second fetch when that tab exists - flag before changing).
