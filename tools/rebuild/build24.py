@@ -189,7 +189,7 @@ parts.append(dict(pi=3,type='imageChoice',
  correctImageIndex='3',imageChoiceMarks='2',
  U='A sinusoidal line from fixed point to fixed point that crosses the equilibrium line once, in the middle: one complete wavelength between the fixed points (two loops).',
  V='v = fλ with v unchanged: halving f doubles λ. The wavelength was ${Ls}/2 = ${lam_s} m, so it becomes ${Ls} m: one complete wavelength between the fixed points (two loops), with a node at the centre.'))
-ALL+=question(LV,'9702-26-24-Q3',PAPER,'definition','Superposition,Waves',P3,G3,'Question 3',parts)
+ALL+=question(LV,'9702-26-24-Q3',PAPER,'definition','Waves',P3,G3,'Question 3',parts)
 
 # ===================================================================== Q4
 G4={'sf':SF,
