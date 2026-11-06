@@ -220,34 +220,49 @@ parts.append(dict(pi=2,type='calculation',
 ALL+=question(LV,'9702-26-24-Q4',PAPER,'definition','Pressure,Dynamics',P4,G4,'Question 4',parts)
 
 # ===================================================================== Q5
+# Everything in Q5 is generated: the e.m.f., both resistors, the diode curve, the circuits AND the four
+# answer sketches in (b) (engine ##v5 lets imageOptions be built from the question's numbers).
+IVOPT = r"""(Rm)=>{const f=(pts)=>gsvg({x0:0,x1:0.8,y0:0,y1:40,mx:0.02,my:1,Mx:0.2,My:10,xl:'V / V',yl:'I / mA',pts:pts,cap:'',W:340,H:300}).replace(/<p style[\s\S]*$/,'').replace(/ style="[^"]*"/,' width="340" height="300"');return f;}"""
 G5={'sf':SF,'ex':EX,'gsvg':GSVG,'ck':CK,
- 'V1':'[0.66,0.68,0.70,0.72,0.74][Math.floor(v1i)]','I1':'[4,5][Math.floor(i1i)]','dV':'0.80-V1','R':'Math.round(dV*1000/I1)',
- 'I2':'[25,30,35,40][Math.floor(i2i)]','Vt':'dV/Math.log(I2/I1)',
+ 'E':'[0.74,0.76,0.78,0.80][Math.floor(ei)]','Es':'E.toFixed(2)',
+ 'pr':'[[4,10],[4,20],[4,30],[5,20]][Math.floor(pi_)]','I1':'pr[0]','R':'pr[1]',
+ 'dV':'I1*R/1000','V1':'+(E-dV).toFixed(2)',
+ 'I2':'[25,30,35,40][Math.floor(i2i)]','Vt':'(E-V1)/Math.log(I2/I1)',
  'V1s':'V1.toFixed(2)','V1t':'String(+V1.toFixed(2))','I1s':'I1.toFixed(1)','I1A':'I1/1000','dVs':'dV.toFixed(2)','dVt':'String(+dV.toFixed(2))',
- 'IR':'0.80/R','IRs':'(0.80/R).toFixed(3)','IRt':'String(+(0.80/R).toFixed(3))','I2A':'I2/1000','I2As':'(I2/1000).toFixed(3)','Itot':'IR+I2/1000','Itot_ans':'sf(Itot,2)','Itot_s':'Itot.toFixed(3)',
- 'pts':'(()=>{const a=[];for(let v=0;v<=0.8001;v+=0.005)a.push([+v.toFixed(3),I1*Math.exp((v-V1)/Vt)]);return a})()',
+ 'IR':'E/R','IRs':'(E/R).toFixed(3)','IRt':'String(+(E/R).toFixed(3))','I2A':'I2/1000','I2As':'(I2/1000).toFixed(3)','Itot':'IR+I2/1000','Itot_ans':'sf(Itot,2)','Itot_s':'Itot.toFixed(3)',
+ 'pts':'(()=>{const a=[];for(let v=0;v<=0.8001;v+=0.005){const i=I1*Math.exp((v-V1)/Vt);if(i<=40.0001)a.push([+v.toFixed(3),i])}return a})()',
  'fig51':"gsvg({x0:0,x1:0.8,y0:0,y1:40,mx:0.02,my:1,Mx:0.2,My:10,xl:'V / V',yl:'I / mA',pts:pts,cap:'Figure 5.1',H:440})",
- 'f52':"ck({R:R},'5.2')",'f53':"ck({R:R,par:1,E:'0.80'},'5.3')"}
-P5={'v1i':[0,4.99],'i1i':[0,1.99],'i2i':[0,3.99]}
+ 'f52':"ck({R:R},'5.2')",'f53':"ck({R:R,par:1,E:Es},'5.3')",
+ 'Rm':'[20,40,50,80][Math.floor(rmi)]','Imax':'800/Rm','Imaxs':'String(+Imax.toFixed(1))',
+ 'ivo':IVOPT,
+ 'line':'(r)=>{const e=800/r;return [[0,0],[0.8,e]]}',
+ 'cor':'ivo(0)(line(Rm))',
+ 'rat':'[0.5,2,4,0.25].filter(r=>800/(Rm*r)<=40.0001)',
+ 'crv':'ivo(0)((()=>{const a=[];for(let k=0;k<=40;k++){const v=0.8*k/40;a.push([v,Imax*(v/0.8)*(v/0.8)])}return a})())',
+ 'ds':'[ivo(0)(line(Rm*rat[0])),ivo(0)(line(Rm*rat[1])),crv]',
+ 'ci':'Math.floor(cip)',
+ 'opts':'(()=>{const a=[];let j=0;for(let k=0;k<4;k++)a.push(k===ci?cor:ds[j++]);return a})()',
+ 'o0':'opts[0]','o1':'opts[1]','o2':'opts[2]','o3':'opts[3]'}
+P5={'ei':[0,3.99],'pi_':[0,3.99],'i2i':[0,3.99],'rmi':[0,3.99],'cip':[0,3.99]}
 parts=[]
 parts.append(dict(pi=0,type='definition',
  K=lab('(a)')+'The I–V characteristic of an electrical component X is shown in Figure 5.1.${fig51}State the name of electrical component X.',
  B=kwv('diode','exact:led','exact:an led','exact:the led','light emitting diode','light-emitting diode'),
  U='(Semiconductor) diode',V='The current is almost zero until the p.d. reaches the threshold value (about 0.6–0.7 V) and then increases rapidly; there would be almost no current if the p.d. were reversed. This is the characteristic of a diode.'))
 parts.append(dict(pi=1,type='imageChoice',
- K=lab('(b)')+'A metallic conductor has a constant resistance of 40 Ω. Which sketch shows the <i>I</i>–<i>V</i> characteristic of this conductor between <i>V</i> = 0 and <i>V</i> = 0.80 V? All the sketches use the axes of Figure 5.1.',
+ K=lab('(b)')+'A metallic conductor has a constant resistance of ${Rm} Ω. Which sketch shows the <i>I</i>–<i>V</i> characteristic of this conductor between <i>V</i> = 0 and <i>V</i> = 0.80 V? All the sketches use the axes of Figure 5.1.',
  answerType='imageChoice',
- imageOptions=['as2624_q5b_b.svg','as2624_q5b_d.svg','as2624_q5b_a.svg','as2624_q5b_c.svg'],
- correctImageIndex='2',imageChoiceMarks='2',
- U='A straight line through the origin passing through (0.80 V, 20 mA).',
- V='For a constant resistance the I–V graph is a straight line through the origin. At V = 0.80 V, I = V / R = 0.80 / 40 = 0.020 A = 20 mA.'))
+ imageOptions=['${o0}','${o1}','${o2}','${o3}'],
+ correctImageIndex='${ci}',imageChoiceMarks='2',
+ U='A straight line through the origin passing through (0.80 V, ${Imaxs} mA).',
+ V='For a constant resistance the I–V graph is a straight line through the origin. At V = 0.80 V, I = V / R = 0.80 / ${Rm} = ${Imaxs} mA.'))
 parts.append(dict(pi=2,type='calculation',
- K=lab('(c)')+'Component X is connected in a circuit with a resistor of resistance ${R} Ω as shown in Figure 5.2.${f52}The current in the ammeter is ${I1s} mA and the cell has negligible internal resistance.<br><br>Show that the electromotive force (e.m.f.) of the cell is 0.80 V.',
+ K=lab('(c)')+'Component X is connected in a circuit with a resistor of resistance ${R} Ω as shown in Figure 5.2.${f52}The current in the ammeter is ${I1s} mA and the cell has negligible internal resistance.<br><br>Show that the electromotive force (e.m.f.) of the cell is ${Es} V.',
  C2=kwv('${V1s}','${V1t}','${V1s} v','${V1t} v'),
- C1=kwv('${dVs}','${dVt}','${I1A}×${R}','${I1A}*${R}','${I1A}x${R}','${I1}e-3×${R}'),
- A=andor(['${V1s}','${V1t}'],['${I1A}','${I1}e-3','${I1}×10^-3','${I1}×10-3','${I1}x10^-3'],['${R}'],['0.80','0.8']),
+ C1=kwv('${dVs}','${dVt}','${I1A}×${R}','${I1A}*${R}','${I1A}x${R}','${I1}e-3×${R}','${I1}e−3×${R}','${I1}e–3×${R}'),
+ A=andor(['${V1s}','${V1t}'],['${I1A}','${I1}e-3','${I1}×10^-3','${I1}×10-3','${I1}x10^-3'],['${R}'],['${Es}','${E}']),
  tolerance='3',
- U='From Figure 5.1, the p.d. across X when the current is ${I1s} mA is ${V1s} V. The p.d. across the resistor = ${I1A} × ${R} = ${dVs} V. e.m.f. = ${V1s} + ${I1A} × ${R} = 0.80 V',
+ U='From Figure 5.1, the p.d. across X when the current is ${I1s} mA is ${V1s} V. The p.d. across the resistor = ${I1A} × ${R} = ${dVs} V. e.m.f. = ${V1s} + ${I1A} × ${R} = ${Es} V',
  V='The e.m.f. is shared between X and the resistor (they are in series, with negligible internal resistance). Read the p.d. across X from the graph at the stated current; the p.d. across the resistor is IR (current in amperes). Add them.'))
 parts.append(dict(pi=3,type='numeric',
  K=lab('(d)')+'The terminals of the cell in 5(c) are now reversed without making any other changes to the circuit.<br><br>State the reading on the ammeter.',
@@ -255,11 +270,11 @@ parts.append(dict(pi=3,type='numeric',
  U='0 A (approximately zero)',V='The diode does not conduct when it is reverse biased (the p.d. is in the reverse direction), so the current is approximately zero.'))
 parts.append(dict(pi=4,type='calculation',
  K=lab('(e)')+'The resistor of resistance ${R} Ω and component X are now connected in parallel to the cell in 5(c) in the circuit shown in Figure 5.3.${f53}The current in component X is not negligible.<br><br>Use Figure 5.1 to determine the current in the ammeter.',
- C2=kwv('0.80/${R}','0.8/${R}','${IRt}','${IRs}','i=v/r'),
- C1=kwv('${I2} ma','${I2}ma','${I2A}','${I2As}','${I2}×10^-3','${I2}×10-3','${I2}e-3'),
+ C2=kwv('${Es}/${R}','${E}/${R}','${IRt}','${IRs}','i=v/r'),
+ C1=kwv('${I2} ma','${I2}ma','${I2A}','${I2As}','${I2}×10^-3','${I2}×10^−3','${I2}×10^–3','${I2}×10-3','${I2}×10−3','${I2}×10–3','${I2}e-3','${I2}e−3','${I2}e–3'),
  A='${Itot_ans}|${Itot_s}',tolerance='5',
- U='Current in the resistor = 0.80 / ${R} = ${IRs} A. From Figure 5.1, the current in X at 0.80 V is ${I2} mA = ${I2As} A. The current in the ammeter = ${IRs} + ${I2As} = ${Itot_s} A',
- V='In a parallel circuit the p.d. across each branch is the e.m.f. (0.80 V). Find each branch current (resistor: I = V/R; X: read from the graph at 0.80 V) and add them, because the ammeter carries the total current.'))
+ U='Current in the resistor = ${Es} / ${R} = ${IRs} A. From Figure 5.1, the current in X at ${Es} V is ${I2} mA = ${I2As} A. The current in the ammeter = ${IRs} + ${I2As} = ${Itot_s} A',
+ V='In a parallel circuit the p.d. across each branch is the e.m.f. (${Es} V). Find each branch current (resistor: I = V/R; X: read from the graph at ${Es} V) and add them, because the ammeter carries the total current.'))
 ALL+=question(LV,'9702-26-24-Q5',PAPER,'definition','Electricity',P5,G5,'Question 5',parts)
 
 # ===================================================================== Q6
