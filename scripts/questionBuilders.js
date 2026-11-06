@@ -1,4 +1,4 @@
-// scripts/questionBuilders.js ##v2
+// scripts/questionBuilders.js ##v3
 
 // --- 1) Table-builder helper ---
 window.makeTable = function (rows, cols) {
@@ -36,6 +36,8 @@ function formatToSigFigs(num, digits) {
 //     .png, which silently broke any .svg asset reference. ---
 window.resolveAssetSrc = function (filename) {
   if (!filename) return "";
+  // generated images (data: URIs) and full web addresses are used as they are
+  if (/^(data:|https?:)/i.test(filename)) return filename;
   const hasExt = /\.[a-zA-Z0-9]+$/.test(filename);
   const withExt = hasExt ? filename : `${filename}.png`;
   return `assets/${withExt}`;
@@ -148,6 +150,19 @@ function buildMarksFromRow(row, ctx) {
     marks.push({ type: markType, level, keywords: groups, awarded: false, tol });
   });
 
+  // Optional "maxMarks" column (AK): the part is worth this many marks however
+  // many points are listed (e.g. "any 2 of 5"). Left blank = every mark counts.
+  const capRaw = String(row.maxMarks == null ? "" : row.maxMarks).trim();
+  if (capRaw !== "") {
+    const cap = parseInt(capRaw, 10);
+    if (Number.isInteger(cap) && cap >= 1 && cap <= marks.length && String(cap) === capRaw) {
+      marks.cap = cap;
+    } else {
+      console.warn("[maxMarks] ignored for", row.id, "part", row.partIndex,
+        "- must be a whole number from 1 to", marks.length, "(the number of marks listed), but is:", capRaw);
+    }
+  }
+
   return marks;
 }
 
@@ -236,12 +251,19 @@ window.genericBuilder = function ({ id, type, params, parts }) {
       // ── imageChoice: pass through the option list + correct index
       if (partObj.answerType === "imageChoice") {
         try {
-          partObj.imageOptions = JSON.parse(row.imageOptions || "[]");
+          // Each option is a file name OR ${name} / text containing ${…} that is filled in
+          // from this question's numbers. An option that comes out as an <svg …> drawing is
+          // used directly as the picture, so sketches can change with the random values.
+          partObj.imageOptions = JSON.parse(row.imageOptions || "[]").map((o) => {
+            const v = interpolate(String(o), ctx).trim();
+            if (!v) console.warn("[imageOptions] option came out empty in", id, "part", row.partIndex, "-", o);
+            return /^<svg[\s>]/i.test(v) ? "data:image/svg+xml;charset=utf-8," + encodeURIComponent(v) : v;
+          });
         } catch {
           console.warn("Bad imageOptions in", id, "part", row.partIndex);
           partObj.imageOptions = [];
         }
-        partObj.correctImageIndex = parseInt(row.correctImageIndex, 10);
+        partObj.correctImageIndex = parseInt(interpolate(String(row.correctImageIndex == null ? "" : row.correctImageIndex), ctx), 10);
       }
 
       // ── table: pass through row/col labels, per-cell keywords + answers
