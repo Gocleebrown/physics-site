@@ -189,3 +189,11 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - **Tests:** `tools/rebuild/tdiff.js` (old vs new engine over every question: no score decreases, no layout changes) and `tools/rebuild/tnew.js` (new-feature unit tests). Run both after any engine change.
 - 26-24 Q5 is now fully randomised: e.m.f. (0.74–0.80 V), both resistors, diode curve, circuits and the four sketches (all 1024 parameter combinations checked for distinct options, in-range curve and clean text).
 - To do (owner): subscript-related keyword clean-up in old rows is optional now; IGCSE questions will go on a new sheet tab "IGCSE" (loader currently reads gid=0 only, so the loader needs a second fetch when that tab exists - flag before changing).
+
+### 26-22M (AS 9702/22 Feb/Mar 2026) and 42M (A2 9702/42 Feb/Mar 2026) — 7 Nov 2026
+- **AS 22M:** rows 513–546, ids `9702-26-22M-Q1..Q7`, paper `9702_m26_p22`. Builder `tools/rebuild/build22m.py` (##v1), checks `tpaper22m.js` (146 paper-value checks), assets `assets/as2622m_q5bi_a..d.svg`.
+- **A2 42M:** rows 547–595 (49 rows), ids `9702-26-42M-Q1..Q10`, paper `9702_m26_p42`. Builder `tools/rebuild/build42m.py` (##v1; `python3 build42m.py 547` writes new42m.json), checks `tpaper42m.js` (170 paper-value checks, 0 mismatches), `scan42.js` (3,000 loads per question: no null/undefined in text or keywords; Q3 final temperature 12–31 °C, Q4 Q always negative, Q8 observed line ≤ 707 nm).
+- 42M is the first paper to use **maxMarks (AK)**: Q5(b) any 3 of 4, Q5(c)(ii) any 2 of 4, Q8(a) any 3 of 4, Q9(c) any 3 of 4, Q10(b)(iii) any 3 of 4. These use the A/B/B2/B3 columns (never M, because a missed M blocks A). The raw harness counts all four columns; the cap is applied by the engine.
+- Generated sketches (imageChoice, random correct position): 2(b)(i) field lines (polarity random), 6(c)(ii) e.m.f.–time, 7(c)(ii) rectified power, 8(b)(ii) shifted spectral lines, 9(b)(iii) activity–time. Generated graphs: Fig 5.1–5.3, Fig 7.1. Fig 1.1, 6.1, 6.2 are inline SVG.
+- G-order reminder (bit again in 42M Q8): a G key must be defined AFTER every key it uses, including helper functions such as `ex`.
+- Sheet header is 37 columns A..AK. Backup tab "backup AS 26-21 to 26-24 (old)" still exists.
