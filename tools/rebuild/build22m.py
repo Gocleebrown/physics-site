@@ -245,16 +245,17 @@ parts.append(dict(pi=5,type='imageChoice',
 ALL+=question(LV,ID+'-Q4',PAPER,'definition','Dynamics,Materials,Kinematics',P4,G4,'Question 4',parts)
 
 # =========================================================================== Q5
-STR=['as2622m_q5bi_a.svg','as2622m_q5bi_b.svg','as2622m_q5bi_c.svg','as2622m_q5bi_d.svg']
+
 G5={'sf':SF,'ex':EX,'sci':SCI,'fig51':FIGGRAT,
- 'kL':'Math.floor(kLp)','L':'+(kL*0.03).toFixed(2)','Ls':'L.toFixed(2)','f':'Math.round(fp)','lam':'+(0.02*kL).toFixed(2)','lams':'lam.toFixed(2)','v':'f*lam','vs':'sf(v,2)','vd':'v.toFixed(2)',
- 'f2':'f+5','lam2':'v/f2','lam2s':'sf(lam2,2)','nh':'2*L/lam2','nhs':'nh.toFixed(2)',
+ 'nl':'Math.floor(nlp)+2','kL':'Math.floor(kLp)','L':'+(nl*0.01*kL).toFixed(2)','Ls':'L.toFixed(2)','f':'Math.round(fp)','lam':'+(0.02*kL).toFixed(2)','lams':'lam.toFixed(2)','v':'f*lam','vs':'sf(v,2)','vd':'v.toFixed(2)',
+ 'f2':'(()=>{for(const d of [5,6,7,8]){const x=nl*(f+d)/f;if(Math.abs(x-Math.round(x))>=0.2)return f+d;}return f+5})()','nlw':"['','','two','three','four'][nl]",'hw':"['','','is one wavelength','are one and a half wavelengths','are two wavelengths'][nl]",
+ 'mkw':"(()=>{const n=nl,L=Ls;const a=['λ=2l/'+n,'λ=2×'+L+'/'+n,'λ=2x'+L+'/'+n,'λ='+lams,'λ='+lam,'2l/'+n,'2×'+L+'/'+n,'2x'+L+'/'+n,L+'×2/'+n,L+'x2/'+n,L+'×2÷'+n,L+'x2÷'+n,'2/'+n+'×'+L,'2/'+n+'x'+L,n+'λ/2=l',n+'λ/2='+L,'l='+n+'λ/2',L+'='+n+'λ/2',lams+'m',lam+'m',n+' loops',nlw+' loops',n+'halfwavelengths',n+'half-wavelengths'];return a.concat(n===3?['1.5λ=l','1.5λ='+L,'l=1.5λ',L+'=1.5λ','two-thirds','twothirds','2/3',L+'/1.5']:n===2?['λ=l','λ='+L,'l=λ','one wavelength']:['λ=l/2','λ='+L+'/2','l=2λ',L+'=2λ','two wavelengths']).join('|')})()",'lam2':'v/f2','lam2s':'sf(lam2,2)','nh':'2*L/lam2','nhs':'nh.toFixed(2)',
  'ni':'Math.floor(nip)+1','lg':'+lgp.toPrecision(2)','Nmax':'Math.min(8,0.92/(ni*lg*1e-7)/1e5)','Ng':'+(Nf*Nmax).toPrecision(2)','Nr':'Math.round(Ng*1e5)','dg':'1/(Ng*1e5)','dg_e':'ex(dg,2)','dg_c':'sci(dg,2)',
  'thr':'+(Math.asin(ni*lg*1e-7*Ng*1e5)*180/Math.PI).toFixed(1)','nans':'Math.sin(thr*Math.PI/180)/(Ng*1e5*lg*1e-7)','nk':'ni+".0"','fg':'fig51(thr)',
- 'ci':'Math.floor(cip)','good':"'as2622m_q5bi_a.svg'",'bad':"['as2622m_q5bi_b.svg','as2622m_q5bi_c.svg','as2622m_q5bi_d.svg']",
+ 'ci':'Math.floor(cip)','good':"'as2622m_q5n'+nl+'_a.svg'",'bad':"['as2622m_q5n'+nl+'_b.svg','as2622m_q5n'+nl+'_c.svg','as2622m_q5n'+nl+'_d.svg']",
  'opts':"(()=>{const a=[];let j=0;for(let k=0;k<4;k++)a.push(k===ci?good:bad[j++]);return a})()",
  'o0':'opts[0]','o1':'opts[1]','o2':'opts[2]','o3':'opts[3]'}
-P5={'kLp':[20,46.99],'fp':[20,40],'nip':[0,2.99],'lgp':[4.0,6.5],'Nf':[0.6,1.0],'cip':[0,3.99]}
+P5={'nlp':[0,2.99],'kLp':[20,46.99],'fp':[20,40],'nip':[0,2.99],'lgp':[4.0,6.5],'Nf':[0.6,1.0],'cip':[0,3.99]}
 parts=[]
 parts.append(dict(pi=0,type='definition',K=lab('(a)(i)')+'Define the <i>period</i> of an oscillation.',
  B=kwv('time for one oscillation','time for one complete oscillation','time taken for one oscillation','time taken for one complete oscillation','time for one cycle','time taken for one cycle','time for one complete cycle','time taken for one complete cycle','time of one oscillation','time of one cycle','time to complete one oscillation','time to complete one cycle','time for one wave','time for one complete wave','time taken for one complete wave','time for a complete oscillation','time for a complete cycle','time taken for a complete oscillation','time taken for a complete cycle','one complete oscillation','one complete cycle','1/f','1/frequency','reciprocal of frequency','time taken to complete one'),
@@ -271,11 +272,11 @@ parts.append(dict(pi=2,type='imageChoice',
  V='Antinodes are the points of maximum amplitude on a stationary wave. Nodes are the points where the string never moves.'))
 parts.append(dict(pi=3,type='calculation',
  K=lab('(b)(ii)')+'The stationary wave in (b)(i) has a frequency of ${f} Hz. The distance between the two fixed ends of the string is ${Ls} m.<br><br>Show that the speed of progressive waves on the string is ${vs} m s<sup>−1</sup>.',
- M=kwv('λ=2l/3','λ=2×${Ls}/3','λ=2x${Ls}/3','λ=${lams}','λ=${lam}','2l/3','2×${Ls}/3','2x${Ls}/3','${Ls}×2/3','${Ls}x2/3','${Ls}×2÷3','${Ls}x2÷3','2/3×${Ls}','2/3x${Ls}','(2/3)×${Ls}','×2/3','x2/3','two-thirds','twothirds','2/3','${Ls}/1.5','1.5λ=${Ls}','1.5λ=l','3λ/2=l','3λ/2=${Ls}','l=3λ/2','l=1.5λ','${Ls}=1.5λ','${Ls}=3λ/2','3/2λ','${lams}m','${lam}m'),
+ M='${mkw}',
  C1=kwv('v=fλ','v=f×λ','v=λf','v=λ×f','v=f*λ','v=${f}×','v=${f}x','${f}×${lams}','${f}x${lams}','${f}×${lam}','${f}x${lam}','${f}*${lams}','${f}*${lam}','${f}×${Ls}','${f}x${Ls}','${f}*${Ls}','fλ','λf'),
  A=andor(['${f}'],['${vs}','${vd}']),
- U='there are 1.5 wavelengths (three loops) between the fixed ends, so λ = 2 × ${Ls} / 3 = ${lams} m;  v = fλ = ${f} × ${lams} = ${vs} m s⁻¹',
- V='Each loop is half a wavelength. Three loops give 3λ/2 = ${Ls} m, so λ = 2 × ${Ls} / 3. Then use v = fλ.'))
+ U='there ${hw} (${nlw} loops) between the fixed ends, so λ = 2 × ${Ls} / ${nl} = ${lams} m;  v = fλ = ${f} × ${lams} = ${vs} m s⁻¹',
+ V='Each loop is half a wavelength. ${nlw} loops give ${nl}λ/2 = ${Ls} m, so λ = 2 × ${Ls} / ${nl}. Then use v = fλ.'))
 parts.append(dict(pi=4,type='explain',
  K=lab('(b)(iii)')+'The frequency of the vibration generator is now increased to ${f2} Hz. The speed of progressive waves on the string does not change.<br><br>Determine whether a stationary wave is formed on the string at this frequency.',
  B=kwv('${lam2s}','${lam2s}m','${lam2}','λ=${lam2s}','λ=${lam2}','v/${f2}','${vs}/${f2}','${vd}/${f2}','${v}/${f2}'),
