@@ -50,9 +50,11 @@ def iv(kind):
     return svg(W,H,body+poly(pts,2.4))
 
 if __name__=='__main__':
-    # (b): node cross. correct = node at u=0.5 (zero displacement); wrong = antinode, between, at fixed point side
-    for k,c in zip('abcd',((0.5,0),(0.125,1),(0.375,-1),(0.3,-0.588))): save(OUT,'as2624_q3b_%s.svg'%k,string(4,cross=c))
-    # (d): halved frequency -> wavelength doubles -> 2 loops. correct = 2 loops
-    save(OUT,'as2624_q3d_a.svg',string(2)); save(OUT,'as2624_q3d_b.svg',string(1)); save(OUT,'as2624_q3d_c.svg',string(4)); save(OUT,'as2624_q3d_d.svg',string(3))
+    # (b): node cross, n loops (n = 2,4,6). correct = node at the centre (zero displacement); wrong = antinodes / between
+    for n in (2,4,6):
+        crosses=[(0.5,0),(1/(2*n),1),((2*n-1)/(2*n),math.sin(math.pi*(n-0.5))),(0.75/n,math.sin(0.75*math.pi))]
+        for k,c in zip('abcd',crosses): save(OUT,'as2624_q3b_n%d_%s.svg'%(n,k),string(n,cross=c))
+    # (d): halved frequency -> wavelength doubles -> n/2 loops. one plain string per loop count 1..6
+    for k in range(1,7): save(OUT,'as2624_q3d_n%d.svg'%k,string(k))
     for k in 'abcd': save(OUT,'as2624_q5b_%s.svg'%k,iv(k))
     print(sorted(f for f in os.listdir(OUT) if f.startswith('as2624')))
