@@ -1,4 +1,4 @@
-<!-- ##v2 -->
+<!-- ##v3 -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -113,6 +113,9 @@
       }
       .topics-scroll label:hover { background: #f0f6ff; border-radius: 3px; }
       .topics-scroll input[type=checkbox] { cursor: pointer; }
+      .tier-toggle { display: flex; gap: 6px; margin: 4px 0 8px; }
+      .tier-btn { flex: 1; padding: 6px 4px; border: 1px solid #aaa; background: #fff; border-radius: 4px; cursor: pointer; font-size: 0.95em; }
+      .tier-btn.active { background: #3a7bd5; color: #fff; border-color: #3a7bd5; font-weight: bold; }
       .level-btn {
         width: 100%;
         padding: 9px;
@@ -198,6 +201,10 @@
         <!-- ── IGCSE ── -->
         <div class="level-card" id="card-IGCSE">
           <h3>IGCSE</h3>
+          <div class="tier-toggle" id="tier-toggle" role="group" aria-label="IGCSE tier">
+            <button type="button" class="tier-btn active" id="tier-Core" data-tier="Core">Core</button>
+            <button type="button" class="tier-btn" id="tier-Extended" data-tier="Extended">Extended</button>
+          </div>
           <p class="count-note" id="count-IGCSE">Loading…</p>
           <button class="level-btn" id="whole-IGCSE" disabled>Whole Papers</button>
           <div class="topics-scroll" id="topics-IGCSE">
@@ -415,49 +422,67 @@
         startLoadingTopics();
       });
 
+      let igcseTier = 'Core';   // always one tier selected for IGCSE
+
+      function tierOf(level) { return level === 'IGCSE' ? igcseTier : undefined; }
+
       function populateSelectionPage(defs) {
-        LEVELS.forEach(level => {
-          const levelDefs  = defs.filter(q => q.level === level);
-          const topics     = getTopicsForLevel(level);
-          const countEl    = document.getElementById(`count-${level}`);
-          const listEl     = document.getElementById(`topics-${level}`);
-          const wholeBtn   = document.getElementById(`whole-${level}`);
-          const selectedBtn = document.getElementById(`selected-${level}`);
-
-          countEl.textContent = `${levelDefs.length} question${levelDefs.length !== 1 ? 's' : ''} available`;
-
-          listEl.innerHTML = '';
-
-          if (levelDefs.length === 0) {
-            listEl.innerHTML = '<p style="color:#aaa;font-style:italic;margin:4px 0;font-size:0.9em;">No questions yet — coming soon!</p>';
-            wholeBtn.disabled = true;
-            selectedBtn.disabled = true;
-            return;
-          }
-
-          // Enable whole-papers button
-          wholeBtn.disabled = false;
-
-          if (topics.length === 0) {
-            listEl.innerHTML = '<p style="color:#aaa;font-style:italic;margin:4px 0;font-size:0.9em;">No topic tags assigned yet.</p>';
-            selectedBtn.disabled = true;
-          } else {
-            topics.forEach(topic => {
-              const label = document.createElement('label');
-              const cb = document.createElement('input');
-              cb.type = 'checkbox';
-              cb.value = topic;
-              cb.className = `topic-cb topic-cb-${level}`;
-              cb.addEventListener('change', () => updateSelectedBtn(level));
-              label.appendChild(cb);
-              label.appendChild(document.createTextNode(' ' + topic));
-              listEl.appendChild(label);
-            });
-            // Selected Topics button starts disabled until at least one box is ticked
-            selectedBtn.disabled = true;
-          }
-        });
+        LEVELS.forEach(level => renderLevel(level, defs));
       }
+
+      function renderLevel(level, defs) {
+        defs = defs || window.allDefinitions || [];
+        const tier       = tierOf(level);
+        const levelDefs  = defs.filter(q => q.level === level && (!tier || q.tier === tier));
+        const topics     = getTopicsForLevel(level, tier);
+        const countEl    = document.getElementById(`count-${level}`);
+        const listEl     = document.getElementById(`topics-${level}`);
+        const wholeBtn   = document.getElementById(`whole-${level}`);
+        const selectedBtn = document.getElementById(`selected-${level}`);
+        const tierLabel  = tier ? ` (${tier})` : '';
+
+        countEl.textContent = `${levelDefs.length} question${levelDefs.length !== 1 ? 's' : ''} available${tierLabel}`;
+
+        listEl.innerHTML = '';
+
+        if (levelDefs.length === 0) {
+          listEl.innerHTML = '<p style="color:#aaa;font-style:italic;margin:4px 0;font-size:0.9em;">No questions yet — coming soon!</p>';
+          wholeBtn.disabled = true;
+          selectedBtn.disabled = true;
+          return;
+        }
+
+        // Enable whole-papers button
+        wholeBtn.disabled = false;
+
+        if (topics.length === 0) {
+          listEl.innerHTML = '<p style="color:#aaa;font-style:italic;margin:4px 0;font-size:0.9em;">No topic tags assigned yet.</p>';
+          selectedBtn.disabled = true;
+        } else {
+          topics.forEach(topic => {
+            const label = document.createElement('label');
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.value = topic;
+            cb.className = `topic-cb topic-cb-${level}`;
+            cb.addEventListener('change', () => updateSelectedBtn(level));
+            label.appendChild(cb);
+            label.appendChild(document.createTextNode(' ' + topic));
+            listEl.appendChild(label);
+          });
+          // Selected Topics button starts disabled until at least one box is ticked
+          selectedBtn.disabled = true;
+        }
+      }
+
+      // Core / Extended toggle (IGCSE card only)
+      document.querySelectorAll('.tier-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          igcseTier = btn.dataset.tier;
+          document.querySelectorAll('.tier-btn').forEach(b => b.classList.toggle('active', b === btn));
+          if (window.allDefinitions) renderLevel('IGCSE');
+        });
+      });
 
       function updateSelectedBtn(level) {
         const anyChecked = document.querySelectorAll(`.topic-cb-${level}:checked`).length > 0;
@@ -471,18 +496,18 @@
           return;
         }
 
-        const filtered = filterQuestionsByLevelAndTopics(level, topicSet);
+        const filtered = filterQuestionsByLevelAndTopics(level, topicSet, tierOf(level));
 
         if (filtered.length === 0) {
           const detail = topicSet && topicSet.size > 0
             ? ' with the selected topics'
             : '';
-          alert(`No questions found for ${level}${detail}. Please try different settings.`);
+          alert(`No questions found for ${level}${tierOf(level) ? ' ' + tierOf(level) : ''}${detail}. Please try different settings.`);
           return;
         }
 
         window.questions = filtered;
-        console.log(`[Nav] ${level} – ${filtered.length} questions${topicSet ? ' (topic-filtered)' : ' (whole papers)'}`);
+        console.log(`[Nav] ${level}${tierOf(level) ? ' ' + tierOf(level) : ''} – ${filtered.length} questions${topicSet ? ' (topic-filtered)' : ' (whole papers)'}`);
 
         showPage('practice-page');
         loadRandomQuestion();

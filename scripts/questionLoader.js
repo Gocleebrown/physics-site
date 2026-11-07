@@ -1,4 +1,4 @@
-// scripts/questionLoader.js ##v5
+// scripts/questionLoader.js ##v6
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1mspkPndqlydcum52DiVx_oq0cbmV8F06igR8kISehTI/export?format=csv&gid=0";
@@ -52,10 +52,12 @@ async function loadQuestionsFromSheet() {
       } catch (e) {
         console.warn("[Loader] bad params for id=" + id + ":", r.params);
       }
+      const lvl = r.level?.trim() || "A2";
       byId[id] = {
         id,
         type:   r.type?.trim()  || "general",
-        level:  r.level?.trim() || "A2",
+        level:  lvl,
+        tier:   lvl === "IGCSE" ? tierFromPaper(r.paper) : "",
         tags:   parseTags(r.tags),
         params: parsedParams,
         parts:  [],
@@ -75,12 +77,24 @@ async function loadQuestionsFromSheet() {
   return definitions;
 }
 
+// IGCSE tier from the paper code, e.g. "0625_m26_p31" -> "Core", "..._p41" -> "Extended".
+// Papers 1 and 3 are Core, 2 and 4 are Extended; 5/6 (practical) and anything else -> "" (no tier).
+function tierFromPaper(paper) {
+  const m = /(?:^|_)p([1-6])\d(?:_|$)/i.exec((paper || "").trim());
+  if (!m) return "";
+  if (m[1] === "1" || m[1] === "3") return "Core";
+  if (m[1] === "2" || m[1] === "4") return "Extended";
+  return "";
+}
+
 // Return sorted unique topic tags for a given level, drawn from window.allDefinitions.
 // Pass level=null to get tags across all levels.
-function getTopicsForLevel(level) {
+// Optional tier ("Core"/"Extended") restricts to that tier; omitted -> no tier filtering.
+function getTopicsForLevel(level, tier) {
   const defs = window.allDefinitions || window.questions || [];
   const tagSet = new Set();
   defs.forEach(q => {
+    if (tier && q.tier !== tier) return;
     if (!level || q.level === level) {
       (q.tags || []).forEach(t => tagSet.add(t));
     }
@@ -90,10 +104,11 @@ function getTopicsForLevel(level) {
 
 // Return definitions matching a level, optionally filtered by a Set of topic strings.
 // topicSet=null or empty Set → return all questions for that level.
-function filterQuestionsByLevelAndTopics(level, topicSet) {
+function filterQuestionsByLevelAndTopics(level, topicSet, tier) {
   const defs = window.allDefinitions || window.questions || [];
   return defs.filter(q => {
     if (q.level !== level) return false;
+    if (tier && q.tier !== tier) return false;
     if (!topicSet || topicSet.size === 0) return true;
     return (q.tags || []).some(t => topicSet.has(t));
   });
