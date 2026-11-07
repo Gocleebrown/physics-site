@@ -206,3 +206,10 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 ## Supporting figures (figlib.py, figs1.py, figs2.py)
 - Static symbolic SVGs (assets/as_fig_*.svg; no numbers, no answers) added via imageBelowMain (col L) / imageAfterPart (col M). Batch 1: 25-41 Q2, 41S Q1/Q3, 25-42M Q1/Q6/Q7, 25-21 Q2/Q4/Q5. Batch 2: s26 p41-p44 (q1,q4,q5,q6,q8), 26-21 Q2, 26-22 Q6, 26-24 Q1/Q6, 26-42M Q3/Q4.
 - p41_q6d_a-d PNGs: field marks redrawn as dots (out of page) to match the label (were crosses).
+
+## IGCSE papers (0625 m26) - added
+- Both papers live on the same sheet tab ("read from here"), level `IGCSE`. Tier comes from the paper code (`tierFromPaper`: p1/p3 = Core, p2/p4 = Extended); the IGCSE section has a Core/Extended toggle that filters topics, counts and "whole paper".
+- Core `0625_m26_p31`: 11 questions, rows 596-636 (`tools/rebuild/igcse/build31.py` -> `new31.json`, tests `tpaper31_core.js`).
+- Extended `0625_m26_p41`: 10 questions, rows 637-680 (`build41.py` -> `new41.json`, tests `tpaper41.js`, 190 checks).
+- Rebuild: run the build script, then write the rows with the Sheets API and verify against the CSV export (Drive download is base64 JSON).
+- Limits: unit is only enforced where an AND-of-ORs is used; "any N of M" parts use the 3 B slots + maxMarks; drawing tasks were converted to text/table answers; Extended Q4(b) compass positions/figure inferred from the text because the original figure was not visible.

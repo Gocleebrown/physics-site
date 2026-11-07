@@ -12,7 +12,7 @@ module.exports={h,T,FIX,run(rowsFile,show){
   const q=h.win.genericBuilder({id,type:'x',params:FIX[id],parts:rs.map(r=>Object.assign({},r))});
   const sorted=rs.slice().sort((a,b)=>+a.partIndex-+b.partIndex);
   for(const [pi,ans,exp] of (T[id]||[])){
-    const i=sorted.findIndex(r=>+r.partIndex===pi);const [g,t]=score(q,i,ans);n++;
+    const i=sorted.findIndex(r=>+r.partIndex===pi);let g,t;if(Array.isArray(ans)){const pp=q.parts[i];g=0;t=pp.tableCellKeywords.length;pp.tableCellKeywords.forEach((rw,r)=>{if(ans[r]!==''&&h.win.matchesKeywordGroups(rw[0],ans[r]))g++;});}else{[g,t]=score(q,i,ans);}n++;
     if(g!==exp){bad++;console.log('MISMATCH',id.slice(-3),'pi'+pi,'got',g+'/'+t,'expected',exp,'|',ans.slice(0,80));}
   }
  }
