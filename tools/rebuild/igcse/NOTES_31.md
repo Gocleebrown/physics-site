@@ -1,0 +1,13 @@
+# 0625/31 Core Paper 3 (May/June 2026) QP notes (80 marks)
+Q1 [8] speed-time graph (0-4 s rises 0->8 m/s, then constant 8 to 14 s). (a) distance 0-4 s [3] (b)(i) describe speed 0-4 [1] (ii) 4-12 s [1] (c) 220 m in 20 s avg speed [3]
+Q2 [6] stack of eight identical discs. (a) describe how to get average thickness of one disc [3] (b) mass 24 g, volume 20 cm3, density g/cm3 [3]
+Q3 [7] containers A (wide) and B (narrow tall) with water. (a) explain why A more stable than B [2] (b) force 64 N, area 12 cm2, pressure N/cm2 [3] (c) metal ball weight 1.2 N falls into oil; complete labels on Fig 3.2 for constant speed (force labels) [2]
+Q4 [12] electric motor turns wheel. (a)(i) energy store that increases as wheel turns faster [1] (ii) I=1.2 A, V=24 V, t=30 s energy [3] (iii) explain one way energy is wasted [2] (b)(i) describe how power station generates electricity by burning fossil fuels [4] (ii) two disadvantages ignoring costs [2]
+Q5 [7] hot-air balloon. (a) explain why hot air rises [2] (b) explain pressure on inside of balloon using gas particles [3] (c) 120 C in kelvin [2]
+Q6 [8] (a) EM spectrum order gamma..radio; (i) arrow shows direction of increasing ___ (wavelength) [1] (ii) describe direction of vibration in transverse wave [2] (iii) f=7.3e15 Hz, v=3.0e8, wavelength [3] (b)(i) one medical use of gamma [1] (ii) harmful effects of gamma [1]
+Q7 [8?] ray of red light through prism. (a)(i) angle ABD 60 deg -> angle of incidence at B (=30 deg) [1] (ii) label angle of refraction R [1] (b) critical angle 38 deg (i) meaning of critical angle [1] (ii) ray at 40 deg incidence > critical: continue the ray (TIR) [1]  total 4 for b
+Q8 [8] lamp+thermistor series circuit. (a) draw voltmeter across lamp [2] (b) p.d. 3.9 V, I 0.60 A resistance [3] (c) moved warm->cold room: explain effect on brightness [3]
+Q9 [7?: a1,b2,c4] (a) Fig 9.1 field lines around bar magnet (arrows leave right end?? lines go left-to-right outside top; label N and S poles) [1] (b) soft-iron bar PQ near magnet S...N, P..Q: explain why they move towards each other [2] (c) coil + sensitive ammeter, S pole moved into coil -> deflects left. (i) two ways to increase deflection left [2] (ii) two ways to deflect right [2]  total 7
+Q10 [4] americium-241 (95 protons). (a)(i) protons [1] (ii) neutrons [1] (b) nuclide notation Am-242 [1] (c) alpha vs beta penetrate paper [1]
+Q11 [9] (a) Solar system fig, 4 planets labelled (Mercury Venus Saturn Uranus); (i) name other four planets in boxes [3] (ii) name region X (asteroid belt) [1] (iii) force keeping planets in orbit (gravitational) [1] (b) evidence for expanding universe using redshift [4]
+Total Q1-Q11: 8+6+7+12+7+8+8+8+7+4+9? = 84?? check vs 80: Q7 total 4? (a)=2,(b)=2 -> Q7 total 4; so 8+6+7+12+7+8+4+8+7+4+9=80 OK
