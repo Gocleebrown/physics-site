@@ -205,4 +205,4 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 
 ## Supporting figures (figlib.py, figs1.py, figs2.py)
 - Static symbolic SVGs (assets/as_fig_*.svg; no numbers, no answers) added via imageBelowMain (col L) / imageAfterPart (col M). Batch 1: 25-41 Q2, 41S Q1/Q3, 25-42M Q1/Q6/Q7, 25-21 Q2/Q4/Q5. Batch 2: s26 p41-p44 (q1,q4,q5,q6,q8), 26-21 Q2, 26-22 Q6, 26-24 Q1/Q6, 26-42M Q3/Q4.
-- Known issue (not fixed): p41_q6d / p43_q6d option PNGs label B "(out of page)" but draw crosses (crosses mean into page).
+- p41_q6d_a-d PNGs: field marks redrawn as dots (out of page) to match the label (were crosses).
