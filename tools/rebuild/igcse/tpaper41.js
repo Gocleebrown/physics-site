@@ -22,14 +22,14 @@ T[P+'Q3']=[
 FIX[P+'Q4']={nrp:0};
 T[P+'Q4']=[
  [0,'a force',1],[0,'it attracts or repels',1],[0,'it moves',0],
- [1,['left','right','right'],3],[1,['to the left','right','right'],3],[1,['left','left','right'],2],[1,['right','left','left'],0],
+ [1,['left','right','right'],2],[1,['to the left','right','right'],2],[1,['left','left','right'],2],[1,['right','left','left'],0],
  [2,'weaker',1],[2,'the field is weaker at circle 3',1],[2,'stronger',0],
  [3,['induced','current','the change causing it'],3],[3,['induced','current','the movement of the magnet'],3],[3,['induced','voltage','the movement of the magnet'],2],[3,['','',''],0]];
 FIX[P+'Q5']={Kp:296};
 T[P+'Q5']=[
  [0,['very fast','randomly','change direction'],3],[0,['quickly','in all directions','move in a different direction'],3],[0,['slowly','randomly','stop'],1],
  [1,'the pressure increases because the particles move faster and collide with the box more often and with more force',3],[1,'pressure increases',1],[1,'the pressure decreases because the particles move slower',0],[1,'pressure increases because the particles move faster',2],
- [2,'296 - 273 = 23 C',2],[2,'23',2],[2,'22.85',2],[2,'22.9',2],[2,'569',0]];
+ [2,'296 - 273 = 23 C',1],[2,'23',1],[2,'22.85',1],[2,'22.9',1],[2,'569',0]];
 FIX[P+'Q6']={rkp:0};
 T[P+'Q6']=[
  [0,['a charge','a force'],2],[0,['charged particle','electrostatic force'],2],[0,['mass','force'],1],
@@ -61,7 +61,7 @@ T[P+'Q9']=[
 FIX[P+'Q10']={nnp:143,rp:16,vpp:5,npp:12};
 T[P+'Q10']=[
  [0,'235/92 U',2],[0,'U-235',2],[0,'²³⁵₉₂U',2],[0,'235',1],[0,'92',1],[0,'U-238',0],
- [1,['neutron','nuclei','fission','water','generator'],5],[1,['neutron','fragments','fission','steam','generator'],5],[1,['proton','nuclei','fusion','water','generator'],3],
+ [1,['neutron','nuclei','fission','water','generator'],3],[1,['neutron','fragments','fission','steam','generator'],3],[1,['proton','nuclei','fusion','water','generator'],3],[1,['neutron','','','',''],1],
  [2,'the current is lower so P = I2R is smaller',2],[2,'lower current and less heating',2],[2,'lower current',1],[2,'the resistance is lower',0],[2,'less heat is lost',1],
  [3,'Ns = 240 x 400000 / 25000 = 3840',2],[3,'3840',2],[3,'3800',2],[3,'240 x 400000/25000',1],[3,'0.0625',0]];
 run(process.argv[2]||'igcse/new41.json',process.argv[3]);

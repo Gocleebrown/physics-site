@@ -147,7 +147,6 @@ parts.append(dict(pi=1,type='explain',K=lab('(b)')+'The temperature of the air i
  U='The pressure increases. The air particles move faster; they collide more often with the box and with more force (larger change in momentum).',V='Higher temperature means a greater average kinetic energy, so particles hit the walls more frequently and with more force, which increases the pressure.'))
 parts.append(dict(pi=2,type='calculation',K=lab('(c)')+'The air temperature inside the box is ${K} K.<br><br>Calculate the air temperature in °C.',
  A='${C}|${Cx}|${Cs}',tolerance='0',
- C1=kwv('${K}-273','${K}−273','${K}–273','${K}-273.15','${K}−273.15','k-273','k−273','kelvin-273','kelvin−273','subtract273','minus273','−273','-273'),
  U='temperature = ${K} − 273 = ${C} °C',V='To convert from kelvin to degrees Celsius subtract 273.'))
 ALL+=question(LV,ID+'-Q5',PAPER,'explain','Thermal physics',Q5P,Q5G,'Question 5',parts)
 

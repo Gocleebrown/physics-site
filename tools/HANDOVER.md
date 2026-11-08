@@ -213,3 +213,12 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - Extended `0625_m26_p41`: 10 questions, rows 637-680 (`build41.py` -> `new41.json`, tests `tpaper41.js`, 190 checks).
 - Rebuild: run the build script, then write the rows with the Sheets API and verify against the CSV export (Drive download is base64 JSON).
 - Limits: unit is only enforced where an AND-of-ORs is used; "any N of M" parts use the 3 B slots + maxMarks; drawing tasks were converted to text/table answers; Extended Q4(b) compass positions/figure inferred from the text because the original figure was not visible.
+
+## Whole paper (exam) mode - added 2026-11-08
+- Selection page: "Whole Papers" is now **All questions** (unchanged behaviour); new **Whole paper** button (with hover/tap info) per level. IGCSE respects the Core/Extended toggle.
+- `scripts/exam_mode.js` (##v1) is self-contained. Random paper per level/tier (avoids the last one sat); questions in paper order; no hints/key ideas/model answers until Finish; numbers are seeded per sitting so refresh/resume and the review show identical numbers; answers autosave in localStorage (`physicsExamSitting`); results history in `physicsExamHistory`; optional timer with +25/50/100% extra time (time = official length scaled by the marks available; IGCSE p3/p4 75 min/80, AS P2 75/60, A2 P4 120/100); time-up auto-submits. Review shows answers, marks, model answer, key idea, marking breakdown and a by-topic summary. Exam results also update the per-question practice score (`saveScoreForQuestion`).
+- Loader now keeps `paper` on each definition (`questionLoader.js` ##v7).
+- Engine fixes: `maxMarks` ("any N of M") now also applies to table parts (`questionBuilders.js`, `applyMaxMarksCap`; `question_engine.js` ##v6 table score display uses the cap). Before this, capped table parts were over-counted. Only 4 IGCSE rows use it.
+- Mark totals now match the real papers: Core 80 (8,6,7,12,7,8,4,8,7,4,9), Extended 80 (10,6,9,7,7,6,8,9,9,9). Fixed Extended Q5(c) (1 mark).
+- Known: AS 9702_w25_p21 totals 67 and A2 9702_s26_p44 totals 105 (official 60 / 100) - older rows, not changed.
+- Not yet: logins, saved profile, spaced repetition, grade boundaries (need server-side marking before exam answers can be truly hidden from the browser).

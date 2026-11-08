@@ -75,6 +75,20 @@ function resolveAnswerType(row) {
 }
 window.resolveAnswerType = resolveAnswerType;
 
+// Optional "maxMarks" column (AK): the part is worth this many marks however
+// many points (or table cells) are listed (e.g. "any 2 of 5"). Left blank = every mark counts.
+function applyMaxMarksCap(marks, row) {
+  const capRaw = String(row.maxMarks == null ? "" : row.maxMarks).trim();
+  if (capRaw === "") return;
+  const cap = parseInt(capRaw, 10);
+  if (Number.isInteger(cap) && cap >= 1 && cap <= marks.length && String(cap) === capRaw) {
+    marks.cap = cap;
+  } else {
+    console.warn("[maxMarks] ignored for", row.id, "part", row.partIndex,
+      "- must be a whole number from 1 to", marks.length, "(the number of marks listed), but is:", capRaw);
+  }
+}
+
 // --- 5) Build marks from keyword columns (A, C3-C1, M, B, B2, B3), plus imageChoice/table ---
 function buildMarksFromRow(row, ctx) {
   const answerType = resolveAnswerType(row);
@@ -102,6 +116,7 @@ function buildMarksFromRow(row, ctx) {
     cellKeywords.forEach((rowArr) =>
       (rowArr || []).forEach(() => marks.push({ type: "B", keywords: null, awarded: false }))
     );
+    applyMaxMarksCap(marks, row);   // "any N of the cells" (same maxMarks column as text parts)
     return marks;
   }
 
@@ -150,18 +165,7 @@ function buildMarksFromRow(row, ctx) {
     marks.push({ type: markType, level, keywords: groups, awarded: false, tol });
   });
 
-  // Optional "maxMarks" column (AK): the part is worth this many marks however
-  // many points are listed (e.g. "any 2 of 5"). Left blank = every mark counts.
-  const capRaw = String(row.maxMarks == null ? "" : row.maxMarks).trim();
-  if (capRaw !== "") {
-    const cap = parseInt(capRaw, 10);
-    if (Number.isInteger(cap) && cap >= 1 && cap <= marks.length && String(cap) === capRaw) {
-      marks.cap = cap;
-    } else {
-      console.warn("[maxMarks] ignored for", row.id, "part", row.partIndex,
-        "- must be a whole number from 1 to", marks.length, "(the number of marks listed), but is:", capRaw);
-    }
-  }
+  applyMaxMarksCap(marks, row);
 
   return marks;
 }
