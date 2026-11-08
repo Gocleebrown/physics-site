@@ -1,4 +1,4 @@
-// scripts/questionLoader.js ##v6
+// scripts/questionLoader.js ##v7
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1mspkPndqlydcum52DiVx_oq0cbmV8F06igR8kISehTI/export?format=csv&gid=0";
@@ -58,6 +58,7 @@ async function loadQuestionsFromSheet() {
         type:   r.type?.trim()  || "general",
         level:  lvl,
         tier:   lvl === "IGCSE" ? tierFromPaper(r.paper) : "",
+        paper:  (r.paper || "").trim(),
         tags:   parseTags(r.tags),
         params: parsedParams,
         parts:  [],

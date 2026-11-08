@@ -1,4 +1,4 @@
-// scripts/question_engine.js ##v5
+// scripts/question_engine.js ##v6
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
@@ -806,7 +806,8 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
   });
 
   recountMarks();
-  document.getElementById(`score-${index}`).textContent = `(${earned}/${marks.length})`;
+  const tableFull = markEarned(marks) === markTotal(marks);   // honours the maxMarks cap
+  document.getElementById(`score-${index}`).textContent = `(${markEarned(marks)}/${markTotal(marks)})`;
 
   // per-cell keyword breakdown, for reporting suspected marking issues during beta testing
   let breakdownRows = "";
@@ -822,9 +823,9 @@ function checkTableAnswer(index, marks, rowLabels, colLabels, cellKeywords, cell
     });
   });
 
-  fb.style.border = earned === marks.length ? "2px solid green" : earned > 0 ? "2px solid orange" : "2px solid red";
+  fb.style.border = tableFull ? "2px solid green" : earned > 0 ? "2px solid orange" : "2px solid red";
   fb.innerHTML =
-    (anyBlank ? `<strong>Try to fill in every cell.</strong><br><br>` : earned === marks.length ? `<strong>Correct!</strong><br><br>` : `<strong>Not quite right yet.</strong><br><br>`) +
+    (anyBlank && !tableFull ? `<strong>Try to fill in every cell.</strong><br><br>` : tableFull ? `<strong>Correct!</strong><br><br>` : `<strong>Not quite right yet.</strong><br><br>`) +
     `<em>Model answers:</em><table>${feedbackRows}</table>` +
     (explanation ? `<br>${renderText(explanation)}` : "") +
     `<div style="margin-top:10px;font-size:0.9em;border-top:1px solid #ccc;padding-top:6px;">` +

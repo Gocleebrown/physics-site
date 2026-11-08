@@ -196,6 +196,8 @@
         <a href="#" id="retry-load">try again</a>.
       </div>
 
+      <div id="exam-resume" class="exam-resume" style="display:none"></div>
+
       <div id="level-sections">
 
         <!-- ── IGCSE ── -->
@@ -206,7 +208,11 @@
             <button type="button" class="tier-btn" id="tier-Extended" data-tier="Extended">Extended</button>
           </div>
           <p class="count-note" id="count-IGCSE">Loading…</p>
-          <button class="level-btn" id="whole-IGCSE" disabled>Whole Papers</button>
+          <button class="level-btn" id="whole-IGCSE" disabled>All questions</button>
+          <div class="exam-wrap" data-tip="Sit one complete past paper, in order, like the real exam. A paper is picked at random for you. No hints, key ideas or model answers are shown until you finish &mdash; then every answer is marked and you can review it all. Optional timer, with extra-time settings.">
+            <button class="level-btn" id="exam-IGCSE" disabled>Whole paper</button>
+            <span class="info-tip" tabindex="0" aria-label="About Whole paper">&#9432;</span>
+          </div>
           <div class="topics-scroll" id="topics-IGCSE">
             <p style="color:#aaa;margin:4px 0;font-size:0.9em;">Loading topics…</p>
           </div>
@@ -217,7 +223,11 @@
         <div class="level-card" id="card-AS">
           <h3>AS</h3>
           <p class="count-note" id="count-AS">Loading…</p>
-          <button class="level-btn" id="whole-AS" disabled>Whole Papers</button>
+          <button class="level-btn" id="whole-AS" disabled>All questions</button>
+          <div class="exam-wrap" data-tip="Sit one complete past paper, in order, like the real exam. A paper is picked at random for you. No hints, key ideas or model answers are shown until you finish &mdash; then every answer is marked and you can review it all. Optional timer, with extra-time settings.">
+            <button class="level-btn" id="exam-AS" disabled>Whole paper</button>
+            <span class="info-tip" tabindex="0" aria-label="About Whole paper">&#9432;</span>
+          </div>
           <div class="topics-scroll" id="topics-AS">
             <p style="color:#aaa;margin:4px 0;font-size:0.9em;">Loading topics…</p>
           </div>
@@ -228,7 +238,11 @@
         <div class="level-card" id="card-A2">
           <h3>A2</h3>
           <p class="count-note" id="count-A2">Loading…</p>
-          <button class="level-btn" id="whole-A2" disabled>Whole Papers</button>
+          <button class="level-btn" id="whole-A2" disabled>All questions</button>
+          <div class="exam-wrap" data-tip="Sit one complete past paper, in order, like the real exam. A paper is picked at random for you. No hints, key ideas or model answers are shown until you finish &mdash; then every answer is marked and you can review it all. Optional timer, with extra-time settings.">
+            <button class="level-btn" id="exam-A2" disabled>Whole paper</button>
+            <span class="info-tip" tabindex="0" aria-label="About Whole paper">&#9432;</span>
+          </div>
           <div class="topics-scroll" id="topics-A2">
             <p style="color:#aaa;margin:4px 0;font-size:0.9em;">Loading topics…</p>
           </div>
@@ -277,6 +291,7 @@
     <script src="scripts/questionLoader.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/question_engine.js"></script>
+    <script src="scripts/exam_mode.js"></script>
     <script>
       // ── Shortcut toolbar data (unchanged) ──
       const OPERATORS = [
@@ -372,6 +387,7 @@
         ['home-page', 'selection-page', 'practice-page'].forEach(p => {
           document.getElementById(p).style.display = (p === id) ? 'block' : 'none';
         });
+        if (id === 'selection-page' && window.refreshExamBanner) window.refreshExamBanner();
       }
 
       // Home → Selection
@@ -438,6 +454,7 @@
         const countEl    = document.getElementById(`count-${level}`);
         const listEl     = document.getElementById(`topics-${level}`);
         const wholeBtn   = document.getElementById(`whole-${level}`);
+        const examBtn    = document.getElementById(`exam-${level}`);
         const selectedBtn = document.getElementById(`selected-${level}`);
         const tierLabel  = tier ? ` (${tier})` : '';
 
@@ -448,12 +465,14 @@
         if (levelDefs.length === 0) {
           listEl.innerHTML = '<p style="color:#aaa;font-style:italic;margin:4px 0;font-size:0.9em;">No questions yet — coming soon!</p>';
           wholeBtn.disabled = true;
+          examBtn.disabled = true;
           selectedBtn.disabled = true;
           return;
         }
 
         // Enable whole-papers button
         wholeBtn.disabled = false;
+        examBtn.disabled = !(window.examPapersFor && window.examPapersFor(level, tier).length);
 
         if (topics.length === 0) {
           listEl.innerHTML = '<p style="color:#aaa;font-style:italic;margin:4px 0;font-size:0.9em;">No topic tags assigned yet.</p>';
@@ -507,7 +526,7 @@
         }
 
         window.questions = filtered;
-        console.log(`[Nav] ${level}${tierOf(level) ? ' ' + tierOf(level) : ''} – ${filtered.length} questions${topicSet ? ' (topic-filtered)' : ' (whole papers)'}`);
+        console.log(`[Nav] ${level}${tierOf(level) ? ' ' + tierOf(level) : ''} – ${filtered.length} questions${topicSet ? ' (topic-filtered)' : ' (all questions)'}`);
 
         showPage('practice-page');
         loadRandomQuestion();
@@ -517,6 +536,10 @@
       LEVELS.forEach(level => {
         document.getElementById(`whole-${level}`).addEventListener('click', () => {
           startPractice(level, null);
+        });
+
+        document.getElementById(`exam-${level}`).addEventListener('click', () => {
+          window.startExamFlow(level, tierOf(level));
         });
 
         document.getElementById(`selected-${level}`).addEventListener('click', () => {
