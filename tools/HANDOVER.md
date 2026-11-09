@@ -222,3 +222,7 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - Mark totals now match the real papers: Core 80 (8,6,7,12,7,8,4,8,7,4,9), Extended 80 (10,6,9,7,7,6,8,9,9,9). Fixed Extended Q5(c) (1 mark).
 - Known: AS 9702_w25_p21 totals 67 and A2 9702_s26_p44 totals 105 (official 60 / 100) - older rows, not changed.
 - Not yet: logins, saved profile, spaced repetition, grade boundaries (need server-side marking before exam answers can be truly hidden from the browser).
+
+## Mark-total fixes and marking box (2026-11-09)
+- 9702_w25_p21 now 60 marks and 9702_s26_p44 now 100 (checked against the QP/MS). Sheet rows changed: 155,156,165,167,172,179,184 (p21) and 463,464,465,472,479,482,496 (p44). Extra C1 "method" marks removed where the real mark is a single A; the two-B "define" rows are now one AND-of-ORs B; p21 Q6(a) = protons+electrons (one mark) and neutrons (one mark); p44 Q2(c) = C3 mass / C2 volume / C1 density formula + A (chain implication is slightly generous if only the mass is shown).
+- Marking box: students now see only tick/cross per mark point ("Marks awarded"). Full keyword detail returns with `?beta=1` on the page address (or localStorage `physicsBeta`=1). `question_engine.js` ##v7.

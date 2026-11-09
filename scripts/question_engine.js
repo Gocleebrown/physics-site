@@ -1,4 +1,4 @@
-// scripts/question_engine.js ##v6
+// scripts/question_engine.js ##v7
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
@@ -864,17 +864,29 @@ function describeKeywordRequirement(groups, tolPercent) {
 // it was awarded and what wording/answer was needed for it. Shown for every
 // outcome (correct, partial, wrong) so a screenshot always shows the full
 // picture, not just the final score.
+// Full keyword detail is for testing/teachers only: add ?beta=1 to the page address
+// (or set localStorage physicsBeta = "1"). Students see a tick or cross per mark point.
+function betaMarkingDetail() {
+  try {
+    if (/[?&]beta=1\b/.test(window.location.search)) return true;
+    return localStorage.getItem("physicsBeta") === "1";
+  } catch (e) { return false; }
+}
+
 function buildMarkingBreakdown(marks) {
   if (!marks || !marks.length) return "";
+  const detail = betaMarkingDetail();
   const rows = marks.map((m, i) => {
     const icon = m.awarded ? "&#10003;" : "&#10007;";
     const color = m.awarded ? "green" : "crimson";
+    if (!detail) return `<div style="color:${color};">${icon} Mark ${i + 1}</div>`;
     const req = m.keywords ? describeKeywordRequirement(m.keywords, m.tol) : "correct final answer";
     return `<div style="color:${color};">${icon} Mark ${i + 1} (${m.type}): needed ${req}</div>`;
   });
   if (marks.cap) rows.unshift(`<div>This part is worth ${marks.cap} mark${marks.cap > 1 ? "s" : ""}: any ${marks.cap} of the points below.</div>`);
+  const title = detail ? "Marking breakdown (for reporting issues during beta testing):" : "Marks awarded:";
   return `<div style="margin-top:10px;font-size:0.9em;border-top:1px solid #ccc;padding-top:6px;">` +
-    `<em>Marking breakdown (for reporting issues during beta testing):</em><br>${rows.join("")}</div>`;
+    `<em>${title}</em><br>${rows.join("")}</div>`;
 }
 
 function checkPartAnswer(index, marks, modelAnswer, explanation) {
