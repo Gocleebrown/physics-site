@@ -1,4 +1,4 @@
-// scripts/question_engine.js ##v7
+// scripts/question_engine.js ##v8
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
@@ -865,7 +865,8 @@ function describeKeywordRequirement(groups, tolPercent) {
 // outcome (correct, partial, wrong) so a screenshot always shows the full
 // picture, not just the final score.
 // Full keyword detail is for testing/teachers only: add ?beta=1 to the page address
-// (or set localStorage physicsBeta = "1"). Students see a tick or cross per mark point.
+// (or set localStorage physicsBeta = "1"). Students see a tick or cross per mark point
+// plus one or two example wordings that earn it, so they can query a mark that was missed.
 function betaMarkingDetail() {
   try {
     if (/[?&]beta=1\b/.test(window.location.search)) return true;
@@ -873,18 +874,114 @@ function betaMarkingDetail() {
   } catch (e) { return false; }
 }
 
-function buildMarkingBreakdown(marks) {
+const EXAMPLE_COMMON_WORDS = ("an the of to and or in on at is are was were be by for from with as it its that this these those " +
+  "per into out up down over under more less than then so not no has have had can will would must should one two three four " +
+  "each every any all both only also if when because which what where who how their there they them he she we you your " +
+  "i me my our us his her do does did done get gets give given use used using show shows shown state says same " +
+  "between through about above below very much many some such other another equal equals increase decrease").split(/\s+/);
+
+// Keywords are stored without spaces ("dividethetotalthickness"). Put the spaces back
+// using the words from this question's own model answer, so examples read naturally.
+function prettyKeyword(k, vocabText) {
+  if (/[^a-z]/i.test(k) && /\s/.test(k)) return k;       // already has spaces
+  if (!/^[a-z]+$/i.test(k) || k.length < 8) return k;     // numbers, symbols, short words
+  const words = new Set(EXAMPLE_COMMON_WORDS);
+  String(vocabText || "").toLowerCase().replace(/&[a-z]+;/g, " ").replace(/<[^>]*>/g, " ")
+    .split(/[^a-z]+/).forEach((w) => { if (w.length >= 2) words.add(w); });
+  const t = k.toLowerCase(), n = t.length, MAXW = 18;
+  const cost = new Array(n + 1).fill(Infinity), back = new Array(n + 1).fill(-1), kn = new Array(n + 1).fill(false), unk = new Array(n + 1).fill(0);
+  cost[0] = 0;
+  for (let i = 0; i < n; i++) {
+    if (cost[i] === Infinity) continue;
+    for (let L = 1; L <= MAXW && i + L <= n; L++) {
+      const w = t.substr(i, L);
+      const known = L >= 2 && words.has(w);
+      const c = cost[i] + (known ? 1 : 4 * L);
+      if (c < cost[i + L]) { cost[i + L] = c; back[i + L] = i; kn[i + L] = known; unk[i + L] = unk[i] + (known ? 0 : L); }
+    }
+  }
+  if (unk[n] > n * 0.5) return k;
+  const toks = []; let j = n;
+  while (j > 0) { toks.unshift({ w: k.substring(back[j], j), known: kn[j] }); j = back[j]; }
+  // a tiny known word ("an", "at", "on") touching an unknown chunk is probably a bad split: keep the original
+  for (let q = 0; q < toks.length; q++) {
+    if (toks[q].known && toks[q].w.length <= 2 &&
+        ((toks[q - 1] && !toks[q - 1].known) || (toks[q + 1] && !toks[q + 1].known))) return k;
+  }
+  const merged = [];
+  toks.forEach((tk) => {
+    const last = merged[merged.length - 1];
+    if (last && !last.known && !tk.known) last.w += tk.w; else merged.push({ w: tk.w, known: tk.known });
+  });
+  return merged.map((x) => x.w).join(" ");
+}
+
+function exampleEsc(x) { return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+// One or two example wordings that would earn this mark.
+function exampleForMark(m, vocabText) {
+  const g = m.keywords;
+  if (!Array.isArray(g) || g.length === 0) return "";
+  const show = (kw) => {
+    const c = classifyKeyword(kw);
+    if (c.kind === "range") return `${c.lo} to ${c.hi}`;
+    const orig = String(kw).replace(/^\s*exact:\s*/i, "").trim();
+    const sci = /^([-+]?\d+(?:\.\d+)?)e([-+]?\d+)$/i.exec(orig);          // 4.92e+3 -> 4.92 × 10³
+    if (sci) {
+      const sup = String(parseInt(sci[2], 10)).replace(/[-0-9]/g, (d) => "⁻⁰¹²³⁴⁵⁶⁷⁸⁹"["-0123456789".indexOf(d)]);
+      return `${sci[1]} × 10${sup}`;
+    }
+    if (/^[a-z]+$/i.test(orig)) return prettyKeyword(orig, vocabText);      // run-together words: put spaces back
+    const nu = /^([-+]?\d[\d.,]*)([a-zA-Z°ΩµμΩ]+)$/.exec(orig);          // 2.9newton -> 2.9 newton
+    if (nu) return nu[1] + " " + nu[2];
+    return orig;                                                            // symbols/numbers keep their original form
+  };
+  const pickMany = (arr, max) => {
+    const flat = arr.filter((x) => typeof x === "string");
+    const nice = flat.filter((x) => classifyKeyword(x).kind !== "number");
+    if (nice.length === 0) return flat.slice(0, 1).map(show);        // numbers: first form only
+    const readable = nice.filter((x) => show(x).length <= 70);
+    const pool = readable.length ? readable : nice;
+    const seen = new Set(), out = [];
+    for (const x of pool) {
+      const v = show(x);
+      if (seen.has(v.toLowerCase())) continue;
+      seen.add(v.toLowerCase()); out.push(v);
+      if (out.length >= max) break;
+    }
+    return out;
+  };
+  let parts;
+  if (g.length === 1 && Array.isArray(g[0]) && g[0].every((x) => typeof x === "string")) {
+    parts = pickMany(g[0], 2);                                // a single OR-list stored as one group
+  } else if (Array.isArray(g[0]) && Array.isArray(g[0][0]) && Array.isArray(g[0][0][0])) {
+    const first = g[0];
+    parts = [first.map((grp) => pickMany(grp, 1)[0]).filter(Boolean).join(" + ")];
+  } else if (g.every((x) => typeof x === "string")) {
+    parts = pickMany(g, 2);
+  } else {
+    parts = [g.map((grp) => pickMany(grp, 1)[0]).filter(Boolean).join(" + ")];
+  }
+  parts = parts.filter(Boolean);
+  if (!parts.length) return "";
+  return parts.map((x) => `&ldquo;${exampleEsc(x)}&rdquo;`).join(" or ");
+}
+
+function buildMarkingBreakdown(marks, vocabText) {
   if (!marks || !marks.length) return "";
   const detail = betaMarkingDetail();
   const rows = marks.map((m, i) => {
     const icon = m.awarded ? "&#10003;" : "&#10007;";
     const color = m.awarded ? "green" : "crimson";
-    if (!detail) return `<div style="color:${color};">${icon} Mark ${i + 1}</div>`;
+    if (!detail) {
+      const ex = m.keywords ? exampleForMark(m, vocabText) : "";
+      return `<div style="color:${color};">${icon} Mark ${i + 1}${ex ? `: e.g. ${ex}` : ""}</div>`;
+    }
     const req = m.keywords ? describeKeywordRequirement(m.keywords, m.tol) : "correct final answer";
     return `<div style="color:${color};">${icon} Mark ${i + 1} (${m.type}): needed ${req}</div>`;
   });
   if (marks.cap) rows.unshift(`<div>This part is worth ${marks.cap} mark${marks.cap > 1 ? "s" : ""}: any ${marks.cap} of the points below.</div>`);
-  const title = detail ? "Marking breakdown (for reporting issues during beta testing):" : "Marks awarded:";
+  const title = detail ? "Marking breakdown (for reporting issues during beta testing):" : "Marks awarded (examples of accepted wording &mdash; if your answer was right but not marked, please report it):";
   return `<div style="margin-top:10px;font-size:0.9em;border-top:1px solid #ccc;padding-top:6px;">` +
     `<em>${title}</em><br>${rows.join("")}</div>`;
 }
@@ -922,17 +1019,17 @@ function checkPartAnswer(index, marks, modelAnswer, explanation) {
   document.getElementById(`score-${index}`).textContent = `(${earned}/${possible})`;
 
   if (earned === possible) {
-    fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks);
+    fb.innerHTML = `<strong>Correct!</strong><br><br>Model Answer:<br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks, modelAnswer + " " + explanation);
     fb.style.border = "2px solid green";
   } else if (earned > 0) {
     fb.innerHTML =
       `<strong>You're nearly there!</strong><br><br><em>Key Idea:</em><br>${renderText(explanation)}` +
-      `<br><br><strong>Model Answer:</strong><br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks);
+      `<br><br><strong>Model Answer:</strong><br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks, modelAnswer + " " + explanation);
     fb.style.border = "2px solid orange";
   } else {
     fb.innerHTML =
       `<strong>Not quite right.</strong><br><br><em>Key Idea:</em><br>${renderText(explanation)}` +
-      `<br><br><strong>Model Answer:</strong><br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks);
+      `<br><br><strong>Model Answer:</strong><br>${renderText(modelAnswer)}` + buildMarkingBreakdown(marks, modelAnswer + " " + explanation);
     fb.style.border = "2px solid red";
   }
 
