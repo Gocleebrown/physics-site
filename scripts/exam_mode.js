@@ -1,4 +1,4 @@
-// scripts/exam_mode.js ##v1
+// scripts/exam_mode.js ##v2
 //
 // "Whole paper" exam mode. Separate from the practice flow in question_engine.js so
 // that nothing in normal practice can be affected by it.
@@ -620,7 +620,7 @@
         }
         if (part.answerType !== "table" && part.modelAnswer) html += "<p><strong>Model answer:</strong><br>" + renderText(part.modelAnswer) + "</p>";
         if (part.explanation) html += "<p><em>Key idea:</em><br>" + renderText(part.explanation) + "</p>";
-        if (r.hasMarks && part.answerType !== "imageChoice") html += buildMarkingBreakdown(part.marks);
+        if (r.hasMarks && part.answerType !== "imageChoice") html += buildMarkingBreakdown(part.marks, (part.modelAnswer || "") + " " + (part.explanation || "") + " " + (part.partText || ""));
         if (!r.hasMarks) html += "<p><em>This part is not auto-marked &mdash; compare your answer with the model answer.</em></p>";
         box.innerHTML = html;
         sec.appendChild(box);
