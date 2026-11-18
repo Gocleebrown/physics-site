@@ -1,4 +1,4 @@
-##v11
+##v12
 # CIE 9702 Physics Practice Site — Complete Handover (read this first)
 
 Last updated 19 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
@@ -245,10 +245,10 @@ Method: owner's CSV export of all tabs, a live spot-check, and a script check of
 **Still open (these need the real papers; nothing may be invented)**
 1. **Student names in git history: PURGED 19 Nov 2026.** `git filter-repo` removed `assets/StudentQuery (61/62).csv` from all 248 commits; master was force-pushed (now `ed6e9be`, tree identical to before). GitHub still serves the OLD commits by SHA (e.g. `ce109f1`, `f4331ff`) until GitHub Support is asked to purge cached views and run garbage collection. **Owner action: send that request.** Anyone who cloned or forked before then still has the files. Repo had 0 forks and 0 PRs. **Always re-clone before editing; older local clones hold the old history and a push from them would restore it.**
 2. **Private repo: NOT done.** GitHub Free serves Pages only from public repos, so making it private would probably take the student site down; on a paid plan the Pages site is still public. The names are already purged, so it gives no benefit.
-3. **Missing figure:** `9702_s25_p22_q2` (paper `9702_s25_p22`) part (b)(ii) (row 688) asks students to draw on Fig. 2.2 with no figure and no imageChoice. Needs QP and MS Q2.
+3. **DONE 19 Nov 2026 - s25 p22 Q2(b)(ii) (row 688):** now an `imageChoice` (2 marks) with four generated vector-triangle SVGs drawn to scale from the question numbers (W = 270 x 9.81 N, F = 1800 N, 25 deg); correct option position random (`cip`), whole set randomly mirrored (`mp`); distractors: W and F lengths swapped, 25 deg measured from horizontal, R arrow reversed. Params/computedValues are on row 686 (partIndex 0). Source: `tools/rebuild/patch_s25p22q2.py`. Q2(b) is still the fixed CIE numbers (no parameters); only the figure is generated. The harness reports row 688 as "not full marks" because it cannot click an image option; checked on the live site instead (correct index 0-3 all occur, 4 options, no NaN).
 4. **Missing asset files (`fig7_1_context.svg` was deleted in commit a60945b; `p2fig5_4_choice_2.svg` never existed):** `fig7_1_context.svg` (`9702-25-41-Q7`, paper `9702_w25_p41`, row 37, imageBelowMain) and `p2fig5_4_choice_2.svg` (`9702-25-41S-Q5`, paper `9702_s25_p41`, row 74, imageOptions). Neither exists in `/assets`.
 5. **Missing modelAnswer:** row 32 (`9702-25-41-Q6` part 0, paper `9702_w25_p41`) and row 70 (`9702-25-41S-Q4` part 2, paper `9702_s25_p41`).
-6. **Missing explanation:** all 60 rows of s25 p22 and p23 (rows 681–740) plus row 70.
+6. **Missing explanation:** s25 p22 DONE 19 Nov 2026 (rows 681–711, written from the QP and the existing model answers; only the explanation column changed, marking identical). Still missing: s25 p23 (rows 712–740, needs the paper) and row 70.
 7. **Owner rule for all new figures and questions:** nothing may be a copy or simple replica of a CIE question or image, and as many values as possible must be dynamic, so figures need to be drawn from parameters (see section 12).
 8. Also noticed, not changed: `0625-26-41M-Q9` has two parts labelled (a)(i) (rows 670 and 671); the real second label is probably (a)(ii) and later labels may need checking against the paper.
 9. Carried over from the 4 Nov list (not re-verified): reconstructed unseen graphs p44 Q9(b)(ii) and p43 Q3c; approximate "any N of M" marks outside 42M/IGCSE; rows 2–188 unaudited; live-site eye check of 26-23/26-24 figures.
@@ -262,3 +262,8 @@ An earlier version of this section listed `9702-26-24-Q4` "Figure 4.1" as missin
 3. Write changes to the sheet as exact-match find/replace, then re-download and diff against the expected result (0 differences).
 4. Never reword a question to fix something else; wording changes are listed and approved first. The CIE paper values stay as the test (`tpaper*.js`) so a parameter change cannot move a question away from the original.
 5. Log each batch in this file (what, which rows, checks run).
+
+### Tooling added 19 Nov 2026
+- `tools/regress_compare.js before.json after.json [scriptsDir] [loads]` (##v1): seeded before/after build of every id; prints which fields changed, which ids, and `markDiff` (model-answer marking changes). Convert exports first with `tools/csv_to_json.py`. Run it before and after every sheet change; unexpected changed fields or `markDiff` above 0 means stop.
+- `tools/rebuild/patch_s25p22q2.py` (##v1): patch script for the Q2(b)(ii) figure (input = sheet CSV export, output = patched CSV + `.edits.json`).
+- Log: 19 Nov 2026 batch 2 - row 686 F:G, row 688 D,K,N,R,U,V,AA:AD, V681:V711. Verified: re-download diff 0 cells against the expected CSV; compare shows only explanation changed on 7 ids and 30 cells; live site builds the new question.
