@@ -28,7 +28,7 @@ The owner is training Claude to rebuild whole papers directly from the real ques
 
 ## 2. HOW THE PIPELINE WORKS (so you can reason about bugs)
 
-1. Sheet tab published as CSV → `scripts/questionLoader.js` (##v8) groups rows **by id**, takes `type`, `level`, `tags`, `params` from the **first row of that id in sheet order**. **Level is derived from the paper code** (`levelFromPaper`): `0625` → IGCSE; `9702` paper 1x/2x/3x → AS; paper 4x/5x → A2. Column A ("level") in the sheet is not read (cell A1 has a space, not "level", so `r.level` was always undefined; paper-code derivation is more reliable).
+1. Sheet tab published as CSV → `scripts/questionLoader.js` (##v9) groups rows **by id**, takes `type`, `level`, `tags`, `params` from the **first row of that id in sheet order**. Level is read from column A (`r.level`); cell A1 must contain `level` (the header). AS rows have `AS`, A2 rows have `A2`, IGCSE rows have `IGCSE`. Empty A1 makes everything default to A2 — if AS shows 0 questions, check A1.
 2. `scripts/questionBuilders.js` (##v2) `genericBuilder` draws each param once per id: `[min,max]` → random, rounded to 3 s.f.; anything else = constant. Then `computedValues` (G) from **all rows of the id** are merged with `Object.assign` in order (a repeated name silently overwrites), each evaluated with `new Function` using earlier keys and params.
 3. `mainRow` = the row with partIndex 0 (else the first part). **mainText (I), tableRequest (H) and imageBelowMain (L) are read from that row only.** Parts are sorted by partIndex. Each part's graphSpec is drawn on that part.
 4. Text columns are interpolated: `${expr}` evaluated as JS (cannot contain `}`), numbers shown to 3 s.f., strings pass through. partText, mainText and the graph render with `innerHTML`, so HTML (`<br>`, `<sup>`, inline-flex spans) is allowed. Keyword cells are interpolated **before** parsing (so `${kw1}` may supply a `|`-separated list).
@@ -217,15 +217,15 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 ## Whole paper (exam) mode - added 2026-11-08
 - Selection page: "Whole Papers" is now **All questions** (unchanged behaviour); new **Whole paper** button (with hover/tap info) per level. IGCSE respects the Core/Extended toggle.
 - `scripts/exam_mode.js` (##v1) is self-contained. Random paper per level/tier (avoids the last one sat); questions in paper order; no hints/key ideas/model answers until Finish; numbers are seeded per sitting so refresh/resume and the review show identical numbers; answers autosave in localStorage (`physicsExamSitting`); results history in `physicsExamHistory`; optional timer with +25/50/100% extra time (time = official length scaled by the marks available; IGCSE p3/p4 75 min/80, AS P2 75/60, A2 P4 120/100); time-up auto-submits. Review shows answers, marks, model answer, key idea, marking breakdown and a by-topic summary. Exam results also update the per-question practice score (`saveScoreForQuestion`).
-- Loader now keeps `paper` on each definition (`questionLoader.js` ##v8).
+- Loader now keeps `paper` on each definition (`questionLoader.js` ##v9).
 - Engine fixes: `maxMarks` ("any N of M") now also applies to table parts (`questionBuilders.js`, `applyMaxMarksCap`; `question_engine.js` ##v6 table score display uses the cap). Before this, capped table parts were over-counted. Only 4 IGCSE rows use it.
 - Mark totals now match the real papers: Core 80 (8,6,7,12,7,8,4,8,7,4,9), Extended 80 (10,6,9,7,7,6,8,9,9,9). Fixed Extended Q5(c) (1 mark).
 - Known: AS 9702_w25_p21 totals 67 and A2 9702_s26_p44 totals 105 (official 60 / 100) - older rows, not changed.
 - Not yet: logins, saved profile, spaced repetition, grade boundaries (need server-side marking before exam answers can be truly hidden from the browser).
 
-## Level detection fix (2026-11-19)
-- `questionLoader.js` ##v8: replaced `r.level?.trim() || "A2"` with `levelFromPaper(r.paper)`. Cell A1 of the sheet had a space (not "level"), so `r.level` was always `undefined` and all questions silently defaulted to A2. AS showed 0 questions. Fix derives level from the paper code (0625 → IGCSE; 9702 p1-3 → AS; p4-5 → A2) — no sheet column required.
+## s25 papers and level fix (2026-11-19)
 - s25 p22 (rows 681–711, 31 rows, 60 marks) and s25 p23 (rows 712–740, 29 rows, 60 marks) appended to the sheet. Build tests pass: 0 buildFail, 0 badText, 0 notfullRows. No new assets (all text-based).
+- `questionLoader.js` ##v9: level read from sheet column A (`r.level?.trim() || "A2"`) as originally designed. **Cell A1 must contain the word `level`** (not a space). It was found to have a space, causing AS to show 0 questions. Fix: open the sheet → "read from here" tab → click A1 → type `level` → Enter. The `levelFromPaper` approach tried as an alternative was reverted; reading from the sheet column is the documented design.
 
 ## Mark-total fixes and marking box (2026-11-09)
 - 9702_w25_p21 now 60 marks and 9702_s26_p44 now 100 (checked against the QP/MS). Sheet rows changed: 155,156,165,167,172,179,184 (p21) and 463,464,465,472,479,482,496 (p44). Extra C1 "method" marks removed where the real mark is a single A; the two-B "define" rows are now one AND-of-ORs B; p21 Q6(a) = protons+electrons (one mark) and neutrons (one mark); p44 Q2(c) = C3 mass / C2 volume / C1 density formula + A (chain implication is slightly generous if only the mass is shown).

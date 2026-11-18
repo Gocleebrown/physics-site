@@ -1,4 +1,4 @@
-// scripts/questionLoader.js ##v8
+// scripts/questionLoader.js ##v9
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1mspkPndqlydcum52DiVx_oq0cbmV8F06igR8kISehTI/export?format=csv&gid=0";
@@ -52,7 +52,7 @@ async function loadQuestionsFromSheet() {
       } catch (e) {
         console.warn("[Loader] bad params for id=" + id + ":", r.params);
       }
-      const lvl = levelFromPaper(r.paper);
+      const lvl = r.level?.trim() || "A2";
       byId[id] = {
         id,
         type:   r.type?.trim()  || "general",
@@ -76,16 +76,6 @@ async function loadQuestionsFromSheet() {
 
   console.log("[Loader] stored", definitions.length, "question definitions");
   return definitions;
-}
-
-// Derive level from the paper code.
-// 0625 → IGCSE; 9702 p1x/p2x/p3x → AS; 9702 p4x/p5x → A2.
-function levelFromPaper(paper) {
-  const p = (paper || "").trim();
-  if (/0625/i.test(p)) return "IGCSE";
-  const m = /(?:^|_)p([1-5])\d(?:_|$)/i.exec(p);
-  if (!m) return "A2";
-  return parseInt(m[1]) <= 3 ? "AS" : "A2";
 }
 
 // IGCSE tier from the paper code, e.g. "0625_m26_p31" -> "Core", "..._p41" -> "Extended".
