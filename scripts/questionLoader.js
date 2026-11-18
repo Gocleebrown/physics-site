@@ -5,9 +5,9 @@ const SHEET_CSV_URL =
 
 // Parse a comma-separated tags string into a clean array.
 // e.g. "Circular motion, Gravitation" → ["Circular motion", "Gravitation"]
-// The AS topic "Forces, density and pressure" contains a comma, so protect it
-// before splitting on commas.
-const COMMA_TOPICS = ["Forces, density and pressure"];
+// Add any tag names that contain literal commas to COMMA_TOPICS so they are
+// protected before splitting.
+const COMMA_TOPICS = [];
 function parseTags(tagsStr) {
   if (!tagsStr || !tagsStr.trim()) return [];
   let s = tagsStr;
