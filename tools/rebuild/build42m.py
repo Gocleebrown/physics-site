@@ -139,7 +139,7 @@ parts.append(dict(pi=3,type='calculation',
  U='child Y is at a distance 2R = (2/3) × ${rs} m from the centre; a = rω² = (2/3 × ${rs}) × ${w}² = ${as} m s⁻²',
  V='Centripetal acceleration a = rω², where r is the distance of Y from the centre (2R, which is two thirds of the radius 3R).'))
 parts.append(dict(pi=4,type='table',
- K=lab('(c)')+'For the roundabout in 1(b), compare the linear and angular velocities for child X and child Z at any instant in time. For each row complete Table 1.1. For the magnitude type <i>less</i>, <i>equal</i> or <i>greater</i> (comparing X with Z); for the direction type <i>same</i> or <i>opposite</i>.',
+ K=lab('(c)')+'For the roundabout in (b), compare the linear and angular velocities for child X and child Z at any instant in time. For each row complete Table 1.1. For the magnitude type <i>less</i>, <i>equal</i> or <i>greater</i> (comparing X with Z); for the direction type <i>same</i> or <i>opposite</i>.',
  answerType='table',
  tableRowLabels='["linear velocity: magnitude of X compared with Z","linear velocity: direction of X compared with Z","angular velocity: magnitude and direction of X compared with Z"]',
  tableColLabels='["Table 1.1"]',
@@ -147,7 +147,7 @@ parts.append(dict(pi=4,type='table',
  tableCellAnswers='[["greater"],["opposite"],["equal magnitude and same direction"]]',
  U='linear velocity: X greater than Z in magnitude, opposite in direction; angular velocity: equal magnitude and same direction',
  V='Both children are on the same rigid roundabout, so they have the same angular velocity (equal magnitude, same direction). Linear velocity v = rω: X is at a greater radius so is faster. X and Z are on opposite sides of the centre, so their velocities point in opposite directions.'))
-ALL+=question(LV,ID+'-Q1',PAPER,'definition','Circular motion',P1,G1,'Question 1',parts)
+ALL+=question(LV,ID+'-Q1',PAPER,'definition','Circular motion',P1,G1,'Roundabout: circular motion',parts)
 
 # =========================================================================== Q2
 G2={'sf':SF,'ex':EX,'plates':PLATES,
@@ -175,25 +175,25 @@ parts.append(dict(pi=2,type='explain',
  B2='${kwsign}',
  U='The weight (gravitational force) is downwards, so the electric force on the droplet must be upwards. The field is ${fdir}, so the electric force is ${sgn=="positive"?"in the same direction as":"opposite to"} the field and Q is ${sgn}.',
  V='For equilibrium the electric force balances the weight, so it acts upwards. A positive charge experiences a force in the direction of the field; a negative charge experiences a force opposite to the field. Here the field points ${fdir}, so Q is ${sgn}.'))
-parts.append(dict(pi=3,type='definition',K=lab('(c)(i)')+'For the oil droplet in 2(b), state an expression, in terms of some or all of <i>Q</i>, <i>V</i> and <i>x</i>, for the electric field strength <i>E</i>.',
+parts.append(dict(pi=3,type='definition',K=lab('(c)(i)')+'For the oil droplet in (b), state an expression, in terms of some or all of <i>Q</i>, <i>V</i> and <i>x</i>, for the electric field strength <i>E</i>.',
  A=kwv('v/x','e=v/x','v÷x','e=v÷x','(v)/(x)','v over x'),
  U='E = V / x',V='In a uniform field the field strength is the potential difference divided by the plate separation.'))
 parts.append(dict(pi=4,type='definition',K=lab('(c)(ii)')+'State an expression, in terms of some or all of <i>Q</i>, <i>V</i> and <i>x</i>, for the weight <i>W</i> of the droplet.',
  A=kwv('qv/x','vq/x','q×v/x','v×q/x','q(v/x)','(v/x)q','(qv)/x','(vq)/x','qv÷x','q×(v/x)','(v/x)×q','v/x×q','q×v÷x','w=qv/x','w=vq/x','w=q×v/x','w=(qv)/x','w=qe=qv/x'),
  U='W = QV / x',V='The droplet is in equilibrium, so the weight equals the electric force, W = QE = QV/x.'))
 parts.append(dict(pi=5,type='calculation',
- K=lab('(d)')+'The plates in 2(b) have a p.d. across them of ${Vv} V and a separation of ${xx} m. The magnitude of the charge on the oil droplet is ${nq}<i>e</i>, where <i>e</i> is the elementary charge.<br><br>Calculate the mass of the oil droplet.',
+ K=lab('(d)')+'The plates in (b) have a p.d. across them of ${Vv} V and a separation of ${xx} m. The magnitude of the charge on the oil droplet is ${nq}<i>e</i>, where <i>e</i> is the elementary charge.<br><br>Calculate the mass of the oil droplet.',
  C1=kwv('w=mg','mg=qe','mg=qv/x','eq=mg','qe=mg','qe=w','m=qe/g','m=qv/xg','m=qv/(xg)','w=qe','qv/x=mg','w=qv/x','m=w/g','mg=nqe','mg=neq'),
  A='${m_e}|${m_f}',tolerance='2',
  U='W = mg = QV / x, so m = ${nq} × 1.60 × 10⁻¹⁹ × ${Vv} / (${xx} × 9.81) = ${m_e} kg',
  V='The weight of the droplet equals the electric force: mg = QE = QV/x with Q = ${nq}e.'))
 parts.append(dict(pi=6,type='explain',
- K=lab('(e)')+'The polarity of the p.d. across the plates in 2(b) is reversed.<br><br>Describe and explain the subsequent motion of the oil droplet.',
+ K=lab('(e)')+'The polarity of the p.d. across the plates in (b) is reversed.<br><br>Describe and explain the subsequent motion of the oil droplet.',
  B=kwv('both forces now act downwards','both now act downwards','electric force now acts downwards','electric force is now acting downwards','both forces are acting downwards','both forces now downwards','electric force is now downwards','electric force now downwards','electric force downwards','electric force acts downwards','electric force is downwards','electric force is now down','both forces are downwards','both forces downwards','both forces act downwards','both forces are now downwards','force is now downwards','electric force reverses','electric force changes direction','field is reversed','field reverses','direction of the electric force reverses','force now acts downwards','electric force acts down'),
  B2=kwv('accelerates downwards','accelerates downward','accelerates down','accelerate downwards','acceleration downwards','downward acceleration','moves downwards','moves downward','falls','falling','accelerates towards the lower plate','accelerates to the lower plate','moves down','will fall','drops','travels downwards'),
  U='The electric force now acts downwards (the same direction as the weight), so the resultant force is downwards and the droplet accelerates downwards.',
  V='Reversing the polarity reverses the field and so the electric force. Both the electric force and the weight now act downwards, so there is a resultant downward force and the droplet accelerates downwards (F = ma).'))
-ALL+=question(LV,ID+'-Q2',PAPER,'definition','Electric fields',P2,G2,'Question 2',parts)
+ALL+=question(LV,ID+'-Q2',PAPER,'definition','Electric fields',P2,G2,'Oil droplet between charged plates',parts)
 
 # =========================================================================== Q3
 G3={'sf':SF,
@@ -221,7 +221,7 @@ parts.append(dict(pi=2,type='calculation',
  A='${ths}|${thd}',tolerance='2',
  U='energy lost by the water = energy gained by the ice: ${mw} × 4.19 × (${Tw} − θ) = ${mi} × 2.11 × ${Ti} + ${mi} × 336 + ${mi} × 4.19 × θ, so θ = ${ths} °C',
  V='Energy lost by the cooling water = energy to warm the ice to 0 °C + energy to melt the ice + energy to warm the melted ice from 0 °C to the final temperature θ. Use Q = mcΔθ for each warming stage and Q = mL for melting. The masses may be left in grams because the same unit appears on both sides.'))
-ALL+=question(LV,ID+'-Q3',PAPER,'definition','Thermal physics',P3,G3,'Question 3',parts)
+ALL+=question(LV,ID+'-Q3',PAPER,'definition','Thermal physics',P3,G3,'Latent heat: an ice cube from the freezer',parts)
 
 # =========================================================================== Q4
 KW4=json.dumps
@@ -257,12 +257,12 @@ parts.append(dict(pi=3,type='explain',
  U='At constant pressure the volume V ∝ T. The volume has been reduced to one ${kwn} of its initial value, so T has also been reduced to one ${kwn}. The internal energy U ∝ T, so U is also reduced to one ${kwn}: ${U1} / ${k} = ${U2} kJ.',
  V='For an ideal gas at constant pressure V ∝ T, so T falls by the same factor as V (from ${T1} K to ${T2} K). The internal energy of an ideal gas is the sum of the random kinetic energies of the molecules, which is proportional to T, so U falls by the same factor: ${U1} / ${k} = ${U2} kJ.'))
 parts.append(dict(pi=4,type='calculation',
- K=lab('(c)')+'For the reduction of the volume of the gas in 4(b), calculate <i>Q</i>. Give a unit with your answer.',
+ K=lab('(c)')+'For the reduction of the volume of the gas in (b), calculate <i>Q</i>. Give a unit with your answer.',
  C1=delta('q=Δu−w','q=Δu-w','Δu=q+w','Δu−w','Δu-w','q=Δu-w','q=(u2−u1)−w','q=(u2-u1)-w','q=Δu−' )+'|${Qa3}|${Qjs}',
  A=kwv('-${Qa3}','-${Qjs}','−${Qa3}'),tolerance='1',
  U='ΔU = ${U2} − ${U1} = ${dUk} kJ = ${dU} J; Q = ΔU − W = ${dU} − ${Wv} = ${Qj} J = ${Qk} kJ',
  V='The change in internal energy is ΔU = final − initial = ${dUk} kJ. From ΔU = Q + W with W = +${Wv} J, Q = ΔU − W. The negative sign shows that thermal energy is transferred from the gas to the surroundings.'))
-ALL+=question(LV,ID+'-Q4',PAPER,'definition','Thermal physics',P4,G4,'Question 4',parts)
+ALL+=question(LV,ID+'-Q4',PAPER,'definition','Thermal physics',P4,G4,'First law of thermodynamics for an ideal gas',parts)
 
 # =========================================================================== Q5
 FIG5=js(r"""(Vv,N1,mm)=>{const k=1.38e-23;const E=3*k*400/mm/1e6,Ek=1.5*N1*1e24*k*400/1e4;
@@ -294,7 +294,7 @@ parts.append(dict(pi=1,type='explain',
  U='Any three of: the gas is ideal (p ∝ NT, ⟨c²⟩ ∝ T and E_K ∝ T are straight lines through the origin); the volume of the container is ${Vk} m³ (from the gradient of Figure 5.1, V = k/gradient); the mass of one molecule is ${mk} kg (m = 3kT/⟨c²⟩ ≈ molar mass ${Mkg} kg mol⁻¹, so the gas is ${gname}); the number of molecules is ${Nk} (E_K = 3/2 NkT), which is ${nk} mol; the mass of gas is ${gmk} kg (or the density is ${rhok} kg m⁻³).',
  V='The three graphs are all straight lines through the origin, so p ∝ NT, ⟨c²⟩ ∝ T and E_K ∝ T, which is ideal-gas behaviour. Quantitative conclusions: V = k/(gradient of Fig 5.1) = ${Vk} m³; m = 3kT/⟨c²⟩ = ${mk} kg; N = 2E_K/(3kT) = ${Nk}, so n = N/N_A = ${nk} mol; mass of gas = Nm = ${gmk} kg.'))
 parts.append(dict(pi=2,type='explain',
- K=lab('(c)(i)')+'One assumption of the kinetic theory of gases is that the volume of the molecules is negligible compared with the volume of the gas.<br><br>State, with a reason, whether this assumption applies to the gas in 5(b).',
+ K=lab('(c)(i)')+'One assumption of the kinetic theory of gases is that the volume of the molecules is negligible compared with the volume of the gas.<br><br>State, with a reason, whether this assumption applies to the gas in (b).',
  B=andor(['yes','applies','does apply','assumption is valid','is valid','true','correct'],['ideal','proportional','straight line','obeys pv','follows pv','linear']),
  U='Yes, because the gas is ideal (the graphs show ideal-gas behaviour: p ∝ NT, ⟨c²⟩ ∝ T and E_K ∝ T).',V='The graphs show the gas obeys the ideal gas equation, and an ideal gas is one for which the kinetic-theory assumptions (including negligible molecular volume) hold, so the assumption applies.'))
 parts.append(dict(pi=3,type='explain',
@@ -306,7 +306,7 @@ parts.append(dict(pi=3,type='explain',
  maxMarks='2',
  U='Any two of: the molecules are in constant random motion; collisions between molecules and with the container walls are elastic; there are no intermolecular forces (except during collisions); the time of a collision is negligible compared with the time between collisions.',
  V='Other kinetic-theory assumptions: random motion, elastic collisions, no forces between molecules except during collisions, and collisions that last a negligible time.'))
-ALL+=question(LV,ID+'-Q5',PAPER,'definition','Thermal physics',P5,G5,'Question 5',parts)
+ALL+=question(LV,ID+'-Q5',PAPER,'definition','Thermal physics',P5,G5,'Kinetic theory of gases',parts)
 
 # ------------------------------------------------------------ generic answer-sketch plot (axes with ticks, curves in data coords)
 SKP = jso(r"""(o)=>{const W=o.W||300,H=o.H||230,L=54,R=14,T=14,B=46,pw=W-L-R,ph=H-T-B;
@@ -353,7 +353,7 @@ parts.append(dict(pi=2,type='calculation',
  U='v₀ = ωx₀ = ${w} × ${A} = ${v03} ≈ ${v02} mm s⁻¹',
  V='In simple harmonic motion the maximum speed is v₀ = ωx₀, where x₀ = ${A} mm is the amplitude and ω = ${w} rad s⁻¹. (Differentiating s = ${A} sin ${w}t gives v = ${A} × ${w} cos ${w}t.)'))
 parts.append(dict(pi=3,type='calculation',
- K=lab('(c)(i)')+'The frame in 6(b) is in a uniform horizontal magnetic field that is parallel to the equilibrium position of the frame.<br>The flux density of the magnetic field is ${B} T.<br><br>Calculate the electromotive force (e.m.f.) <i>E</i><sub>0</sub> induced across XY when the frame is moving at its maximum speed.',
+ K=lab('(c)(i)')+'The frame in (b) is in a uniform horizontal magnetic field that is parallel to the equilibrium position of the frame.<br>The flux density of the magnetic field is ${B} T.<br><br>Calculate the electromotive force (e.m.f.) <i>E</i><sub>0</sub> induced across XY when the frame is moving at its maximum speed.',
  C2=kwv('${H2m}','2×${Hm}','2*${Hm}','2×${H}','2*${H}','${E03}','${E02}','${v0m}','2×bl×v','2blv','2bvl','2lbv','n=2','2 edges','two edges','two sides','2 sides'),
  C1=delta('e=blv','e=bvl','e=b×l×v','e=bl*v','blv','bvl','e=bΔa/Δt','e=Δφ/Δt','Δφ/Δt','bΔa/Δt','e=ΔΦ/Δt','ΔΦ/Δt','rate of change of flux','rate of cutting','e=nΔφ/Δt','nΔφ/Δt','emf=blv','e=Δ(bl)','blΔx/Δt','e=blΔx/Δt','blv','e0=blv','e0=2blv','ε=blv','e=bav','blv','ε=ΔΦ/Δt'),
  A='${E02}|${E03}',tolerance='3',
@@ -364,7 +364,7 @@ parts.append(dict(pi=4,type='imageChoice',
  answerType='imageChoice',imageOptions=['${o0}','${o1}','${o2}','${o3}'],correctImageIndex='${ci}',imageChoiceMarks='2',
  U='A cosine curve of amplitude E₀ that starts at E₀ at t = 0, crosses zero at T/4, 3T/4, 5T/4 and 7T/4 and completes two full cycles by t = 2T.',
  V='The displacement is s = A sin ωt, so the velocity v = Aω cos ωt. The e.m.f. is proportional to the speed of the edges, so E = E₀ cos ωt: it is a maximum at t = 0, T, 2T and zero at T/4, 3T/4, 5T/4 and 7T/4.'))
-ALL+=question(LV,ID+'-Q6',PAPER,'definition','Oscillations,Electromagnetic induction',P6,G6,'Question 6',parts)
+ALL+=question(LV,ID+'-Q6',PAPER,'definition','Oscillations,Electromagnetic induction',P6,G6,'Oscillating frame in a magnetic field',parts)
 
 # =========================================================================== Q7
 SK7=js(r"""(P,T0,kind)=>{const c=[];const n=200;
@@ -400,7 +400,7 @@ parts.append(dict(pi=2,type='calculation',
  A='${Is}|${Id}',tolerance='2',
  U='P = I²R, so I = √(${Pms} / ${R}) = ${Is} A',
  V='The mean power is P = I_rms²R, so I_rms = √(P/R) using the mean power from (b)(i).'))
-parts.append(dict(pi=3,type='definition',K=lab('(c)(i)')+'The current in the resistor in 7(b) is now half-wave rectified.<br><br>State the name of the electric circuit component that is used to achieve this rectification.',
+parts.append(dict(pi=3,type='definition',K=lab('(c)(i)')+'The current in the resistor in (b) is now half-wave rectified.<br><br>State the name of the electric circuit component that is used to achieve this rectification.',
  B=kwv('diode','semiconductor diode','rectifier diode','p-n junction','pn junction','p-n diode','rectifying diode'),
  U='A diode.',V='A diode conducts in one direction only, so it removes one half of each cycle of the alternating current.'))
 parts.append(dict(pi=4,type='imageChoice',
@@ -414,7 +414,7 @@ parts.append(dict(pi=5,type='calculation',
  A='${Is2}|${Id2}',tolerance='2',
  U='The mean power is halved (the current is zero for half of the time), so the mean power = ${Pm3s} W and I_rms = √(${Pm3s} / ${R}) = ${Is2} A',
  V='The power is zero for half of each cycle and unchanged for the other half, so the mean power halves to ${Pm3s} W. Then I_rms = √(P/R) = √(${Pm3s} / ${R}) = ${Is2} A.'))
-ALL+=question(LV,ID+'-Q7',PAPER,'definition','Alternating currents',P7,G7,'Question 7',parts)
+ALL+=question(LV,ID+'-Q7',PAPER,'definition','Alternating currents',P7,G7,'Alternating current and rectification',parts)
 
 # =========================================================================== Q8
 LAM=[410,434,486,656]
@@ -468,7 +468,7 @@ parts.append(dict(pi=3,type='calculation',
  A='${obs3}|${obsi}',tolerance='0.3',
  U='v = H₀d = ${H0S} × 10⁻¹⁸ × ${dS} × 10²⁴ = ${vk} m s⁻¹; Δλ = 656 × v/c = ${dl2} nm; observed wavelength = 656 + ${dl2} = ${obs3} nm',
  V='The lowest frequency line has the longest wavelength, 656 nm. The recession speed is v = H₀d. The Doppler shift gives Δλ/λ ≈ v/c, so Δλ = 656 × v/c, and the observed wavelength is 656 nm + Δλ.'))
-ALL+=question(LV,ID+'-Q8',PAPER,'definition','Cosmology,Quantum physics',P8,G8,'Question 8',parts)
+ALL+=question(LV,ID+'-Q8',PAPER,'definition','Cosmology,Quantum physics',P8,G8,'Redshift of light from a distant star',parts)
 
 # =========================================================================== Q9
 SK9=js(r"""(A0,th,ymax,kind)=>{const c=[];const t1=20;
@@ -513,7 +513,7 @@ parts.append(dict(pi=3,type='imageChoice',
  U='A curve starting at ${A0} × 10¹⁴ Bq at t = 0 and decreasing exponentially (decreasing gradient, not a straight line) to ${Ate1} Bq at t = 20.0 min.',
  V='Activity falls exponentially from ${A0} × 10¹⁴ Bq. The curve must start at the initial activity, have a gradient that becomes less steep, and be at ${Ate1} Bq when t = 20.0 min (using the value of A at t = 20.0 min from (b)(ii) as a check on the half-life).'))
 parts.append(dict(pi=4,type='explain',
- K=lab('(c)')+'A scientist uses a radiation detector to determine the measured count rate of radiation emitted by the sample in 9(b).<br><br>Explain why the measured count rate at any given time is less than the activity of the sample.',
+ K=lab('(c)')+'A scientist uses a radiation detector to determine the measured count rate of radiation emitted by the sample in (b).<br><br>Explain why the measured count rate at any given time is less than the activity of the sample.',
  A=kwv('all directions','every direction','in all directions','emitted in all directions','emitted in different directions','emitted in random directions','emitted randomly in all directions','radiation spreads out','spreads out in all directions','spread out in all directions','not all radiation reaches the detector','not all of the radiation reaches the detector','not all radiation enters the detector','not all of the radiation enters the detector','only some radiation reaches','only a fraction of the radiation','some radiation does not reach the detector','only some of the radiation','spreads over a large area','radiation is emitted in all directions','sphere','spherically','in random directions','randomly in all directions','emitted randomly'),
  B=kwv('absorbed by the sample','absorbed within the sample','absorbed in the sample','self-absorption','self absorption','absorption in the sample','absorbed by the source','absorbed within the source','absorbed inside the source','absorbed in the source','absorbed by the source itself','absorbed inside the sample','absorbed by the material of the sample','absorbed by the sample itself','absorbed by sample','absorbed by source','absorbed within the material'),
  B2=kwv('absorbed by the air','absorbed in the air','absorbed by air','air absorbs','absorption in air','absorption by air','absorbed by the surrounding air','absorbed by the atmosphere','absorbed in air','absorbed by gas in the air','scattered by the air','absorbed by air molecules','absorbed by the air between','absorbed by the air molecules','absorbed by the gas','air between the sample and the detector','absorbed by the air in','absorbed in the atmosphere','absorbed as it travels through the air','absorbed as it passes through the air','absorbed travelling through air'),
@@ -521,7 +521,7 @@ parts.append(dict(pi=4,type='explain',
  maxMarks='3',
  U='Any three of: radiation is emitted in all directions so not all of it enters the detector; some radiation is absorbed in the sample itself; some radiation is absorbed by the air between the sample and the detector; some radiation is absorbed by the detector window / not all radiation entering the detector is detected.',
  V='The activity is the number of nuclei decaying per second in the whole sample. The detector measures only the radiation that actually reaches it and is counted: radiation goes out in all directions, some is absorbed in the sample itself, some is absorbed in the air, and some is absorbed in the detector window or passes through the detector without being counted.'))
-ALL+=question(LV,ID+'-Q9',PAPER,'definition','Nuclear physics',P9,G9,'Question 9',parts)
+ALL+=question(LV,ID+'-Q9',PAPER,'definition','Nuclear physics',P9,G9,'Radioactive decay and activity',parts)
 
 # =========================================================================== Q10
 TAB10=('<table style="border-collapse:collapse;margin:8px 0"><caption style="caption-side:top;text-align:center"><b>Table 10.1</b></caption>'
@@ -567,7 +567,7 @@ parts.append(dict(pi=4,type='explain',
  maxMarks='3',
  U='Any three of: the impedances of air and glass are very different (large mismatch); the intensity reflection coefficient is close to 1; almost all of the sound is reflected; almost none (very little) is transmitted into the glass.',
  V='Z for air (${za} × 10²) is vastly smaller than Z for glass (${zg} × 10⁶). There is a very large impedance mismatch, so the intensity reflection coefficient is almost 1: nearly all of the incident intensity is reflected and almost none is transmitted.'))
-ALL+=question(LV,ID+'-Q10',PAPER,'definition','Medical physics',P10,G10,'Question 10',parts)
+ALL+=question(LV,ID+'-Q10',PAPER,'definition','Medical physics',P10,G10,'Ultrasound and acoustic impedance',parts)
 
 if __name__=='__main__':
     start=int(sys.argv[1]) if len(sys.argv)>1 else 547

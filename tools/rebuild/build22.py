@@ -58,7 +58,7 @@ parts.append(dict(pi=5,type='imageChoice',
  correctImageIndex='2',imageChoiceMarks='3',
  U='The displacement increases to a maximum at t = 40 s then decreases to t = 80 s without crossing the time axis. The gradient (velocity) increases from 0 to t₁, is constant and positive from t₁ to t₂, and then decreases to zero at 40 s. After 40 s the gradient becomes more and more negative.',
  V='Displacement–time gradient = velocity. Between 0 and t₁ the velocity increases (curve getting steeper); between t₁ and t₂ it is constant (straight line); from t₂ to 40 s it decreases to zero (curve levelling off at the maximum displacement); after 40 s the velocity is negative and increasing in size, so the displacement falls with an increasingly steep gradient. The car never goes below its starting point in this time.'))
-ALL+=question(LV,'9702-26-22-Q1',PAPER,'definition','Kinematics',P1,G1,'Question 1',parts)
+ALL+=question(LV,'9702-26-22-Q1',PAPER,'definition','Kinematics',P1,G1,'Car motion: velocity–time graph',parts)
 
 # ===================================================================== Q2
 G2={'sf':SF,'sci':SCI,'fig21':FIG21,'fig22':FIG22,
@@ -78,18 +78,18 @@ parts.append(dict(pi=1,type='explain',
  A=andor(['wb'],['wp'],['r']),
  U='For the plank: 2T cos θ = R + W<sub>P</sub> (the two rope tensions pull the plank up; R and its weight act down). For the block: 2T cos θ + R = W<sub>B</sub>. Equating 2T cos θ: R + W<sub>P</sub> = W<sub>B</sub> − R',
  V='Resolve vertically for each object. The vertical component of each tension is T cos θ, so the two ropes give 2T cos θ on each object. Plank: upward 2T cos θ equals downward R + W_P. Block: upward 2T cos θ + R equals downward W_B. Equate the two expressions for 2T cos θ.'))
-parts.append(dict(pi=2,type='calculation',K=lab('(b)(ii)')+'Use the equation in 2(b)(i) to calculate the magnitude of <i>R</i>.',
+parts.append(dict(pi=2,type='calculation',K=lab('(b)(ii)')+'Use the equation in (b)(i) to calculate the magnitude of <i>R</i>.',
  C1=kw('2r=wb-wp','2r=wb−wp','2r=wb–wp','r=(wb-wp)/2','2r=${mBs}×9.81−${mPs}×9.81','2r=${mBs}×9.81-${mPs}×9.81','2r=${mBs}g−${mPs}g','2r=${mBs}g-${mPs}g','2r=${twoR_ans}','${twoR_ans}'),
  A='${R_ans}',tolerance='2.6',
  U='2R = W<sub>B</sub> − W<sub>P</sub> = ${mBs} × 9.81 − ${mPs} × 9.81, so R = ${R_ans} N',
  V='Rearrange R + W_P = W_B − R to 2R = W_B − W_P, then use W = mg for each weight and halve the result.'))
-parts.append(dict(pi=3,type='definition',K=lab('(c)(i)')+'The extension of each rope in 2(b) is proportional to the force applied to it.<br><br>State the name of the law that describes this behaviour.',
+parts.append(dict(pi=3,type='definition',K=lab('(c)(i)')+'The extension of each rope in (b) is proportional to the force applied to it.<br><br>State the name of the law that describes this behaviour.',
  B=kw('hooke','hook','huk','hookie'),U='Hooke’s law',V='Hooke’s law: the extension of a material is proportional to the applied force, up to the limit of proportionality.'))
 parts.append(dict(pi=4,type='definition',K=lab('(c)(ii)')+'The ropes have elastic deformation. State what is meant by elastic deformation.',
  B=andor(['removed','released','unloaded','remove','no longer','taken off','taken away','take away','stops','stopped','when the force','when the load','when the tension','when the stress'],['original','initial','unstretched','returns','return','regain','back to','zero extension','extension is zero','not deformed','no deformation','no permanent']),
  U='When the tension (force) is removed, the ropes return to their original length (the extension becomes zero).',
  V='Elastic deformation is reversible: once the force causing it is removed, the object goes back to its original shape and size. Plastic deformation is permanent.'))
-ALL+=question(LV,'9702-26-22-Q2',PAPER,'definition','Dynamics,Materials',P2,G2,'Question 2',parts)
+ALL+=question(LV,'9702-26-22-Q2',PAPER,'definition','Dynamics,Materials',P2,G2,'Block on a plank: equilibrium and ropes',parts)
 
 # ===================================================================== Q3
 G3={'sf':SF,'sci':SCI,'fig31':FIG31,'ex':EX,
@@ -128,7 +128,7 @@ parts.append(dict(pi=4,type='explain',
  B2=kw('decrease','less','smaller','reduce','lower','drops','falls','reduces'),
  U='The amplitude decreases. The wavelength changes (v = fλ), so the path difference (${lams} m) is no longer a whole number of wavelengths: the waves from A and B arrive at P out of phase and the superposition is no longer fully constructive.',
  V='The wave speed is unchanged, so a higher frequency gives a shorter wavelength. The path difference of ${lams} m was one whole wavelength before; now it is not a whole number of wavelengths, so the two waves at P are not in phase and the amplitude of the resultant oscillation decreases.'))
-ALL+=question(LV,'9702-26-22-Q3',PAPER,'definition','Waves,Energy',P3,G3,'Question 3',parts)
+ALL+=question(LV,'9702-26-22-Q3',PAPER,'definition','Waves,Energy',P3,G3,'Water waves from two dippers',parts)
 
 # ===================================================================== Q4
 FIG41='''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 300" style="max-width:520px;width:100%;background:#fff;display:block;margin:10px 0" font-family="Arial,sans-serif" font-size="14"><line x1="40" y1="250" x2="480" y2="60" stroke="#000" stroke-width="1.6"/><g transform="translate(150,206) rotate(-23.4)"><rect x="-70" y="-34" width="140" height="34" rx="12" fill="#fff" stroke="#000" stroke-width="1.6"/><rect x="-58" y="-28" width="10" height="16" fill="none" stroke="#000"/><rect x="-42" y="-28" width="10" height="16" fill="none" stroke="#000"/><rect x="-26" y="-28" width="10" height="16" fill="none" stroke="#000"/><rect x="-10" y="-28" width="10" height="16" fill="none" stroke="#000"/><rect x="6" y="-28" width="10" height="16" fill="none" stroke="#000"/><rect x="22" y="-28" width="10" height="16" fill="none" stroke="#000"/><rect x="38" y="-28" width="10" height="16" fill="none" stroke="#000"/></g><text x="176" y="236">X</text><circle cx="176" cy="226" r="3"/><text x="445" y="58">Y</text><circle cx="450" cy="78" r="3"/><text x="96" y="130">train</text><line x1="122" y1="136" x2="146" y2="164" stroke="#000"/></svg><p style="text-align:center;margin:0 0 10px"><b>Figure 4.1</b></p>'''
@@ -161,7 +161,7 @@ parts.append(dict(pi=3,type='calculation',K=lab('(b)(iii)')+'The current in the 
  A='${eff_ans}',tolerance='1.2',
  U='Input power = IV = ${I} × ${V} = ${sci(IV,2)} W. Efficiency = useful output power / input power × 100 = ${P5s} × 10<sup>5</sup> / ${sci(IV,2)} × 100 = ${eff_ans}%',
  V='Efficiency = useful power output / total power input. The total power input to the motor is the electrical power IV. The useful power output is the value given in the question.'))
-ALL+=question(LV,'9702-26-22-Q4',PAPER,'definition','Energy,Electricity,Dynamics',P4,G4,'Question 4',parts)
+ALL+=question(LV,'9702-26-22-Q4',PAPER,'definition','Energy,Electricity,Dynamics',P4,G4,'Electric train: power and resistive force',parts)
 
 # ===================================================================== Q5
 G5={'sf':SF,'sci':SCI,'fig51':FIG51,'ckt':CKT,'ex':EX,
@@ -193,7 +193,7 @@ parts.append(dict(pi=2,type='calculation',
  U='The current in each wire = ${Ib_ans} / 2 = ${Iw_ans} A. v = I / Anq = ${Iw_ans} / (${Aw5s} × 10⁻⁶ × ${n28s} × 10²⁸ × 1.6 × 10⁻¹⁹) = ${sci(vd,2)} m s⁻¹',
  V='The current in the equation I = Anvq is the current in ONE wire (the cross-sectional area given is for one wire), so halve the battery current. Using the whole battery current gives double the correct answer.'))
 parts.append(dict(pi=3,type='definition',
- K=lab('(c)(i)')+'A component X is added to the circuit in 5(b) as shown in Figure 5.3.${f53}The current in the battery is now ${Itots} A. The resistance of each resistance wire remains ${Rws} Ω.<br><br>State the name of component X.',
+ K=lab('(c)(i)')+'A component X is added to the circuit in (b) as shown in Figure 5.3.${f53}The current in the battery is now ${Itots} A. The resistance of each resistance wire remains ${Rws} Ω.<br><br>State the name of component X.',
  B=kw('light-dependent resistor','light dependent resistor','light-dependant resistor','light dependant resistor','ldr','photoresistor','photo resistor','photo-resistor','light sensitive resistor','light-sensitive resistor'),
  U='Light-dependent resistor (LDR)',V='The symbol, with two arrows pointing at the resistor, is a light-dependent resistor (LDR).'))
 parts.append(dict(pi=4,type='calculation',K=lab('(c)(ii)')+'Determine the resistance of component X.',
@@ -206,7 +206,7 @@ parts.append(dict(pi=5,type='explain',K=lab('(c)(iii)')+'A change in the environ
  A=kw('darker','dimmer','less light','light intensity decrease','lower light','less bright','light decrease','decrease in light','intensity decrease','intensity of light decrease','light level decrease','light intensity is lower','light intensity has decreased','fewer photons','less intense','intensity is lower','lower intensity','decrease in intensity','less illumination','decrease in light intensity'),
  U='The current in the battery decreased, so the total resistance increased, so the resistance of X increased. The light intensity incident on X decreased (it is darker).',
  V='Smaller current for the same e.m.f. means greater total resistance, and since the wires are unchanged, the resistance of X has increased. The resistance of an LDR increases when the light intensity decreases.'))
-ALL+=question(LV,'9702-26-22-Q5',PAPER,'definition','Electricity,Units',P5,G5,'Question 5',parts)
+ALL+=question(LV,'9702-26-22-Q5',PAPER,'definition','Electricity,Units',P5,G5,'Resistance wires and an added component',parts)
 
 # ===================================================================== Q6
 ISO="[['H',1,2],['H',1,3],['He',2,3],['He',2,4],['Li',3,6],['Li',3,7],['Be',4,9],['B',5,10],['B',5,11],['C',6,12]]"
@@ -246,7 +246,7 @@ parts.append(dict(pi=4,type='calculation',K=lab('(c)')+'Determine the number of 
 parts.append(dict(pi=5,type='definition',K=lab('(d)')+'Describe the general quark composition of a meson.',
  B=kw('quark and an antiquark','quark and antiquark','one quark and one antiquark','quark-antiquark','quark–antiquark','1 quark and 1 antiquark','quark + antiquark','a quark and an anti-quark','quark and anti-quark','quark and anti quark','antiquark and a quark','antiquark and quark','1 quark 1 antiquark','quark & antiquark','quark and an anti quark','quark anti-quark','quark antiquark','qq̄','q q̄','quark/antiquark','quark, antiquark','quark with an antiquark','quark and its antiquark'),
  U='A meson consists of one quark and one antiquark.',V='Mesons are hadrons made of a quark–antiquark pair. (Baryons contain three quarks.)'))
-ALL+=question(LV,'9702-26-22-Q6',PAPER,'definition','Particle physics',P6,G6,'Question 6',parts)
+ALL+=question(LV,'9702-26-22-Q6',PAPER,'definition','Particle physics',P6,G6,'Alpha-particle scattering and momentum',parts)
 
 # display strings: keep trailing zeros in numbers shown in questions
 POST={

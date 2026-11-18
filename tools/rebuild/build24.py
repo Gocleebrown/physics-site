@@ -99,7 +99,7 @@ parts.append(dict(pi=3,type='calculation',
  U='F = ma = ${m} × ${a_ans} = ${F_ans} N (alternatively F = W / s = ${KE_sci} / ${s})',
  V='Newton’s second law F = ma using the acceleration from (b)(ii) (follow through). Alternatively the work done by the resultant force equals the kinetic energy removed, so F = E<sub>K</sub> / s.'))
 parts.append(dict(pi=4,type='explain',
- K=lab('(c)(i)')+'The initial speed of the car in 1(b) is now doubled to ${u2} m s<sup>−1</sup>. The brakes of the car are then applied and the car comes to rest. The resultant force on the car remains the same as in 1(b)(iii).<br><br>Describe and explain the effect, if any, of doubling the initial speed on the magnitude of the acceleration of the car.',
+ K=lab('(c)(i)')+'The initial speed of the car in (b) is now doubled to ${u2} m s<sup>−1</sup>. The brakes of the car are then applied and the car comes to rest. The resultant force on the car remains the same as in (b)(iii).<br><br>Describe and explain the effect, if any, of doubling the initial speed on the magnitude of the acceleration of the car.',
  B=andor(['same','no change','constant','unchanged','equal','does not change','doesnt change','not change','stays'],['force','mass','f=ma','f and m']),
  U='The acceleration remains the same because the force and the mass are the same (F = ma).',
  V='a = F / m. Neither the resultant force nor the mass has changed, so the magnitude of the acceleration is unchanged.'))
@@ -109,7 +109,7 @@ parts.append(dict(pi=5,type='explain',
  B2=andor(['distance','s','travel','stopping','braking','further','far'],['four times','4 times','4×','×4','x4','quadruple','quadrupled','factor of 4','factor of four','${s4}','increases by 4','squared','v²','v^2']),
  U='The initial kinetic energy is four times greater, so (for the same force) the distance travelled is four times greater (${s4} m).',
  V='Kinetic energy is proportional to speed squared, so doubling the speed gives four times the kinetic energy. The work done by the same force is Fs, so the distance is four times greater. (Using v² = u² + 2as with a unchanged gives the same result.)'))
-ALL+=question(LV,'9702-26-24-Q1',PAPER,'definition','Kinematics,Dynamics,Energy',P1,G1,'Question 1',parts)
+ALL+=question(LV,'9702-26-24-Q1',PAPER,'definition','Kinematics,Dynamics,Energy',P1,G1,'Braking car: kinematics and forces',parts)
 
 # ===================================================================== Q2
 TAB="<table style=\"border-collapse:collapse;margin:10px 0\"><caption style=\"caption-side:top;text-align:center\"><b>Table 2.1</b></caption><tr><td style=\"border:1px solid #000;padding:4px 10px\">original length of spring X</td><td style=\"border:1px solid #000;padding:4px 10px\">(${L0s} ± ${dls}) cm</td></tr><tr><td style=\"border:1px solid #000;padding:4px 10px\">final length of spring X</td><td style=\"border:1px solid #000;padding:4px 10px\">(${Lfs} ± ${dls}) cm</td></tr><tr><td style=\"border:1px solid #000;padding:4px 10px\">mass of suspended object</td><td style=\"border:1px solid #000;padding:4px 10px\">(${Ms} ± ${dms}) kg</td></tr></table>"
@@ -138,13 +138,13 @@ parts.append(dict(pi=2,type='calculation',
  U='k = F / x = (${Ms} × 9.81) / ${xms} = ${k_ans} N m⁻¹',
  V='The force is the weight of the object, F = mg (use g = 9.81 m s⁻²). The extension must be in metres: ${xs} cm = ${xms} m. (Follow through from (b)(i) for the extension.)'))
 parts.append(dict(pi=3,type='calculation',
- K=lab('(b)(iii)')+'Calculate the percentage uncertainty in the value of the spring constant calculated in 2(b)(ii) due to the uncertainties in the measurements.',
+ K=lab('(b)(iii)')+'Calculate the percentage uncertainty in the value of the spring constant calculated in (b)(ii) due to the uncertainties in the measurements.',
  C1=kwv('${dxs}/${xs}','${dms}/${Ms}','${pl_ans}','${pm_ans}','${pl_ans}%','${pm_ans}%'),
  A='${pct_ans}|${pct_d}',tolerance='0',
  U='percentage uncertainty = (${dxs} / ${xs} + ${dms} / ${Ms}) × 100 = ${pl_ans}% + ${pm_ans}% = ${pct_ans}%',
  V='The percentage uncertainties are added for a quotient: % uncertainty in x (${pl_ans}%) plus % uncertainty in the mass (${pm_ans}%). The answer is given to 1 significant figure in the mark scheme.'))
 parts.append(dict(pi=4,type='explain',
- K=lab('(c)(i)')+'An identical object to the one in 2(b) is suspended in equilibrium from a spring Y that has a greater spring constant than spring X.<br><br>Spring Y does not extend beyond its limit of proportionality.<br><br>Describe and explain any difference in the extension of the springs.',
+ K=lab('(c)(i)')+'An identical object to the one in (b) is suspended in equilibrium from a spring Y that has a greater spring constant than spring X.<br><br>Spring Y does not extend beyond its limit of proportionality.<br><br>Describe and explain any difference in the extension of the springs.',
  B=andor(['less','smaller','shorter','not as much','not as large','reduced','lower extension'],['spring constant is greater','spring constant is larger','spring constant is higher','spring constant is bigger','greater spring constant','larger spring constant','higher spring constant','bigger spring constant','stiffer','more stiff','k is greater','k is larger','k is higher','k is bigger','greater k','larger k','higher k','inversely proportional','spring constant of y is greater','y has a greater','y has a larger','y has a higher']),
  U='The extension will be less for spring Y because the spring constant is greater (and the applied force is the same).',
  V='Extension x = F / k. The object (so the force) is the same, so the spring with the greater spring constant has the smaller extension.'))
@@ -154,7 +154,7 @@ parts.append(dict(pi=5,type='explain',
  B2=kwv('½fx','1/2fx','0.5fx','½mgx','1/2mgx','0.5mgx','f²/k','f^2/k','(mg)²/2k','(mg)^2/2k','½(mg)²/k','½f²/k','extension is less','smaller extension','less extension','extension is smaller','extension is shorter','x is less','x is smaller','spring constant is greater','spring constant is larger','spring constant is higher','greater spring constant','larger spring constant','higher spring constant','k is greater','k is larger','k is higher','inversely proportional'),
  U='The elastic potential energy will be less for spring Y. The extension is less (for the same force) and E = ½Fx (or: the spring constant is greater and E = ½F² / k).',
  V='Elastic potential energy E = ½Fx = ½F²/k. The force F = mg is the same for both springs; spring Y has the smaller extension (larger k), so it stores less energy.'))
-ALL+=question(LV,'9702-26-24-Q2',PAPER,'definition','Materials,Measurement',P2,G2,'Question 2',parts)
+ALL+=question(LV,'9702-26-24-Q2',PAPER,'definition','Materials,Measurement',P2,G2,'Spring constant and uncertainty',parts)
 
 # ===================================================================== Q3
 G3={'sf':SF,'fig31':FIG31,
@@ -193,7 +193,7 @@ parts.append(dict(pi=3,type='imageChoice',
  correctImageIndex='${ci2}',imageChoiceMarks='2',
  U='A sinusoidal line from fixed point to fixed point with ${nd} loops: the wavelength is doubled.',
  V='v = fλ with v unchanged: halving f doubles λ. The wavelength was ${lam_s} m, so it becomes ${lamd_s} m, and the string has half as many loops: ${nd}.'))
-ALL+=question(LV,'9702-26-24-Q3',PAPER,'definition','Waves',P3,G3,'Question 3',parts)
+ALL+=question(LV,'9702-26-24-Q3',PAPER,'definition','Waves',P3,G3,'Stationary waves on a string',parts)
 
 # ===================================================================== Q4
 G4={'sf':SF,
@@ -221,7 +221,7 @@ parts.append(dict(pi=2,type='calculation',
  A='${D_ans}',tolerance='2',
  U='W = ${mos} × 9.81 = ${Wd} N. U = ρVg = ${rl} × 9.81 × ${Vos} × 10⁻⁵ = ${Ud} N. D = W − U = ${Wd} − ${Ud} = ${D_ans} N',
  V='At terminal velocity W = D + U. The upthrust equals the weight of liquid displaced: U = ρVg (the object is completely submerged, so the displaced volume equals the volume of the object).'))
-ALL+=question(LV,'9702-26-24-Q4',PAPER,'definition','Pressure,Dynamics',P4,G4,'Question 4',parts)
+ALL+=question(LV,'9702-26-24-Q4',PAPER,'definition','Pressure,Dynamics',P4,G4,'Upthrust on an object in a liquid',parts)
 
 # ===================================================================== Q5
 # Everything in Q5 is generated: the e.m.f., both resistors, the diode curve, the circuits AND the four
@@ -269,17 +269,17 @@ parts.append(dict(pi=2,type='calculation',
  U='From Figure 5.1, the p.d. across X when the current is ${I1s} mA is ${V1s} V. The p.d. across the resistor = ${I1A} × ${R} = ${dVs} V. e.m.f. = ${V1s} + ${I1A} × ${R} = ${Es} V',
  V='The e.m.f. is shared between X and the resistor (they are in series, with negligible internal resistance). Read the p.d. across X from the graph at the stated current; the p.d. across the resistor is IR (current in amperes). Add them.'))
 parts.append(dict(pi=3,type='numeric',
- K=lab('(d)')+'The terminals of the cell in 5(c) are now reversed without making any other changes to the circuit.<br><br>State the reading on the ammeter.',
+ K=lab('(d)')+'The terminals of the cell in (c) are now reversed without making any other changes to the circuit.<br><br>State the reading on the ammeter.',
  A=kwv('exact:0','exact:0a','exact:0amps','exact:0amp','exact:0 a','exact:zero','exact:zero a','exact:zero amps','approximately zero','approximately 0','about zero','almost zero','nearly zero','zero current','no current'),
  U='0 A (approximately zero)',V='The diode does not conduct when it is reverse biased (the p.d. is in the reverse direction), so the current is approximately zero.'))
 parts.append(dict(pi=4,type='calculation',
- K=lab('(e)')+'The resistor of resistance ${R} Ω and component X are now connected in parallel to the cell in 5(c) in the circuit shown in Figure 5.3.${f53}The current in component X is not negligible.<br><br>Use Figure 5.1 to determine the current in the ammeter.',
+ K=lab('(e)')+'The resistor of resistance ${R} Ω and component X are now connected in parallel to the cell in (c) in the circuit shown in Figure 5.3.${f53}The current in component X is not negligible.<br><br>Use Figure 5.1 to determine the current in the ammeter.',
  C2=kwv('${Es}/${R}','${E}/${R}','${IRt}','${IRs}','i=v/r'),
  C1=kwv('${I2} ma','${I2}ma','${I2A}','${I2As}','${I2}×10^-3','${I2}×10^−3','${I2}×10^–3','${I2}×10-3','${I2}×10−3','${I2}×10–3','${I2}e-3','${I2}e−3','${I2}e–3'),
  A='${Itot_ans}|${Itot_s}',tolerance='5',
  U='Current in the resistor = ${Es} / ${R} = ${IRs} A. From Figure 5.1, the current in X at ${Es} V is ${I2} mA = ${I2As} A. The current in the ammeter = ${IRs} + ${I2As} = ${Itot_s} A',
  V='In a parallel circuit the p.d. across each branch is the e.m.f. (${Es} V). Find each branch current (resistor: I = V/R; X: read from the graph at ${Es} V) and add them, because the ammeter carries the total current.'))
-ALL+=question(LV,'9702-26-24-Q5',PAPER,'definition','Electricity',P5,G5,'Question 5',parts)
+ALL+=question(LV,'9702-26-24-Q5',PAPER,'definition','Electricity',P5,G5,'I–V characteristic of a component',parts)
 
 # ===================================================================== Q6
 G6={'sf':SF,'ex':EX,'sci':SCI,
@@ -309,7 +309,7 @@ parts.append(dict(pi=2,type='calculation',
  A='${n_ans}',tolerance='2',
  U='I = P / V = ${Pw} / ${Vq} = ${I_ans} A. I = Anvq, so n = I / (Avq) = ${I_ans} / (1.6 × 10⁻¹⁹ × ${Ans} × 10⁻⁸ × ${vds} × 10⁻³) = ${n_sci} m⁻³',
  V='The current is found from P = IV. Then use I = Anvq (q is the elementary charge 1.6 × 10⁻¹⁹ C). Check the powers of ten in the cross-sectional area and drift speed.'))
-ALL+=question(LV,'9702-26-24-Q6',PAPER,'definition','Electricity',P6,G6,'Question 6',parts)
+ALL+=question(LV,'9702-26-24-Q6',PAPER,'definition','Electricity',P6,G6,'Nichrome wire: resistivity and drift speed',parts)
 
 # ===================================================================== Q7
 EL="[['thorium','Th',90,226,234],['uranium','U',92,230,238],['radium','Ra',88,222,228],['polonium','Po',84,208,216]]"
@@ -340,7 +340,7 @@ parts.append(dict(pi=3,type='definition',K=lab('(b)(i)')+'State the quark compos
 parts.append(dict(pi=4,type='definition',K=lab('(b)(ii)')+'Describe the change to the quark composition of the proton when it undergoes β<sup>+</sup> decay.',
  B=kwv('up to down','u to d','up quark to down','up quark changes to a down','up becomes down','up changes to down','one up becomes one down','u→d','u->d','u−>d','u–>d','u → d','one up quark changes to one down','uud to udd','uud→udd','uud -> udd','uud −> udd','uud –> udd','uud → udd','up to a down','changes to udd','becomes udd','up quark turns into a down','up quark turns to a down','up quark is changed to a down','an up quark changes to a down quark'),
  U='An up quark changes to a down quark (uud → udd).',V='In β⁺ decay a proton changes into a neutron: an up quark changes into a down quark, with emission of a positron and an electron neutrino.'))
-ALL+=question(LV,'9702-26-24-Q7',PAPER,'definition','Particle physics',P7,G7,'Question 7',parts)
+ALL+=question(LV,'9702-26-24-Q7',PAPER,'definition','Particle physics',P7,G7,'Isotopes, decay chains and quarks',parts)
 
 if __name__=='__main__':
     start=int(sys.argv[1]) if len(sys.argv)>1 else 288

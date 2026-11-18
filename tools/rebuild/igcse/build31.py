@@ -34,7 +34,7 @@ parts.append(dict(pi=3,type='calculation',
  C1=kwv('(total)distance÷(total)time','distance/time','distance÷time','d÷t','d/t','s=d/t','speed=distance/time','speed=distance÷time','averagespeed=distance','averagespeed=totaldistance','distancedividedbytime','totaldistance÷totaltime','totaldistance/totaltime'),
  U='average speed = distance ÷ time = ${Dc} ÷ ${T} = ${vs} m/s',
  V='Average speed is the total distance travelled divided by the total time taken.'))
-ALL+=question(LV,ID+'-Q1',PAPER,'calculation','Motion',Q1P,Q1G,'Question 1',parts)
+ALL+=question(LV,ID+'-Q1',PAPER,'calculation','Motion',Q1P,Q1G,'Skiing: speed–time graph',parts)
 
 # ================================================================ Q2  stack of discs, density
 FIG21=r"""(n)=>{const W=420,H=230;let s=hd(W,H);
@@ -62,7 +62,7 @@ parts.append(dict(pi=1,type='calculation',
  C1=kwv('mass÷volume','mass/volume','m/v','m÷v','density=mass','d=m/v','ρ=m/v','ρ=m÷v','massdividedbyvolume','massoververvolume','massovervolume'),
  U='density = mass ÷ volume = ${m} ÷ ${V} = ${rhoA} g/cm³',
  V='Density is mass divided by volume.'))
-ALL+=question(LV,ID+'-Q2',PAPER,'calculation','Measurement,Density and pressure',Q2P,Q2G,'Question 2',parts)
+ALL+=question(LV,ID+'-Q2',PAPER,'calculation','Measurement,Density and pressure',Q2P,Q2G,'Stack of discs: thickness and density',parts)
 
 # ================================================================ Q3  stability, pressure, ball in oil
 FIG31=r"""()=>{const W=520,H=250;let s=hd(W,H);
@@ -99,7 +99,7 @@ parts.append(dict(pi=2,type='explain',
  B2=kwv('${W}N','${W}newton','${W}newtons','${W}'),
  U='An upward arrow labelled drag (resistive/friction force) of ${W} N.',
  V='The ball falls at constant speed, so the forces are balanced: the upward drag force from the oil equals the weight, ${W} N.'))
-ALL+=question(LV,ID+'-Q3',PAPER,'calculation','Density and pressure,Forces',Q3P,Q3G,'Question 3',parts)
+ALL+=question(LV,ID+'-Q3',PAPER,'calculation','Density and pressure,Forces',Q3P,Q3G,'Pressure in containers and a ball falling in oil',parts)
 
 # ================================================================ Q4  motor, power station
 Q4G=G({'I':'+(Math.floor(Ip)/10).toFixed(1)','V':'Math.floor(Vp)','t':'5*Math.floor(tp)','E':'Math.round(I*V*t)','Es':'sf(E,2)','Ef':'String(+(I*V*t).toFixed(1))'})
@@ -137,7 +137,7 @@ parts.append(dict(pi=4,type='explain',
  B2=kwv('non-renewable','nonrenewable','notrenewable','runout','willrunout','finite','cannotbereplaced','cantbereplaced','nolongerbeavailable','usedup','limitedsupply','dependsonsupplies','canbeusedup','toolongtoform','takemillions','limitedamount','limitedresource','running out','notinfinite'),
  U='Any two from: the burning causes (air) pollution / acid rain; carbon dioxide is released (global warming / climate change); fossil fuels are non-renewable and will run out.',
  V='Fossil fuels release carbon dioxide and other polluting gases when burned, and once used they cannot be replaced on a human timescale.'))
-ALL+=question(LV,ID+'-Q4',PAPER,'calculation','Energy and power,Electricity',Q4P,Q4G,'Question 4',parts)
+ALL+=question(LV,ID+'-Q4',PAPER,'calculation','Energy and power,Electricity',Q4P,Q4G,'Electric motor: energy and power stations',parts)
 
 # ================================================================ Q5  hot-air balloon
 FIG51=r"""()=>{const W=420,H=300;let s=hd(W,H);
@@ -167,7 +167,7 @@ parts.append(dict(pi=2,type='calculation',
  C1=kwv('${Tc}+273','${Tc}+273.15','273+${Tc}','273.15+${Tc}','c+273','°c+273','celsius+273','temperature+273','add273','+273','+273.15'),
  U='temperature = ${Tc} + 273 = ${K} K',
  V='To convert from degrees Celsius to kelvin, add 273.'))
-ALL+=question(LV,ID+'-Q5',PAPER,'calculation','Thermal physics',Q5P,Q5G,'Question 5',parts)
+ALL+=question(LV,ID+'-Q5',PAPER,'calculation','Thermal physics',Q5P,Q5G,'Hot-air balloon: gas pressure and temperature',parts)
 
 # ================================================================ Q6  EM spectrum
 FIG61=r"""()=>{const W=560,H=120;let s=hd(W,H);const n=['gamma rays','X-rays','ultraviolet','visible light','infrared','microwaves','radio waves'];
@@ -204,7 +204,7 @@ parts.append(dict(pi=4,type='definition',
  K=lab('(b)(ii)')+'State one harmful effect of gamma rays on the human body.',
  B=kwv('mutation','mutate','dna','damagecells','damagestocells','damagetocells','damagingcells','damagecell','cellsdamage','cellsdamaged','celldamage','destroycells','killcells','killscells','cancer','burn','hairloss','radiationsickness','radiationburn','tissuedamage','damagetissue','damagetheskin','damagetoskin','damageeyes','damagetoeyes','cataract','harmcells','harmscells','ionis','ioniz','damage'),
  U='Gamma rays can cause mutation (damage to DNA) or damage / kill living cells, which can lead to cancer.',V='Gamma radiation is ionising: it can damage DNA and cells, causing mutations, burns, radiation sickness or cancer.'))
-ALL+=question(LV,ID+'-Q6',PAPER,'calculation','Waves',Q6P,Q6G,'Question 6',parts)
+ALL+=question(LV,ID+'-Q6',PAPER,'calculation','Waves',Q6P,Q6G,'Electromagnetic spectrum and gamma rays',parts)
 
 # ================================================================ Q7  prism, critical angle
 FIG71=r"""(a)=>{const W=520,H=300;let s=hd(W,H);const i=(90-a)*Math.PI/180,L=170,bx=300,by=140;const ax=bx-L*Math.cos(i),ay=by+L*Math.sin(i);
@@ -234,7 +234,7 @@ parts.append(dict(pi=3,type='explain',
  K=lab('(b)(ii)')+'A different ray inside the prism meets the surface at an angle of incidence of ${i2}°.<br><br>State what happens to this ray at the surface.',
  B=kwv('totalinternalreflection','totallyinternallyreflected','totallyreflected','totalreflection','totalinternallyreflect','internallyreflect','reflected','reflects','reflect','tir'),
  U='The ray is totally internally reflected (it reflects back into the glass at ${i2}° to the normal).',V='${i2}° is greater than the critical angle of ${cc}°, so no light is refracted out and total internal reflection occurs.'))
-ALL+=question(LV,ID+'-Q7',PAPER,'explain','Light',Q7P,Q7G,'Question 7',parts)
+ALL+=question(LV,ID+'-Q7',PAPER,'explain','Light',Q7P,Q7G,'Light through a glass prism',parts)
 
 # ================================================================ Q8  lamp and thermistor
 FIG81=r"""()=>{const W=520,H=250;let s=hd(W,H);
@@ -264,7 +264,7 @@ parts.append(dict(pi=2,type='explain',
  B3=kwv('totalresistanceincreases','resistanceincreases','higherresistance','greaterresistance','moreresistance','resistanceisgreater','resistanceisbigger','resistanceofthecircuit','resistancegoesup','resistancerises','biggerresistance','increaseinresistance','resistanceisincreased','totalresistance','resistanceincrease','resistanceofthermistorincreases','pdacrossthelampdecreases','pdacrossthelampfalls','lesspd','lessvoltage','lowerpd','smallerpd','pdacrosslampdecreases'),
  U='The lamp becomes dimmer: the thermistor resistance increases so the total resistance of the circuit increases and the current in the lamp decreases.',
  V='More resistance in series means less current. A smaller current in the lamp makes the lamp dimmer.'))
-ALL+=question(LV,ID+'-Q8',PAPER,'calculation','Electricity',Q8P,Q8G,'Question 8',parts)
+ALL+=question(LV,ID+'-Q8',PAPER,'calculation','Electricity',Q8P,Q8G,'Circuit with a thermistor',parts)
 
 # ================================================================ Q9  magnets and induction
 FIG91=r"""(nl)=>{const W=520,H=300;let s=hd(W,H);
@@ -300,7 +300,7 @@ parts.append(dict(pi=3,type='explain',
  B3=kwv('reversetheconnections','swapthewires','switchthewires','reversetheammeter','swaptheleads','reversethepolarity','connectionsreversed','swapthe connections','swaptheconnections','switchtheconnections','reverseconnections','reversethewires','reversetheleads','changetheconnections','connectionsswapped','swapleads','swapwires','switchleads','reversethecoil','swapthecoil','invertthecoil','turnthecoil','turnthecoilround','reversethecoilconnections','changewiring','connectedtheotherway','otherway round','otherwayround','reverseterminals','swapterminals'),
  maxMarks='2',
  U='Any two from: move the ${pl} pole out of the coil; move the ${opl} pole into the coil; reverse the connections to the ammeter (or coil).',V='Reversing the direction of the change of flux through the coil (pole direction in/out or opposite pole) or reversing the connections reverses the direction of the current.'))
-ALL+=question(LV,ID+'-Q9',PAPER,'explain','Magnetism',Q9P,Q9G,'Question 9',parts)
+ALL+=question(LV,ID+'-Q9',PAPER,'explain','Magnetism',Q9P,Q9G,'Magnetic fields and electromagnetic induction',parts)
 
 # ================================================================ Q10  nuclide
 NUC=[['americium','Am',95,241],['plutonium','Pu',94,239],['uranium','U',92,235],['radium','Ra',88,226],['polonium','Po',84,210],['thorium','Th',90,232],['cobalt','Co',27,60],['caesium','Cs',55,137],['iodine','I',53,131],['strontium','Sr',38,90]]
@@ -323,7 +323,7 @@ parts.append(dict(pi=3,type='explain',
  K=lab('(c)')+'Compare the ability of alpha particles and beta particles to pass through a sheet of paper.',
  B=andor(['stopped','absorbed','blocked','cannotpass','cannotpenetrate','doesnotpass','doesnotpenetrate','notpass','notpenetrate','cantpass','cantpenetrate','cannotgothrough','doesntpass','doesnotgothrough','arestopped','isstopped','donotpass','donotpenetrate','arenotable','isnotable'],['betapass','betaparticlespass','betapenetrate','betaparticlespenetrate','betacanpass','betacanpenetrate','betaparticlescanpass','betaparticlescanpenetrate','betagoes','betaparticlesgo','betapasses','betapenetrates','betagetsthrough','betaparticlesgetthrough','betagetthrough','betaparticlesarenot stopped','betaisnotstopped','betaarenotstopped','betadoes','betagoesthrough','betapassthrough','betapassesthrough','betapenetratethrough','betapenetratesthrough','canpassthrough','canpenetrate','whilebeta','butbeta','betaisnot','betanot']),
  U='Alpha particles are stopped by (cannot pass through) paper but beta particles pass through it.',V='Alpha particles are highly ionising but have a very short range in matter and are stopped by paper; beta particles are more penetrating and pass through paper (they are stopped by a few mm of aluminium).'))
-ALL+=question(LV,ID+'-Q10',PAPER,'definition','Nuclear physics',Q10P,Q10G,'Question 10',parts)
+ALL+=question(LV,ID+'-Q10',PAPER,'definition','Nuclear physics',Q10P,Q10G,'Atoms, isotopes and radiation',parts)
 
 # ================================================================ Q11  solar system, redshift
 FIG111=r"""(lab)=>{const W=560,H=290,cx=280,cy=145;const R=[16,26,36,46,0,86,104,122];const nm=['Mercury','Venus','Earth','Mars','','Jupiter','Saturn','Uranus','Neptune'];let s=hd(W,H);
@@ -370,7 +370,7 @@ parts.append(dict(pi=3,type='explain',
  maxMarks='4',
  U='Redshift is an increase in the observed wavelength of light (shifted towards the red end of the spectrum) from distant galaxies. It is caused by the galaxies moving away from us. The more distant the galaxy the greater the redshift, so the further galaxies are moving away faster, which shows the Universe is expanding.',
  V='Light from distant galaxies is observed to have longer wavelengths than expected. The redshift shows the galaxies are moving away, and the greater redshift of more distant galaxies means they are moving away faster.'))
-ALL+=question(LV,ID+'-Q11',PAPER,'definition','Space physics',Q11P,Q11G,'Question 11',parts)
+ALL+=question(LV,ID+'-Q11',PAPER,'definition','Space physics',Q11P,Q11G,'The Solar System and the expanding Universe',parts)
 
 if __name__=='__main__':
     start=int(sys.argv[1]) if len(sys.argv)>1 else 596

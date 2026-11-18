@@ -45,7 +45,7 @@ parts.append(dict(pi=4,type='calculation',K=lab('(b)(iv)')+'The energy in (b)(ii
 parts.append(dict(pi=5,type='explain',K=lab('(c)')+'The ball hits the floor and moves upwards. The magnitude of the velocity is less than the value calculated in (b)(iv).<br><br>State one other way the velocity of the ball is different from the velocity calculated in (b)(iv).',
  B=kwv('direction','negative','opposite','upwards','up','reversed','reverse','isup','movesup'),
  U='The velocity is in a different (opposite) direction (upwards).',V='Velocity is a vector: after the bounce the ball moves upwards, opposite to its direction when it hit the floor.'))
-ALL+=question(LV,ID+'-Q1',PAPER,'calculation','Forces,Energy and power,Motion',Q1P,Q1G,'Question 1',parts)
+ALL+=question(LV,ID+'-Q1',PAPER,'calculation','Forces,Energy and power,Motion',Q1P,Q1G,'Falling rubber ball: weight, energy and speed',parts)
 
 # ================================================================ Q2 sphere density
 Q2G=G({'V':'Math.floor(Vp)','rho':'+(Math.floor(rp)/10).toFixed(1)','m':'Math.round(rho*V)','r1':'sf(m/V,2)','r1x':'sf(m/V,3)','r2':'sf(1000*m/V,2)','r2x':'sf(1000*m/V,3)','r2f':'String(Math.round(1000*m/V))'})
@@ -65,7 +65,7 @@ parts.append(dict(pi=1,type='explain',K=lab('(b)')+'Describe how a student deter
  B3=kwv('difference','subtract','change','v2−v1','v2-v1','v2–v1','minus','takeaway','takingaway','increase','risein','riseinwaterlevel','displacedwater','volumeofdisplaced','equalstothevolume','equaltothevolume','thevolumeofthesphere='),
  maxMarks='3',
  U='Add water to the measuring cylinder and read the volume; add the sphere and read the new volume; the volume of the sphere is the difference between the two volumes.',V='The sphere displaces its own volume of water, so the rise in the water level equals the volume of the sphere.'))
-ALL+=question(LV,ID+'-Q2',PAPER,'calculation','Measurement,Density and pressure',Q2P,Q2G,'Question 2',parts)
+ALL+=question(LV,ID+'-Q2',PAPER,'calculation','Measurement,Density and pressure',Q2P,Q2G,'Density of a metal sphere',parts)
 
 # ================================================================ Q3 rope wave, laser
 FIG3=r"""(n)=>{const W=520,H=200;let s=hd(W,H);let pts=[];for(let i=0;i<=200;i++){const x=70+i*2;const y=100-38*Math.sin(Math.PI*n*i/200);pts.push(x+','+y);}
@@ -98,7 +98,7 @@ parts.append(dict(pi=3,type='calculation',K=lab('(b)(ii)')+'Calculate the freque
 parts.append(dict(pi=4,type='definition',K=lab('(b)(iii)')+'Complete the sentence.<br><br>Light of a single frequency is described as ________ light.',
  B=kwv('monochromatic','monochromic'),
  U='monochromatic',V='Light of a single frequency (and so a single colour) is monochromatic.'))
-ALL+=question(LV,ID+'-Q3',PAPER,'calculation','Waves,Light',Q3P,Q3G,'Question 3',parts)
+ALL+=question(LV,ID+'-Q3',PAPER,'calculation','Waves,Light',Q3P,Q3G,'Waves on a rope and red light',parts)
 
 # ================================================================ Q4 plotting compasses, induction
 FIG4=r"""(nr)=>{const W=520,H=300;let s=hd(W,H);const L=['N','S'][nr],R=['S','N'][nr];
@@ -128,7 +128,7 @@ parts.append(dict(pi=3,type='definition',answerType='table',
  tableCellKeywords=cells(['induced','generated','produced','created','set up'],['current','induced current','electric current'],['the change causing it','the change','the movement of the magnet','the movement of the bar magnet','the magnet moving','the motion of the magnet','the magnet\'s movement','the magnetic field of the magnet','the magnetic field of the bar magnet','the magnets field','the magnet field','the magnet','the induced e.m.f.','the induced current','change in magnetic field','the change in the magnetic field','the change in flux','change in flux','the changing magnetic field','the changing field','the change in field','the motion of the bar magnet','magnet movement']),
  tableCellAnswers=answers('induced','current','the change causing it'),
  U='(1) induced; (2) current; (3) the change causing it (the movement of the magnet)',V='By Lenz\'s law the induced current produces a field that opposes the change (the movement of the magnet) that causes it.'))
-ALL+=question(LV,ID+'-Q4',PAPER,'definition','Magnetism',Q4P,Q4G,'Question 4',parts)
+ALL+=question(LV,ID+'-Q4',PAPER,'definition','Magnetism',Q4P,Q4G,'Magnetic field of a bar magnet and induction',parts)
 
 # ================================================================ Q5 dust particles, gas pressure
 Q5G=G({'K':'Math.floor(Kp)','C':'K-273','Cx':'String(+(K-273.15).toFixed(2))','Cs':'String(+(K-273.15).toFixed(1))'})
@@ -148,7 +148,7 @@ parts.append(dict(pi=1,type='explain',K=lab('(b)')+'The temperature of the air i
 parts.append(dict(pi=2,type='calculation',K=lab('(c)')+'The air temperature inside the box is ${K} K.<br><br>Calculate the air temperature in °C.',
  A='${C}|${Cx}|${Cs}',tolerance='0',
  U='temperature = ${K} − 273 = ${C} °C',V='To convert from kelvin to degrees Celsius subtract 273.'))
-ALL+=question(LV,ID+'-Q5',PAPER,'explain','Thermal physics',Q5P,Q5G,'Question 5',parts)
+ALL+=question(LV,ID+'-Q5',PAPER,'explain','Thermal physics',Q5P,Q5G,'Dust particles in air: particles and temperature',parts)
 
 # ================================================================ Q6 electric field, charged sphere
 FIG6=r"""(att)=>{const W=520,H=300;let s=hd(W,H);const dx=att?-40:40;
@@ -173,7 +173,7 @@ parts.append(dict(pi=2,type='explain',K=lab('(b)(ii)')+'The metal sphere touches
  B2=kwv('electronsmove','electronsmoveonto','electronsmovefrom','electronstransfer','electronsflow','electronsareremoved','electronsareadded','electronsmovefromthe','electronsleave','electronsgo','negativechargesmove','negativeparticlesmove','negativechargestransfer','electrons are transferred','electronsaretransferred','transferofelectrons','electronstravel','electronsgoonto','electronsgointo','electronsgoto','electronsjump','electronscross','electronsarepassed','electronspass','movementofelectrons','electronmoves','electron','negativecharges'),
  B3=andor(['electron','negativecharge'],['${ef2}','${ef}','from the ${ef2}']),
  U='The sphere is discharged (becomes neutral) and swings away from the rod: electrons move ${ef}.',V='Electrons are the charges that move. Charge flows ${ef} until the sphere is neutral.'))
-ALL+=question(LV,ID+'-Q6',PAPER,'explain','Electricity',Q6P,Q6G,'Question 6',parts)
+ALL+=question(LV,ID+'-Q6',PAPER,'explain','Electricity',Q6P,Q6G,'Charged sphere and charged rod',parts)
 
 # ================================================================ Q7 battery, motor, resistor
 FIG7=r"""(e)=>{const W=520,H=250;let s=hd(W,H);
@@ -204,7 +204,7 @@ parts.append(dict(pi=4,type='calculation',K=lab('(b)(iv)')+'The resistance of th
  C2=kwv('${E}-${Is}×${R}','${E}−${Is}×${R}','${E}–${Is}×${R}','${E}-${Is}x${R}','${E}−${Is}x${R}','${E}-${Is}*${R}','${E}-${R}×${Is}','${E}−${R}×${Is}','${E}-${R}x${Is}','${E}-${Is}×${R}','${E}-${I}×${R}','${E}−${I}×${R}','${E}-${I}x${R}','${E}-${I}*${R}','${E}-(${Is}×${R})','${E}−(${Is}×${R})','${E}-(${Is}x${R})','${E}-(${Is}*${R})','${E}-(${R}×${Is})','${E}−(${R}×${Is})'),
  C1=kwv('${VR1}','${VR2}','v=ir','v=i×r','v=ixr','r=v/i','r=v÷i','e−v','e-v','${E}−','${E}-','emf−pd','emf-pd','totalresistance=','e/i','${E}/${Is}','${E}÷${Is}','${Is}×${R}','${Is}x${R}','${R}×${Is}','${R}x${Is}','${Is}*${R}','${R}*${Is}','p.d.acrossresistor','pdacrossresistor','pdacrossthefixedresistor'),
  U='V across resistor = IR = ${Is} × ${R} = ${V2x}; p.d. across motor = ${E} − ${V2x} = ${V2} V',V='The p.d.s across the components in series add up to the e.m.f. of the battery, so the motor p.d. = E − IR.'))
-ALL+=question(LV,ID+'-Q7',PAPER,'calculation','Electricity',Q7P,Q7G,'Question 7',parts)
+ALL+=question(LV,ID+'-Q7',PAPER,'calculation','Electricity',Q7P,Q7G,'Battery, motor and resistor circuit',parts)
 
 # ================================================================ Q8 lawnmower, mains
 Q8G=G({'P':'50*Math.floor(Pp)','Vm':'230','I':'+(P/Vm).toFixed(1)','Ix':'String(+(P/Vm).toFixed(2))','Ix1':'sf(P/Vm,2)','Ix3':'sf(P/Vm,3)','kw':'P/1000','t':'+(Math.floor(tp)/100).toFixed(2)','E':'+(kw*t).toFixed(3)','Es':'sf(kw*t,2)','Es3':'sf(kw*t,3)','Ej':'Math.round(P*t)','c':'+(Math.floor(cp)/100).toFixed(2)','cost':'+(kw*t*c).toFixed(2)','cost1':'+(+Es*c).toFixed(2)','cost2':'+(+Es3*c).toFixed(2)','costs':'sf(kw*t*c,2)'})
@@ -231,7 +231,7 @@ parts.append(dict(pi=3,type='calculation',K=lab('(b)(i)')+'The person uses the l
 parts.append(dict(pi=4,type='calculation',K=lab('(b)(ii)')+'Calculate the cost of the energy calculated in (b)(i).',
  A='${cost}|${cost1}|${cost2}|${costs}',tolerance='4',
  U='cost = ${E} × ${c} = $${cost}',V='Cost = energy in kW h × cost per kW h.'))
-ALL+=question(LV,ID+'-Q8',PAPER,'calculation','Electricity,Energy and power',Q8P,Q8G,'Question 8',parts)
+ALL+=question(LV,ID+'-Q8',PAPER,'calculation','Electricity,Energy and power',Q8P,Q8G,'Lawnmower: mains safety and energy cost',parts)
 
 # ================================================================ Q9 prism, spectrum, redshift
 FIG9=r"""(fl)=>{const W=560,H=300;let s=hd(W,H);
@@ -281,7 +281,7 @@ parts.append(dict(pi=6,type='explain',K=lab('(c)(ii)')+'Explain how redshift sup
  B3=kwv('closertogether','werecloser','wasasmall','smalldense','singlepoint','onepoint','smallpoint','startedfromapoint','begansmall','beganassmall','thebigbang','smallerregion','smalldenseregion','smallandhot','denseregion','pointofdensity','beganfromapoint','beganatapoint','veryclosetogether','allinoneplace','alltogether'),
  maxMarks='2',
  U='Any two from: galaxies are receding (the Universe is expanding); more distant galaxies are receding faster; galaxies were closer together, so the Universe began in a small, dense region.',V='Redshift shows the Universe is expanding. Running this backwards, everything was once much closer together, as the Big Bang Theory states.'))
-ALL+=question(LV,ID+'-Q9',PAPER,'explain','Light,Space physics',Q9P,Q9G,'Question 9',parts)
+ALL+=question(LV,ID+'-Q9',PAPER,'explain','Light,Space physics',Q9P,Q9G,'Dispersion of light, the Sun and redshift',parts)
 
 # ================================================================ Q10 nuclear power, transformer
 Q10G=G({'sup':SUP,'sub':SUB,'nn':'Math.floor(nnp)','A':'92+nn','nt':"sup(A)+sub(92)+'U'",'ratio':'Math.floor(rp)','Vp':'5000*Math.floor(vpp)','Vs':'Vp*ratio','Np':'20*Math.floor(npp)','Ns':'Np*ratio','Vps':'String(Vp)','Vss':'String(Vs)','fm':'x=>String(x).replace(/\\B(?=(\\d{3})+(?!\\d))/g," ")','Ns2':'sf(Ns,2)','Vpf':'fm(Vp)','Vsf':'fm(Vs)'})
@@ -304,7 +304,7 @@ parts.append(dict(pi=3,type='calculation',K=lab('(c)(ii)')+'A transformer in the
  A='${Ns}|${Ns2}',tolerance='0',
  C1=kwv('${Np}×${Vs}/${Vp}','${Np}x${Vs}/${Vp}','${Np}*${Vs}/${Vp}','${Np}×${Vs}÷${Vp}','${Np}x${Vs}÷${Vp}','${Np}*${Vs}÷${Vp}','${Vs}×${Np}/${Vp}','${Vs}x${Np}/${Vp}','${Vs}*${Np}/${Vp}','${Vs}×${Np}÷${Vp}','${Vs}/${Vp}×${Np}','${Vs}÷${Vp}×${Np}','${Np}×${ratio}','${Np}x${ratio}','${Np}*${ratio}','${ratio}×${Np}','${ratio}x${Np}','${ratio}*${Np}','vp/vs=np/ns','np/ns=vp/vs','np/vp=ns/vs','ns/np=vs/vp','vs/vp=ns/np','ns=npvs/vp','ns=np×vs/vp','ns=npxvs/vp','ns=np×vs÷vp','vp/np=vs/ns','np×vs/vp','npxvs/vp','np×vs÷vp'),
  U='Ns = Np × Vs ÷ Vp = ${Np} × ${Vs} ÷ ${Vp} = ${Ns}',V='For a transformer Vp / Vs = Np / Ns, so Ns = Np × Vs ÷ Vp.'))
-ALL+=question(LV,ID+'-Q10',PAPER,'calculation','Nuclear physics,Electricity,Magnetism',Q10P,Q10G,'Question 10',parts)
+ALL+=question(LV,ID+'-Q10',PAPER,'calculation','Nuclear physics,Electricity,Magnetism',Q10P,Q10G,'Nuclear power and transformers',parts)
 
 if __name__=='__main__':
     start=int(sys.argv[1]) if len(sys.argv)>1 else 637

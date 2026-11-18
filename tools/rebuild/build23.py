@@ -93,7 +93,7 @@ parts.append(dict(pi=6,type='calculation',
  A='${mY_ans}',tolerance='2',
  U='Conservation of momentum: ${mXs} × ${u} = ${mXs} × (−${w}) + ${vY}m, so m = ${mXs} × (${u} + ${w}) / ${vY} = ${mY_ans} kg',
  V='Total momentum before = total momentum after. Take the initial direction of X as positive: X has +${u} m s⁻¹ before and −${w} m s⁻¹ after; Y has ${vY} m s⁻¹ after. (Follow through from (b) for the velocities read from the graph.)'))
-ALL+=question(LV,'9702-26-23-Q1',PAPER,'definition','Dynamics,Kinematics',P1,G1,'Question 1',parts)
+ALL+=question(LV,'9702-26-23-Q1',PAPER,'definition','Dynamics,Kinematics',P1,G1,'Elastic collision of two balls',parts)
 
 # ===================================================================== Q2
 G2={'sf':SF,'sci':SCI,'ex':EX,'gsvg':GSVG,
@@ -131,7 +131,7 @@ parts.append(dict(pi=3,type='explain',
  U='The weight of the thread supported below a point decreases (linearly) as the distance from the top increases. The cross-section is uniform, so the stress at a point is proportional to the weight of the thread below that point.',
  V='At a distance d from the top, the thread below supports only the weight of the remaining length (L − d). Because the cross-sectional area is uniform, stress = weight below ÷ A, which is proportional to (L − d): a straight line that falls to zero at the bottom.'))
 parts.append(dict(pi=4,type='calculation',
- K=lab('(c)(i)')+'The thread in 2(b) is now laid horizontally on a frictionless bench. A tensile force is applied to the ends of the thread so that there is a uniform stress throughout the thread of ${sigs} Pa.<br><br>Calculate the extension of the thread.',
+ K=lab('(c)(i)')+'The thread in (b) is now laid horizontally on a frictionless bench. A tensile force is applied to the ends of the thread so that there is a uniform stress throughout the thread of ${sigs} Pa.<br><br>Calculate the extension of the thread.',
  C1=kwv('e=σ/ε','e=stress/strain','e=σl/x','e=σ/(x/l)','x=σl/e','x=σ×l/e','ε=x/l','strain=x/l','strain=extension/length','strain=σ/e','σ/e','e=σ×l/x'),
  A='${x_ans}|${x_dec}',tolerance='2',
  U='E = σ / ε = σL / x, so x = σL / E = ${Ls} × ${sigs} / (${Ens} × 10⁸) = ${x_sci} m',
@@ -143,11 +143,11 @@ parts.append(dict(pi=5,type='calculation',
  U='E = ½Fx = ½ × σA × x = ½ × ${sigs} × ${Ans} × 10⁻⁶ × ${x_sci} = ${Ep_sci} J',
  V='The energy stored equals the area under a force–extension graph: E = ½Fx. The force in the thread is F = σA. (Follow through from (c)(i) for the extension.)'))
 parts.append(dict(pi=6,type='explain',
- K=lab('(d)')+'Suggest, with a reason, whether the total extension of the vertically suspended thread in 2(b) is less than, equal to or greater than the answer in 2(c)(i).',
+ K=lab('(d)')+'Suggest, with a reason, whether the total extension of the vertically suspended thread in (b) is less than, equal to or greater than the answer in (c)(i).',
  B=andor(['less','smaller','lower','shorter','not as much','not as big','not as large'],['stress','force','tension','weight','load','mass']),
  U='Less, because the stress in the vertically suspended thread is less than ${sigs} Pa everywhere except at the top (it decreases to zero at the bottom).',
  V='Extension depends on the stress in each part of the thread. In the horizontal thread the stress is uniform and equal to the maximum value in the vertical thread, so the vertical thread extends by less.'))
-ALL+=question(LV,'9702-26-23-Q2',PAPER,'definition','Materials',P2,G2,'Question 2',parts)
+ALL+=question(LV,'9702-26-23-Q2',PAPER,'definition','Materials',P2,G2,'Polythene thread: stress and the Young modulus',parts)
 
 # ===================================================================== Q3
 G3={'sf':SF,'sci':SCI,'ex':EX,'fig':FIG31,
@@ -195,12 +195,12 @@ parts.append(dict(pi=6,type='imageChoice',
  correctImageIndex='3',imageChoiceMarks='1',
  U='D is below X at a distance below X equal to XY.',
  V='Dark fringes lie midway between bright fringes. The dark fringe on the other side of X from Y is also a distance XY from X.'))
-parts.append(dict(pi=7,type='calculation',K=lab('(d)')+'Calculate the frequency of the light in 3(b).',
+parts.append(dict(pi=7,type='calculation',K=lab('(d)')+'Calculate the frequency of the light in (b).',
  C1=kwv('c=fλ','v=fλ','c=f×λ','v=f×λ','f=c/λ','c=λf','v=λf','f=v/λ'),
  A='${f_ans}',tolerance='1',
  U='c = fλ, so f = c / λ = (3.00 × 10⁸) / (${lam_n} × 10⁻⁹) = ${f_sci} Hz',
  V='The speed of light in free space is c = 3.00 × 10⁸ m s⁻¹. Use c = fλ with the wavelength converted to metres.'))
-ALL+=question(LV,'9702-26-23-Q3',PAPER,'definition','Waves',P3,G3,'Question 3',parts)
+ALL+=question(LV,'9702-26-23-Q3',PAPER,'definition','Waves',P3,G3,'Double-slit interference of light',parts)
 
 # ===================================================================== Q4
 G4={'sf':SF,'ex':EX,
@@ -238,7 +238,7 @@ parts.append(dict(pi=4,type='table',
  tableCellAnswers='[["increases"],["decreases"],["increases"]]',
  U='resistance of LDR: increases; current in cell: decreases; p.d. across LDR: increases',
  V='In less light the resistance of the LDR increases. The total resistance of the circuit rises so the current in the cell falls. The lost volts (Ir) fall, so the terminal p.d. – which is the p.d. across the LDR – increases.'))
-ALL+=question(LV,'9702-26-23-Q4',PAPER,'definition','Electricity',P4,G4,'Question 4',parts)
+ALL+=question(LV,'9702-26-23-Q4',PAPER,'definition','Electricity',P4,G4,'LDR connected to a cell with internal resistance',parts)
 
 # ===================================================================== Q5
 st="(a,b)=>'<span style=\"display:inline-flex;flex-direction:column;vertical-align:middle;line-height:1.05;font-size:0.72em;text-align:right;margin-right:1px\"><span>'+a+'</span><span>'+b+'</span></span>'"
@@ -278,7 +278,7 @@ parts.append(dict(pi=5,type='explain',
  B2=kwv('takes some of','Z takes some','takes some of the energy','takes some energy','shared between','shared with','shared among','energy is shared','shared by','different amounts','different for each decay','distributed differently','distributed in a different','neutrino takes','neutrino carries','neutrino shares','neutrino has some','z carries','z has some'),
  U='The total energy emitted in each decay is constant. Particle Z takes some of this energy, so the energy is shared between Z and the β⁺ particle. The way the energy is distributed is different for each decay, giving the β⁺ a continuous range of kinetic energies.',
  V='If only the β⁺ were emitted, every β⁺ would carry the same energy. The neutrino Z takes a variable share of the (constant) decay energy, so the β⁺ kinetic energy varies from decay to decay up to a maximum.'))
-ALL+=question(LV,'9702-26-23-Q5',PAPER,'definition','Particle physics',P5,G5,'Question 5',parts)
+ALL+=question(LV,'9702-26-23-Q5',PAPER,'definition','Particle physics',P5,G5,'Mesons, baryons and beta-plus decay',parts)
 
 if __name__=='__main__':
     start=int(sys.argv[1]) if len(sys.argv)>1 else 255

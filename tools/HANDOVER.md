@@ -1,4 +1,4 @@
-##v9
+##v10
 # CIE 9702 Physics Practice Site — Complete Handover (read this first)
 
 Last updated 19 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
@@ -32,7 +32,7 @@ The owner is training Claude to rebuild whole papers directly from the real ques
 2. `scripts/questionBuilders.js` (##v2) `genericBuilder` draws each param once per id: `[min,max]` → random, rounded to 3 s.f.; anything else = constant. Then `computedValues` (G) from **all rows of the id** are merged with `Object.assign` in order (a repeated name silently overwrites), each evaluated with `new Function` using earlier keys and params.
 3. `mainRow` = the row with partIndex 0 (else the first part). **mainText (I), tableRequest (H) and imageBelowMain (L) are read from that row only.** Parts are sorted by partIndex. Each part's graphSpec is drawn on that part.
 4. Text columns are interpolated: `${expr}` evaluated as JS (cannot contain `}`), numbers shown to 3 s.f., strings pass through. partText, mainText and the graph render with `innerHTML`, so HTML (`<br>`, `<sup>`, inline-flex spans) is allowed. Keyword cells are interpolated **before** parsing (so `${kw1}` may supply a `|`-separated list).
-5. `scripts/question_engine.js` (##v4) marks answers (`applyCieMarking(marks, studentText)`); `main.js` unchanged.
+5. `scripts/question_engine.js` (##v8) marks answers (`applyCieMarking(marks, studentText)`); `main.js` unchanged.
 6. Site exposes `loadQuestionsFromSheet()`, `genericBuilder`, `window.allDefinitions` (useful for live checks in the browser pane).
 
 If files on the live site have lower version markers than above, they are not deployed.
@@ -63,7 +63,7 @@ If files on the live site have lower version markers than above, they are not de
 - Genericise named bodies (Earth/Sun → a planet/a star) unless a real constant is the point.
 - Symbolic JS helper pattern S(var) and a stacked-nuclide helper `st(a,b)` (inline-flex span, mass number over proton number) were used in p44 and 26-23 Q5; see those rows for examples.
 
-## 4. MARKING (engine ##v4)
+## 4. MARKING (engine ##v8; text below written for ##v4, see the ##v5–##v8 notes further down for later changes)
 
 | Column | Header | Mark type |
 |---|---|---|
@@ -138,7 +138,7 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - AS 26-21..26-24 are all rebuilt and randomised (26-23/26-24 done unattended 5 Nov 2026, awaiting the owner's review). The wire graph (F_max=12, x_max_mm=0.8) is static.
 - 26-21 rows Q1bii (252) and Q1bv (253) are a wire force–extension graph sitting inside the rocket question Q1; Q4cii is a resistance graph in Q4 (probably OK). Check against the real paper.
 - Row 266 (26-23 Q2, "Use Fig. 2.1 to determine the extension") has no graph beside it and 0% tolerance on a graph-read value; suggest 5%.
-- Figures/graphs/tables referred to but missing: 26-21 Q3, 26-22 Q1, 26-24 Q4 (Fig. 4.1), "Table 9.1"/"figure" in p41, p43, p44 Q9.
+- Figures/graphs/tables referred to but missing: **UPDATED 19 Nov 2026 (see "Question-base audit" at the end):** 26-21 Q3 and 26-22 Q1 are now fixed (drawn from parameters); Table 9.1 in p41/p43 Q9 is embedded in the part text (fine); **26-24 Q4 Fig. 4.1 is still missing**; 9702_s25_p22_q2 Fig. 2.2 (draw a vector triangle) has no figure.
 - Reconstructed (unseen) graphs: p44 Q9(b)(ii), p43 Q3c.
 - Approximate "any N of" marks: p44 9(b)(ii), 2(a)(ii), p42 Q8(c), p43 Q3c/Q4a.
 - 59 rows still don't score full marks on their own model answer in the harness: 23 imageChoice + table rows are harness artefacts; the rest are real keyword gaps (e.g. 26-22 Q4(iii) with `${F.toFixed(0)}` keywords).
@@ -146,7 +146,7 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - Engine limits: 3 B columns; no unit/ECF marking; independent C1; no "any N of M"; `type` column unused for marking.
 - p44: row 507 (Q9bii) needs B3; some `longAnswer` types remain; row 475 explanation has hard-coded numbers (check); Q4 numeric rows verbatim CIE (Rule 2); p44 q5a needs "charge divided by voltage / Q/V" alternatives.
 - Live-site checks not yet done by eye: p42 Q8 graph, p43 Q3c graph, p44 Q4(c)/Q9(b)(ii) graphs, new images.
-- **Public repo:** `StudentQuery (61/62).csv` files sit in `/assets` of the public repo — the owner must check whether they contain student data and remove them if so.
+- **Public repo:** `StudentQuery (61/62).csv` — **removed from the current repo on 5 Nov 2026 (commits 98542f9, 215e478; verified absent from HEAD 19 Nov 2026). They are STILL in git history** (added in f4331ff, 19 Aug 2026) and have a `Surname,Firstname` header (names). See the audit section for the decision still needed.
 - Rows 2–188 (25-xx and others) not audited.
 
 **Next actions:** (1) owner uploads 26-21 QP+MS PDFs → pilot rebuild; (2) then 26-22, 26-23, 26-24; (3) build the AK max-marks column (engine ##v5); (4) optional per-paper preview page; (5) optional part labels and subscript normalisation (approval needed); (6) audit rows 2–188.
@@ -156,7 +156,7 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - **Source PDFs:** `pdftotext -layout` gives the text; figures are vector (no embedded images), so render pages with `pdftoppm -r 80 -png` and look at them.
 - **Figures from parameters:** do NOT use graphSpec (small 300px canvas). Put an SVG helper in G (`gsvg` for grid graphs, `wave31` for a wave diagram; both in `tools/rebuild/jshelpers.py`), build the points from the params, and drop `${fig}` into the part text where the figure sits in the paper. innerHTML renders it. Each G must carry its own copy of the helper (G is merged per id only).
 - **Sketch/drawing parts:** convert to imageChoice with 4 SVGs (generator `tools/rebuild/imglib.py`), axes labelled symbolically (A, T) so random values still fit. Put the correct image at a varying index (engine does not shuffle; correct-first is guessable).
-- **Part labels:** every K starts `<b>(b)(ii)</b> ` and mainText is `Question N`, so references like “1(b)(iii)” make sense.
+- **Part labels:** every K starts `<b>(b)(ii)</b> ` and mainText is `Question N`, so references like “1(b)(iii)” make sense. **SUPERSEDED 19 Nov 2026:** questions are served in random order and the engine shows mainText as the heading, so mainText is now a short topic title (no number) and part text refers to earlier parts as “(b)(iii)”, never “1(b)(iii)”. Builders and sheet were both updated; see the audit section.
 - **Numbers in keywords are numeric, not substrings.** `[["5.6"],["8.5"]]` with the student typing `8.5e28` fails; write `8.5e28`. Use `x.toExponential(n)` strings for anything with a power of ten. Display strings (`M6s`, `T2s` via toFixed/toPrecision) keep trailing zeros; keep the raw number for the keyword.
 - **Ranges:** `lo to hi` as plain decimals (no exponents) works for graph readings; CIE’s 1 s.f. allowances are asymmetric, so use e.g. 0.8x to 1.3x.
 - **Model answer shown to students may contain `<sup>`; tests convert it to `^`.** Show numbers with a `sci(x,n)` helper (in G).
@@ -232,3 +232,23 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - Marking box: students now see only tick/cross per mark point ("Marks awarded"). Full keyword detail returns with `?beta=1` on the page address (or localStorage `physicsBeta`=1). `question_engine.js` ##v7.
 - 2026-11-09 (later): marking box now shows 1-2 example wordings per mark (ticked or not) for students, in practice and the Whole paper review (`exampleForMark`, `prettyKeyword` put spaces back into run-together keywords using the question's own model answer). `?beta=1` still shows the full keyword lists. `question_engine.js` ##v8, `exam_mode.js` ##v2.
 - p44 Q2(c) (row 472) is now four independent marks (B density formula, B2 mass, B3 volume, A answer); the correct final answer is also an accepted wording in each B so it still earns all four, as the mark scheme says.
+
+## Question-base audit and fixes (19 Nov 2026) — sheet "read from here", 739 data rows, 152 ids
+Method: owner's CSV export of all tabs, a live spot-check, and a script check of every id (partIndex 0, duplicate partIndex, tags/paper, keywords, modelAnswer, explanation, asset files, figure/table references with no figure content).
+
+**Done on 19 Nov 2026**
+- **Headings.** The 61 ids whose mainText was exactly `Question N` (IGCSE 21, AS 26-21..24 and 22M 30, A2 42M 10) now have short topic titles with no number (e.g. `0625-26-31M-Q1` = "Skiing: speed–time graph"). The 9 s25 p22/p23 ids that began `[Q1] `-style tags had the tag removed (the rest of the text is unchanged). 29 A2 s26 p41–p44 ids still have an empty mainText (blank heading); they were outside the "Question N" request.
+- **Part references.** 29 part texts that said "in 4(b)", "5(b)(i)", "3(c)" etc. now say "in (b)", "(b)(i)", "(c)" (all questions are shown whole, so the part labels still make sense). Only the leading question number was removed. Figure and table labels ("Figure 4.1", "Table 2.1") are unchanged. No such references were found in modelAnswer, explanation or keywords.
+- **Builders updated** so a rebuild does not bring "Question N" back: `tools/rebuild/build21/22/23/24/22m/42m.py`, `igcse/build31/41.py`, and the `new*.json`/`v24.json` outputs. Titles live in the last argument of each `question(...)` call.
+- **Checks run:** builders re-run and compared with the live rows (same output except 2 older C1 keyword differences that were already there: 26-23 Q4 row 280, 26-24 Q4 row 306); `build_test.js` before/after identical (0 build failures, 0 bad text, 124 notfull rows both times); 153 ids × 25 seeded loads built before and after: only `mainText` (70 ids) and `partText` differ, and model-answer marking is identical (0 differences). Edits written to the sheet as one batch of exact-match find/replace requests; the sheet was then re-downloaded and compared with the expected result: 0 cell differences across all 740 rows. The live site then built all 152 questions with 0 errors and 0 numbered headings (29 blank).
+
+**Still open (these need the real papers; nothing may be invented)**
+1. **Student names in git history (owner decision):** `assets/StudentQuery (61).csv` (18 lines) and `(62).csv` (16 lines) were added in commit f4331ff and deleted on 5 Nov, but remain downloadable from the public history. Options: purge history (git filter-repo/BFG, force-push, ask GitHub support to drop cached views) or make the repo private. Claude read only the header line.
+2. **Missing figure:** `9702-26-24-Q4` (paper `9702_s26_p24`, rows 304–306) says "as shown in Figure 4.1" with no figure attached. Needs the QP and MS pages for Q4. The new figure must be generated from parameters, not copied.
+3. **Missing figure:** `9702_s25_p22_q2` (paper `9702_s25_p22`) part (b)(ii) (row 688) asks students to draw on Fig. 2.2 with no figure and no imageChoice. Needs QP and MS Q2.
+4. **Missing asset files:** `fig7_1_context.svg` (`9702-25-41-Q7`, paper `9702_w25_p41`, row 37, imageBelowMain) and `p2fig5_4_choice_2.svg` (`9702-25-41S-Q5`, paper `9702_s25_p41`, row 74, imageOptions). Neither exists in `/assets`.
+5. **Missing modelAnswer:** row 32 (`9702-25-41-Q6` part 0, paper `9702_w25_p41`) and row 70 (`9702-25-41S-Q4` part 2, paper `9702_s25_p41`).
+6. **Missing explanation:** all 60 rows of s25 p22 and p23 (rows 681–740) plus row 70.
+7. **Owner rule for all new figures and questions:** nothing may be a copy or simple replica of a CIE question or image, and as many values as possible must be dynamic, so figures need to be drawn from parameters (see section 12).
+8. Also noticed, not changed: `0625-26-41M-Q9` has two parts labelled (a)(i) (rows 670 and 671); the real second label is probably (a)(ii) and later labels may need checking against the paper.
+9. Carried over from the 4 Nov list (not re-verified): reconstructed unseen graphs p44 Q9(b)(ii) and p43 Q3c; approximate "any N of M" marks outside 42M/IGCSE; rows 2–188 unaudited; live-site eye check of 26-23/26-24 figures.

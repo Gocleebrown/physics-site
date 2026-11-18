@@ -65,13 +65,13 @@ parts.append(dict(pi=5,type='explain',
   U='Height = area under the speed–time graph (e.g. by counting squares) ≈ ${h_ans} m',
   V='Distance travelled (here height) is the area under a speed–time graph; the statement that an area is being found earns the B mark. Counting squares gives an answer within about 10% of the true value.'))
 parts.append(dict(pi=6,type='calculation',
-  K=lab('(c)')+'The mass of the emitted exhaust gases is the same as the mass of fuel burnt by the engine.<br><br>Use your answer in 1(b)(iii) to calculate the speed at which the exhaust gases are emitted from the rocket in 1(b).',
+  K=lab('(c)')+'The mass of the emitted exhaust gases is the same as the mass of fuel burnt by the engine.<br><br>Use your answer in (b)(iii) to calculate the speed at which the exhaust gases are emitted from the rocket in (b).',
   C1=kw('f=δp/δt','f=∆p/∆t','f=Δp/Δt','f=dp/dt','f=p/t','f=(m/t)v','t=(m/t)v','t=m/t×v','rate of change of momentum','f=mv/t','f=∆(mv)/∆t','f=Δ(mv)/Δt','t=v×m/t','t=v×(m/t)'),
   A='${ue_ans}', tolerance='4',
   U='Thrust = rate of change of momentum of the exhaust gases = (m/t) × v, so v = ${sci(T,2)} / (${r4} × 10<sup>4</sup>) = ${ue_ans} m s<sup>−1</sup>',
   V='F = Δp/Δt = (Δm/Δt) × v. The thrust equals the burn rate multiplied by the exhaust speed. Error carried forward: using your own answer to (b)(iii) gains full marks if the working is correct.'))
 parts.append(dict(pi=7,type='table',
-  K=lab('(d)')+'In practice, the drag force on the rocket in 1(b) is not negligible.<br><br>Complete the table to show the effect of the drag force on the acceleration at lift‑off and on the kinetic energy at time ${tb} s, compared with the values in 1(b) that assumed negligible drag force. Type <i>less</i>, <i>same</i> or <i>greater</i> in each box.',
+  K=lab('(d)')+'In practice, the drag force on the rocket in (b) is not negligible.<br><br>Complete the table to show the effect of the drag force on the acceleration at lift‑off and on the kinetic energy at time ${tb} s, compared with the values in (b) that assumed negligible drag force. Type <i>less</i>, <i>same</i> or <i>greater</i> in each box.',
   answerType='table',
   tableRowLabels='["acceleration at lift‑off","kinetic energy at time ${tb} s"]',
   tableColLabels='["less / same / greater"]',
@@ -79,7 +79,7 @@ parts.append(dict(pi=7,type='table',
   tableCellAnswers='[["same"],["less"]]',
   U='acceleration at lift‑off: same; kinetic energy at ${tb} s: less',
   V='At lift‑off the speed is zero, so there is no drag and the acceleration is unchanged. Later drag opposes the motion, so the speed (and kinetic energy) at ${tb} s is less.'))
-ALL+=question(LV,'9702-26-21-Q1',PAPER,'definition','Dynamics,Kinematics,Energy',P1,G1,'Question 1',parts)
+ALL+=question(LV,'9702-26-21-Q1',PAPER,'definition','Dynamics,Kinematics,Energy',P1,G1,'Rocket launch: force, thrust and energy',parts)
 
 # =====================================================================  Q2
 G2={
@@ -120,12 +120,12 @@ parts.append(dict(pi=5,type='calculation',K=lab('(b)(v)')+'Use the principle of 
   A='${KE_ans}',tolerance='20',
   U='Gain in gravitational potential energy = mgΔh = ${m} × 9.81 × ${d} = ${dG_ans} J. Kinetic energy = additional elastic energy − gain in gravitational potential energy = ${Eadd_ans} − ${dG_ans} = ${KE_ans} J',
   V='Energy released from the spring is shared between the gain in gravitational potential energy of the block and its kinetic energy. This is the difference of two similar numbers, so only about 1 significant figure is reliable; answers within 20% are accepted.'))
-parts.append(dict(pi=6,type='explain',K=lab('(c)')+'Suggest, with a reason, how the answer in 2(b)(iv) is affected if the spring in 2(b) has exceeded its elastic limit when the block is at the position from which it is released.',
+parts.append(dict(pi=6,type='explain',K=lab('(c)')+'Suggest, with a reason, how the answer in (b)(iv) is affected if the spring in (b) has exceeded its elastic limit when the block is at the position from which it is released.',
   B=kw('plastic','permanent','permanently','not return to its original','does not return','doesn’t return','not return to original','not return to the original','will not return','energy lost','energy is lost','thermal','heat','deform','dissipat','inelastic','not elastic','work done in deforming','lost to'),
   B2=kw('less','smaller','decrease','reduc','lower','not as much','not as large','not as great'),
   U='Some of the energy is used for plastic (permanent) deformation of the spring, so the additional elastic potential energy is less.',
   V='Beyond the elastic limit the spring does not return to its original length: some of the work done is transferred by plastic deformation (and thermal energy), so less is stored as elastic potential energy.'))
-ALL+=question(LV,'9702-26-21-Q2',PAPER,'definition','Materials,Energy,Measurement',P2,G2,'Question 2',parts)
+ALL+=question(LV,'9702-26-21-Q2',PAPER,'definition','Materials,Energy,Measurement',P2,G2,'Block on a spring: Hooke’s law and energy',parts)
 
 # =====================================================================  Q3
 G3={
@@ -154,26 +154,26 @@ parts.append(dict(pi=2,type='imageChoice',
   U='Two complete cycles from t = 0 to 2T with amplitude A, starting at zero displacement and going negative first (X moves downwards because the wave travels from P to Q).',
   V='Three marks: two full cycles in the time 2T; amplitude A (half the peak-to-trough height); correct phase. The wave moves from P to Q, so the part of the string to the left of X (a trough) arrives at X first: X moves downwards first, giving a negative sine curve.'))
 parts.append(dict(pi=3,type='explain',
-  K=lab('(c)(i)')+'The string in 3(b) is now fixed to walls at ends P and Q. An oscillator causes transverse oscillations of the string of period ${T2} s. The speed of waves on the string is still ${v} cm s<sup>−1</sup>.<br><br>The distance between P and Q is ${L} cm.<br><br>Explain how a stationary wave is formed on the string.',
+  K=lab('(c)(i)')+'The string in (b) is now fixed to walls at ends P and Q. An oscillator causes transverse oscillations of the string of period ${T2} s. The speed of waves on the string is still ${v} cm s<sup>−1</sup>.<br><br>The distance between P and Q is ${L} cm.<br><br>Explain how a stationary wave is formed on the string.',
   B=kw('reflect','reflection','reflected','bounces','bounce back','bounces back','rebound'),
   B2=andor(['incident','original','initial','two waves','waves travelling in opposite','opposite direction','opposite directions','reflected','wave from p','wave from the oscillator','both waves','the waves'],['superpos','superimpos','interfer','overlap','combine','add together','adds together','sum']),
   U='The wave is reflected at the fixed end (wall). The incident and reflected waves (travelling in opposite directions) superpose, forming a stationary wave.',
   V='Two marks: reflection at the end/wall; superposition of the incident and reflected waves.'))
 parts.append(dict(pi=4,type='imageChoice',
-  K=lab('(c)(ii)')+'The string in 3(c) is shown at one instant in time with its ends P and Q fixed. Which diagram shows a possible appearance of the string a time ${tq} s later?',
+  K=lab('(c)(ii)')+'The string in (c) is shown at one instant in time with its ends P and Q fixed. Which diagram shows a possible appearance of the string a time ${tq} s later?',
   answerType='imageChoice',
   imageOptions=['as2621_q3cii_c.svg','as2621_q3cii_a.svg','as2621_q3cii_d.svg','as2621_q3cii_b.svg'],
   correctImageIndex='1',imageChoiceMarks='2',
   U='The string forms a sinusoidal shape with nodes at P and Q and 5 half‑wavelength loops, so the line crosses the equilibrium position 4 times between P and Q.',
   V='The wavelength is λ = v × T = ${v} × ${T2} = ${lam} cm, so the length PQ = ${L} cm is 2.5 wavelengths: five loops, with a node at each fixed end and the string crossing the equilibrium line four times between P and Q.'))
 parts.append(dict(pi=5,type='imageChoice',
-  K=lab('(c)(iii)')+'On the string in 3(c), one point is labelled N and one is labelled A. Which diagram correctly labels one point at a node (N) and one point at an antinode (A)?',
+  K=lab('(c)(iii)')+'On the string in (c), one point is labelled N and one is labelled A. Which diagram correctly labels one point at a node (N) and one point at an antinode (A)?',
   answerType='imageChoice',
   imageOptions=['as2621_q3ciii_d.svg','as2621_q3ciii_b.svg','as2621_q3ciii_c.svg','as2621_q3ciii_a.svg'],
   correctImageIndex='3',imageChoiceMarks='2',
   U='N is at a point where the string stays at its equilibrium position (a node); A is at a peak or trough of a loop (an antinode).',
   V='A node has zero amplitude (the string crosses the dashed equilibrium line there, including the fixed ends); an antinode is the point of maximum amplitude at the centre of a loop.'))
-ALL+=question(LV,'9702-26-21-Q3',PAPER,'definition','Waves',P3,G3,'Question 3',parts)
+ALL+=question(LV,'9702-26-21-Q3',PAPER,'definition','Waves',P3,G3,'Waves on a string: progressive and stationary',parts)
 
 # =====================================================================  Q4
 G4={
@@ -205,7 +205,7 @@ parts.append(dict(pi=2,type='calculation',K=lab('(b)(ii)')+'Determine the resist
   U='From Figure 4.1, ρ at ${th1} °C = ${rho1_ans} Ω m. R = ρL/A = (${rho1_ans} × ${L2}) / ${A2e} = ${R_ans} Ω',
   V='Read the resistivity at ${th1} °C from the graph, then use R = ρL/A with the cross‑sectional area from (b)(i).'))
 parts.append(dict(pi=3,type='explain',
-  K=lab('(b)(iii)')+'A different copper wire has the same resistance as the answer in 4(b)(ii). This wire also has a diameter of ${d2} mm but has a length that is greater than ${L2} m.<br><br>With reference to Figure 4.1, state and explain whether the temperature of this wire is less than, equal to or greater than ${th1} °C.',
+  K=lab('(b)(iii)')+'A different copper wire has the same resistance as the answer in (b)(ii). This wire also has a diameter of ${d2} mm but has a length that is greater than ${L2} m.<br><br>With reference to Figure 4.1, state and explain whether the temperature of this wire is less than, equal to or greater than ${th1} °C.',
   B=andor(['resistivity','ρ','rho'],['lower','less','smaller','decrease','reduc','smaller than','not as high']),
   B2=kw('less than','lower than','below','colder','cooler','lower temperature','less temperature','temperature is less','temperature is lower','temperature less','temperature lower','temperature is smaller','temperature decreases'),
   U='The resistance and cross‑sectional area are the same but the length is greater, so the resistivity is lower (R = ρL/A). From Figure 4.1 a lower resistivity means a lower temperature: the temperature is less than ${th1} °C.',
@@ -225,12 +225,12 @@ parts.append(dict(pi=6,type='calculation',
   U='From Figure 4.1, ρ at 0 °C = ${rho0m} × 10<sup>−8</sup> Ω m. Taking a second point on the line: α = (change in ρ) / (ρ at 0 °C × Δθ) = gradient / ρ<sub>0</sub> ≈ ${alp_ans} K<sup>−1</sup>',
   V='Take two points on the line. α = (ρ − ρ₀) / (ρ₀ × Δθ), where ρ₀ is the resistivity at 0 °C. This equals the gradient of the line divided by ρ₀. Graph readings allow a range (about −20% to +30%) because the value depends on how you read the line.'))
 parts.append(dict(pi=7,type='calculation',
-  K=lab('(d)')+'There is a current of ${I2} A in the wire in 4(b). The number density of charge carriers (free electrons) for copper is ${n2} × 10<sup>28</sup> m<sup>−3</sup>.<br><br>Calculate the mean drift speed <i>v</i> of the charge carriers in the wire.',
+  K=lab('(d)')+'There is a current of ${I2} A in the wire in (b). The number density of charge carriers (free electrons) for copper is ${n2} × 10<sup>28</sup> m<sup>−3</sup>.<br><br>Calculate the mean drift speed <i>v</i> of the charge carriers in the wire.',
   C1=andor(['${I2}'],['${n2}e28'],['${A2e}']),
   A='${vd_ans}',tolerance='3',
   U='I = Anvq, so v = I / (Anq) = ${I2} / (${A2e} × ${n2} × 10<sup>28</sup> × 1.60 × 10<sup>−19</sup>) = ${vd_ans} m s<sup>−1</sup>',
   V='Use I = Anvq with the cross‑sectional area from (b)(i) and q = e = 1.60 × 10⁻¹⁹ C.'))
-ALL+=question(LV,'9702-26-21-Q4',PAPER,'definition','Electricity,Units',P4,G4,'Question 4',parts)
+ALL+=question(LV,'9702-26-21-Q4',PAPER,'definition','Electricity,Units',P4,G4,'Resistance of a copper wire',parts)
 
 # =====================================================================  Q5
 KW_B1=andor(['⅔','2/3','two thirds','two-thirds','2e/3','0.67','0.66'],['⅓','1/3','one third','one-third','e/3','0.33'])
@@ -261,11 +261,11 @@ parts.append(dict(pi=3,type='definition',K=lab('(c)')+'State the names of two pa
   B2=andor(['electron','beta'],['positron','antielectron','anti-electron','neutrino','antineutrino','muon','antimuon','tau','tauon','antitau']),
   U='Any two of: electron, positron, neutrino, antineutrino, muon, antimuon, tau, antitau.',
   V='Leptons include the electron, muon and tau, their neutrinos, and their antiparticles. Two different leptons are needed.'))
-parts.append(dict(pi=4,type='explain',K=lab('(d)')+'A similarity between leptons and mesons is that they both have the same possible overall charges as those described in 5(b)(i) and 5(b)(ii).<br><br>State one difference between leptons and mesons.',
+parts.append(dict(pi=4,type='explain',K=lab('(d)')+'A similarity between leptons and mesons is that they both have the same possible overall charges as those described in (b)(i) and (b)(ii).<br><br>State one difference between leptons and mesons.',
   B=kw('fundamental','elementary','made of quarks','made from quarks','made up of quarks','contain quarks','contains quarks','have quarks','composed of quarks','consist of quarks','consists of quarks','internal structure','smaller particles','hadron','strong force','strong nuclear force','boson','fermion','spin','different masses','different mass','mesons are made','mesons are composed','leptons are not made','leptons do not','leptons are not composed','quark composition','quark content','mesons have'),
   U='Leptons are fundamental particles, but mesons are made of quarks (a quark and an antiquark).',
   V='Possible differences: leptons are fundamental (mesons are made of quarks); mesons are hadrons and feel the strong nuclear force (leptons do not); mesons are bosons and leptons are fermions; their masses and spins differ.'))
-ALL+=question(LV,'9702-26-21-Q5',PAPER,'definition','Particle physics',P5,G5,'Question 5',parts)
+ALL+=question(LV,'9702-26-21-Q5',PAPER,'definition','Particle physics',P5,G5,'Mesons, quarks and leptons',parts)
 
 POST={
  '9702-26-21-Q1':[('${M6}','${M6s}'),('${r4}','${r4s}'),('${a0}','${a0s}'),('${ue_ans} m s','${sci(ue,3)} m s'),('${h_ans}','${h_disp}')],

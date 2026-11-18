@@ -119,7 +119,7 @@ parts.append(dict(pi=2,type='explain',
  V='Write each quantity in base units: F = kg m s⁻², m = kg, A = m². Substitute into Fk/(mA) and simplify, then compare with the base units of v (m s⁻¹).'))
 # the A mark needs the conclusion: 'is homogeneous' vs 'not homogeneous' (a bare 'homogeneous' would match both)
 G1['ans1']="JSON.stringify(hom?"+json.dumps([['ishomogeneous','ishomogenous','yes','homogeneousbecause','sohomogeneous','thereforehomogeneous','equationishomogeneous']])+":"+json.dumps([['nothomogeneous','nothomogenous','inhomogeneous','non-homogeneous','nonhomogeneous','notahomogeneous','isnthomogeneous','isn\u2019thomogeneous','isnothomogeneous'],['s-3','s^-3','s\u207b\u00b3','s\u22123','s\u20133','s^\u22123']])+")"
-ALL+=question(LV,ID+'-Q1',PAPER,'definition','Units',P1,G1,'Question 1',parts)
+ALL+=question(LV,ID+'-Q1',PAPER,'definition','Units',P1,G1,'Force, SI base units and a syringe',parts)
 
 # =========================================================================== Q2
 G2={'sf':SF,'ex':EX,'sci':SCI,'fig21':FIGBOAT,
@@ -167,7 +167,7 @@ parts.append(dict(pi=5,type='calculation',
  A='${dens_s}|${dens_e}',tolerance='1',
  U='ρ = m / V = ${Mt} / (${Vsci} × 10⁻⁶) = ${dens_s} kg m⁻³  (equivalently: upthrust = ρVg)',
  V='The upthrust equals the weight of the water displaced, ρVg, and also equals the weight of the boat and sack. Convert cm³ to m³ (1 cm³ = 10⁻⁶ m³) before calculating.'))
-ALL+=question(LV,ID+'-Q2',PAPER,'definition','Dynamics,Energy,Pressure',P2,G2,'Question 2',parts)
+ALL+=question(LV,ID+'-Q2',PAPER,'definition','Dynamics,Energy,Pressure',P2,G2,'Boat and sack: momentum and upthrust',parts)
 
 # =========================================================================== Q3
 G3={'sf':SF,'fig31':FIGRC,
@@ -194,7 +194,7 @@ parts.append(dict(pi=2,type='explain',
  B=andor(['lessthan','lowerthan','slower','smaller','decrease','reduced','lower','lessbecause','speedisless','speedatzisless','zisless','speedwillbeless','willbeless','lessspeed','lessvelocity','velocityisless'],['resistive','work done','friction','against','energy lost','lost energy','dissipated','thermal','heat','kinetic energy']),
  U='The speed at Z is less than the speed at X: Z is at the same height as X, but work is done against resistive forces, so the kinetic energy (and therefore the speed) is less.',
  V='X and Z are at the same height, so there is no net change in gravitational potential energy. Energy is transferred to thermal energy by the resistive forces, so the kinetic energy at Z is less than at X.'))
-ALL+=question(LV,ID+'-Q3',PAPER,'calculation','Energy',P3,G3,'Question 3',parts)
+ALL+=question(LV,ID+'-Q3',PAPER,'calculation','Energy',P3,G3,'Rollercoaster: energy transfers',parts)
 
 # =========================================================================== Q4
 G4={'sf':SF,'ex':EX,'sci':SCI,'fig41':FIGPIC,'spd':SPD,
@@ -242,7 +242,7 @@ parts.append(dict(pi=5,type='imageChoice',
  correctImageIndex='${ci}',imageChoiceMarks='2',
  U='A curve starting at the origin whose gradient is positive and continuously decreasing (v = √(2gs)).',
  V='For constant acceleration from rest, v² = 2gs, so v = √(2gs): the graph of v against s passes through the origin and its gradient decreases continuously.'))
-ALL+=question(LV,ID+'-Q4',PAPER,'definition','Dynamics,Materials,Kinematics',P4,G4,'Question 4',parts)
+ALL+=question(LV,ID+'-Q4',PAPER,'definition','Dynamics,Materials,Kinematics',P4,G4,'Hanging picture: moments, stress and falling',parts)
 
 # =========================================================================== Q5
 
@@ -295,7 +295,7 @@ parts.append(dict(pi=6,type='explain',
  B=kwv('decrease','smaller','closer','reduce','shorter','less','lower','get smaller','gets smaller','become smaller','becomes smaller'),
  U='The distance between adjacent bright spots decreases.',
  V='Fewer lines per metre means a larger line spacing d. Since d sinθ = nλ, sinθ is smaller for a given order, so the spots move closer together.'))
-ALL+=question(LV,ID+'-Q5',PAPER,'definition','Waves',P5,G5,'Question 5',parts)
+ALL+=question(LV,ID+'-Q5',PAPER,'definition','Waves',P5,G5,'Oscillations, stationary waves and diffraction grating',parts)
 
 # =========================================================================== Q6
 G6={'sf':SF,'ex':EX,'gsvg':GSVG,'fig62':FIGCELL,'vi':VI,'sci':SCI,
@@ -339,7 +339,7 @@ parts.append(dict(pi=4,type='calculation',
  A='${P_s}|${Pd}',tolerance='2',
  U='P = I²r = ${Iss}² × ${rs} = ${P_s} W',
  V='The power dissipated in the internal resistance is I²r, using the current in the cell, because the internal resistance is in series with the external circuit.'))
-ALL+=question(LV,ID+'-Q6',PAPER,'definition','Electricity',P6,G6,'Question 6',parts)
+ALL+=question(LV,ID+'-Q6',PAPER,'definition','Electricity',P6,G6,'Electric current, internal resistance and power',parts)
 
 # =========================================================================== Q7
 KIND="[['alpha',2,'alpha|α|helium|⁴he|4he'],['beta-plus',1,'betaplus|beta-plus|β+|β⁺|beta+|positron|β(+)|beta(+)'],['beta-minus',-1,'betaminus|beta-minus|β-|β⁻|β−|β–|beta(-)|β(-)|electron']]"
@@ -367,7 +367,7 @@ parts.append(dict(pi=3,type='calculation',
  B2='${pkw}',
  U='mass = charge / (charge-to-mass ratio) = ${qc} × 10⁻¹⁹ / (${ratt}) = ${mass_c} kg;  X is a ${pname}',
  V='Mass = charge ÷ (charge-to-mass ratio). Compare the mass found with the masses of the electron (9.11 × 10⁻³¹ kg) and the proton (1.67 × 10⁻²⁷ kg); X has a positive charge.'))
-ALL+=question(LV,ID+'-Q7',PAPER,'definition','Particle physics',P7,G7,'Question 7',parts)
+ALL+=question(LV,ID+'-Q7',PAPER,'definition','Particle physics',P7,G7,'Nuclear atom, decay and a charged particle',parts)
 
 if __name__=='__main__':
     start=int(sys.argv[1]) if len(sys.argv)>1 else 513
