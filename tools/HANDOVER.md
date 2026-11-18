@@ -1,4 +1,4 @@
-##v10
+##v11
 # CIE 9702 Physics Practice Site — Complete Handover (read this first)
 
 Last updated 19 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
@@ -146,7 +146,7 @@ Inputs: QP PDF, MS PDF, any figure images. Steps:
 - Engine limits: 3 B columns; no unit/ECF marking; independent C1; no "any N of M"; `type` column unused for marking.
 - p44: row 507 (Q9bii) needs B3; some `longAnswer` types remain; row 475 explanation has hard-coded numbers (check); Q4 numeric rows verbatim CIE (Rule 2); p44 q5a needs "charge divided by voltage / Q/V" alternatives.
 - Live-site checks not yet done by eye: p42 Q8 graph, p43 Q3c graph, p44 Q4(c)/Q9(b)(ii) graphs, new images.
-- **Public repo:** `StudentQuery (61/62).csv` — **removed from the current repo on 5 Nov 2026 (commits 98542f9, 215e478; verified absent from HEAD 19 Nov 2026). They are STILL in git history** (added in f4331ff, 19 Aug 2026) and have a `Surname,Firstname` header (names). See the audit section for the decision still needed.
+- **Public repo:** `StudentQuery (61/62).csv` — **removed from the current repo on 5 Nov 2026 (commits 98542f9, 215e478; verified absent from HEAD 19 Nov 2026). They WERE in git history; purged 19 Nov 2026, see the audit section.**
 - Rows 2–188 (25-xx and others) not audited.
 
 **Next actions:** (1) owner uploads 26-21 QP+MS PDFs → pilot rebuild; (2) then 26-22, 26-23, 26-24; (3) build the AK max-marks column (engine ##v5); (4) optional per-paper preview page; (5) optional part labels and subscript normalisation (approval needed); (6) audit rows 2–188.
@@ -243,12 +243,22 @@ Method: owner's CSV export of all tabs, a live spot-check, and a script check of
 - **Checks run:** builders re-run and compared with the live rows (same output except 2 older C1 keyword differences that were already there: 26-23 Q4 row 280, 26-24 Q4 row 306); `build_test.js` before/after identical (0 build failures, 0 bad text, 124 notfull rows both times); 153 ids × 25 seeded loads built before and after: only `mainText` (70 ids) and `partText` differ, and model-answer marking is identical (0 differences). Edits written to the sheet as one batch of exact-match find/replace requests; the sheet was then re-downloaded and compared with the expected result: 0 cell differences across all 740 rows. The live site then built all 152 questions with 0 errors and 0 numbered headings (29 blank).
 
 **Still open (these need the real papers; nothing may be invented)**
-1. **Student names in git history (owner decision):** `assets/StudentQuery (61).csv` (18 lines) and `(62).csv` (16 lines) were added in commit f4331ff and deleted on 5 Nov, but remain downloadable from the public history. Options: purge history (git filter-repo/BFG, force-push, ask GitHub support to drop cached views) or make the repo private. Claude read only the header line.
-2. **Missing figure:** `9702-26-24-Q4` (paper `9702_s26_p24`, rows 304–306) says "as shown in Figure 4.1" with no figure attached. Needs the QP and MS pages for Q4. The new figure must be generated from parameters, not copied.
+1. **Student names in git history: PURGED 19 Nov 2026.** `git filter-repo` removed `assets/StudentQuery (61/62).csv` from all 248 commits; master was force-pushed (now `ed6e9be`, tree identical to before). GitHub still serves the OLD commits by SHA (e.g. `ce109f1`, `f4331ff`) until GitHub Support is asked to purge cached views and run garbage collection. **Owner action: send that request.** Anyone who cloned or forked before then still has the files. Repo had 0 forks and 0 PRs. **Always re-clone before editing; older local clones hold the old history and a push from them would restore it.**
+2. **Private repo: NOT done.** GitHub Free serves Pages only from public repos, so making it private would probably take the student site down; on a paid plan the Pages site is still public. The names are already purged, so it gives no benefit.
 3. **Missing figure:** `9702_s25_p22_q2` (paper `9702_s25_p22`) part (b)(ii) (row 688) asks students to draw on Fig. 2.2 with no figure and no imageChoice. Needs QP and MS Q2.
-4. **Missing asset files:** `fig7_1_context.svg` (`9702-25-41-Q7`, paper `9702_w25_p41`, row 37, imageBelowMain) and `p2fig5_4_choice_2.svg` (`9702-25-41S-Q5`, paper `9702_s25_p41`, row 74, imageOptions). Neither exists in `/assets`.
+4. **Missing asset files (`fig7_1_context.svg` was deleted in commit a60945b; `p2fig5_4_choice_2.svg` never existed):** `fig7_1_context.svg` (`9702-25-41-Q7`, paper `9702_w25_p41`, row 37, imageBelowMain) and `p2fig5_4_choice_2.svg` (`9702-25-41S-Q5`, paper `9702_s25_p41`, row 74, imageOptions). Neither exists in `/assets`.
 5. **Missing modelAnswer:** row 32 (`9702-25-41-Q6` part 0, paper `9702_w25_p41`) and row 70 (`9702-25-41S-Q4` part 2, paper `9702_s25_p41`).
 6. **Missing explanation:** all 60 rows of s25 p22 and p23 (rows 681–740) plus row 70.
 7. **Owner rule for all new figures and questions:** nothing may be a copy or simple replica of a CIE question or image, and as many values as possible must be dynamic, so figures need to be drawn from parameters (see section 12).
 8. Also noticed, not changed: `0625-26-41M-Q9` has two parts labelled (a)(i) (rows 670 and 671); the real second label is probably (a)(ii) and later labels may need checking against the paper.
 9. Carried over from the 4 Nov list (not re-verified): reconstructed unseen graphs p44 Q9(b)(ii) and p43 Q3c; approximate "any N of M" marks outside 42M/IGCSE; rows 2–188 unaudited; live-site eye check of 26-23/26-24 figures.
+
+### Correction (19 Nov 2026)
+An earlier version of this section listed `9702-26-24-Q4` "Figure 4.1" as missing. **That was wrong**: row 304 contains an inline SVG and `build24.py` has `FIG41`. The check looked only for `${f..}` figure variables and missed inline SVG. Before reporting a figure missing, search the row for `<svg` as well as `${f`, then confirm in the live site.
+
+### Change protocol (prevents drift and correction loops)
+1. Edit the **builder** (`tools/rebuild/build*.py`) and regenerate; never hand-edit a sheet cell that a builder produces, or the next rebuild undoes it.
+2. Before and after every change, run the seeded compare (`cmp.js`, 25 loads per id) and `build_test.js`; only the fields you meant to change may differ, and marking of the model answer must be identical.
+3. Write changes to the sheet as exact-match find/replace, then re-download and diff against the expected result (0 differences).
+4. Never reword a question to fix something else; wording changes are listed and approved first. The CIE paper values stay as the test (`tpaper*.js`) so a parameter change cannot move a question away from the original.
+5. Log each batch in this file (what, which rows, checks run).
