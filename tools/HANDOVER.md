@@ -291,9 +291,11 @@ An earlier version of this section listed `9702-26-24-Q4` "Figure 4.1" as missin
 
 
 ## w25 (Nov 2025) AS papers 22 and 23 built dynamic (##v17, 20 Nov 2026)
-- `tools/rebuild/build_w25p22.py` builds `9702-25-22-Q1..Q6` (paper `9702_w25_p22`, sheet rows 741-770). `tools/rebuild/build_w25p23.py` builds `9702-25-23-Q1..Q6` (paper `9702_w25_p23`, rows 771-804). Each paper 60 marks, all numbers parameterised, figures and imageChoice sketches generated, nothing copied from CIE.
-- Run: `python3 build_w25pNN.py out.json`; sheet rows via `write_json(rows, path, start=741|771)`.
+- `tools/rebuild/build_w25p22.py` builds `9702-25-22-Q1..Q6` (paper `9702_w25_p22`, sheet rows 740-769). `tools/rebuild/build_w25p23.py` builds `9702-25-23-Q1..Q6` (paper `9702_w25_p23`, rows 770-803). Each paper 60 marks, all numbers parameterised, figures and imageChoice sketches generated, nothing copied from CIE.
+- Run: `python3 build_w25pNN.py out.json`; sheet rows via `write_json(rows, path, start=740|770)`.
 - `tools/rebuild/t40w.js scriptsDir rows.json idPrefix loads` is the student simulation: model answer must earn full marks, blank must earn nothing, a wrong number must not earn an A mark. Live-copy run for 9702-25-23: 21,600 loads, 0 failures.
 - Writing to the sheet: `update_values` in ~6-row batches, `A..AK` (37 cols); then re-download CSV and diff (0 diffs on both papers).
 - Gotchas hit: G entries evaluate in order (define helpers before use); model answers must not end with "(2 s.f.)" (the test derives its wrong number from it).
 - Still deferred by Guy: the 16 fixed-number ids, the 0625-26-41M-Q9 label, GitHub Support purge of old SHAs, unaudited reconstructed graphs.
+- **0625-26-41M-Q9 fixed 20 Nov 2026:** the two (a)(i) rows (green ray, red ray) are now ONE 2-mark part (row 670: B = green ray, B2 = red ray, keywords bind the colour to the ray number, e.g. `green ray ${gn}`, so a swapped answer scores 0). Old row 671 deleted, so every row below moved up by 1 (w25 p22 = rows 740-769, p23 = 770-803) and Q9 partIndex renumbered 0-5. Engine handles two B marks in one part with no code change.
+- **Full-sheet regression 20 Nov 2026** (`t40w.js scripts live.json "" 300`, 164 ids, 49,200 loads): blank never scores. 30 parts do not reach full marks on their own model answer (older 41/41S/42M/21/s26 p41/p44/0625-31M/s25 p23 q8 rows; mostly prose/symbol model answers, same legacy gap as section 10, not new) and 4 legacy rows (41S Q1/Q3, 21 Q5) flag "wrong number earns A", probably because their model answers contain digits like exponents; not yet inspected one by one.
