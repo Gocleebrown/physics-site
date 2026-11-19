@@ -1,4 +1,4 @@
-##v15
+##v16
 # CIE 9702 Physics Practice Site — Complete Handover (read this first)
 
 Last updated 19 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
@@ -278,3 +278,13 @@ An earlier version of this section listed `9702-26-24-Q4` "Figure 4.1" as missin
 - **Mistake to avoid:** when writing a range such as `I:K`, the middle column J is `partIndex`; I blanked it on 8 rows and restored it (re-download diff showed it). Write single cells, or exact ranges, and diff after every write.
 - Explanations audit: no explanation quotes a number that changes between loads (4 candidates checked, all constants). All p22/p23 questions are fixed-number (no params), so their explanations use fixed numbers; converting them to dynamic is an owner decision.
 - Add to the change protocol: after every sheet change, check there is no later-part (partIndex above 0) row with mainText, tableRequest or imageBelowMain filled in.
+
+
+## build25 – fixed-number s25 p22/p23 questions made dynamic (##v16)
+- Converted 9 ids to full parameters (generated figures replace the static PNGs): 9702_s25_p22_q2,q3,q5,q7 and 9702_s25_p23_q1,q2,q3,q5,q6. Script: tools/rebuild/build25.py (live csv -> out csv). Explanations use the instance's own values.
+- tools/tpaper25.js: paper-value test (params fixed to the paper numbers; text compared with the old question). Remaining 9 diffs are cosmetic (correct rounding 2649/883, inline figure added, number formatting, "2 s.f.").
+- build_test: 60 random loads per id, 0 NaN/undefined/${; imageChoice row 688 is not text-markable (as before).
+- Sheet re-downloaded after the write: 0 diffs vs build output. Written via update_values with null for unchanged cells (never blanks partIndex).
+- Old PNGs now unused: assets/s25_p22_q3_fig.png, s25_p22_q5_fig.png, s25_p22_q6_fig.png.
+- Still fixed-number (to convert next): 9702-25-41-Q2, 9702-25-21-Q6, 9702_s26_p41_q1/q4/q7, p42_q4, p43_q1/q4/q7, p44_q10 and others.
+- Row 152 (42M-Q10 p2) lead-in still pending (write was blocked; owner to apply).
