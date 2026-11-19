@@ -1,4 +1,4 @@
-##v14
+##v15
 # CIE 9702 Physics Practice Site — Complete Handover (read this first)
 
 Last updated 19 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
@@ -271,3 +271,10 @@ An earlier version of this section listed `9702-26-24-Q4` "Figure 4.1" as missin
 - Log: 19 Nov 2026 batch 2 - row 686 F:G, row 688 D,K,N,R,U,V,AA:AD, V681:V711. Verified: re-download diff 0 cells against the expected CSV; compare shows only explanation changed on 7 ids and 30 cells; live site builds the new question.
 - Log: 19 Nov 2026 batch 4 - row 70 (K, U, V, AG:AI: third table column), V712:V740 (s25 p23 explanations, written from the sheet text and model answers; paper not needed). Verified: re-download diff 0 cells against the expected CSV (explanations only); compare shows the table row (6 marks) as the only marking change.
 - **Question text gaps seen while writing explanations (not changed, owner to review):** `9702_s25_p23_q1` (c) model answer refers to an experiment with a 6.0 m/s launch at 60 deg that the main text does not describe; `9702_s25_p23_q3` (b)-(c) use 30 m/s, 6.0 deg and 1600 N that the main text does not give; 21 imageChoice rows have no model-answer text (answer is the correct image).
+
+### Dropped context cells (found 20 Nov 2026)
+- **Rule 8 bites silently:** `mainText`, `tableRequest` and `imageBelowMain` are read from the partIndex-0 row only. Text typed on a later part's row is never shown. 10 such cells existed (8 ids): 41-Q3 row 17 (image), 42M-Q10 row 152, p22_q7 rows 709/711, p23_q1 row 714 (second experiment: 6.0 m/s at 60 deg), p23_q3 rows 721/723 (30 m/s, 6.0 deg, 1600 N; passenger), p23_q5 row 729, p23_q7 row 736, p23_q8 row 740. Earlier note that p23 Q1/Q3 "had gaps" was this, not missing numbers.
+- Fix (`tools/rebuild/patch_dropped_context.py`): move the text into that row's `partText` as a lead-in `<div>`, clear the mainText cell; the image goes to `imageAfterPart`. Done in the sheet for all except **row 152 (42M-Q10 p2)**: the write was blocked by the auto-mode classifier on 20 Nov and was not retried or worked around. Pending: put `<div style="margin-bottom:.5em">Let's use the rotation of a distant star to find its radius, then its surface temperature.</div>` at the start of K152 and clear I152.
+- **Mistake to avoid:** when writing a range such as `I:K`, the middle column J is `partIndex`; I blanked it on 8 rows and restored it (re-download diff showed it). Write single cells, or exact ranges, and diff after every write.
+- Explanations audit: no explanation quotes a number that changes between loads (4 candidates checked, all constants). All p22/p23 questions are fixed-number (no params), so their explanations use fixed numbers; converting them to dynamic is an owner decision.
+- Add to the change protocol: after every sheet change, check there is no later-part (partIndex above 0) row with mainText, tableRequest or imageBelowMain filled in.
