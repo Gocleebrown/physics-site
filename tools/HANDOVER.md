@@ -1,7 +1,7 @@
-##v16
+##v17
 # CIE 9702 Physics Practice Site — Complete Handover (read this first)
 
-Last updated 19 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
+Last updated 20 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
 
 ---
 
@@ -288,3 +288,12 @@ An earlier version of this section listed `9702-26-24-Q4` "Figure 4.1" as missin
 - Old PNGs now unused: assets/s25_p22_q3_fig.png, s25_p22_q5_fig.png, s25_p22_q6_fig.png.
 - Still fixed-number (to convert next): 9702-25-41-Q2, 9702-25-21-Q6, 9702_s26_p41_q1/q4/q7, p42_q4, p43_q1/q4/q7, p44_q10 and others.
 - Row 152 (42M-Q10 p2) lead-in still pending (write was blocked; owner to apply).
+
+
+## w25 (Nov 2025) AS papers 22 and 23 built dynamic (##v17, 20 Nov 2026)
+- `tools/rebuild/build_w25p22.py` builds `9702-25-22-Q1..Q6` (paper `9702_w25_p22`, sheet rows 741-770). `tools/rebuild/build_w25p23.py` builds `9702-25-23-Q1..Q6` (paper `9702_w25_p23`, rows 771-804). Each paper 60 marks, all numbers parameterised, figures and imageChoice sketches generated, nothing copied from CIE.
+- Run: `python3 build_w25pNN.py out.json`; sheet rows via `write_json(rows, path, start=741|771)`.
+- `tools/rebuild/t40w.js scriptsDir rows.json idPrefix loads` is the student simulation: model answer must earn full marks, blank must earn nothing, a wrong number must not earn an A mark. Live-copy run for 9702-25-23: 21,600 loads, 0 failures.
+- Writing to the sheet: `update_values` in ~6-row batches, `A..AK` (37 cols); then re-download CSV and diff (0 diffs on both papers).
+- Gotchas hit: G entries evaluate in order (define helpers before use); model answers must not end with "(2 s.f.)" (the test derives its wrong number from it).
+- Still deferred by Guy: the 16 fixed-number ids, the 0625-26-41M-Q9 label, GitHub Support purge of old SHAs, unaudited reconstructed graphs.
