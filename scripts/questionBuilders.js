@@ -1,4 +1,4 @@
-// scripts/questionBuilders.js ##v3
+// scripts/questionBuilders.js ##v4
 
 // --- 1) Table-builder helper ---
 window.makeTable = function (rows, cols) {
@@ -126,7 +126,7 @@ function buildMarksFromRow(row, ctx) {
   const tolRaw = parseFloat(row.tolerance);
   const tol = Number.isFinite(tolRaw) ? tolRaw : row.graphSpec ? 5 : 0;
 
-  const types = ["A", "C3", "C2", "C1", "M", "B", "B2", "B3"];
+  const types = ["A", "C3", "C2", "C1", "M", "B", "B2", "B3", "B4", "B5", "B6"];   // B4-B6 added ##v9 for "any N of M" parts
   const marks = [];
 
   types.forEach((type) => {

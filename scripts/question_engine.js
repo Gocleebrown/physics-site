@@ -1,4 +1,4 @@
-// scripts/question_engine.js ##v8
+// scripts/question_engine.js ##v9
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
@@ -147,9 +147,32 @@ function altMatches(kw, inp, tolPercent) {
   return inp.noArt.includes(cmp) || inp.noArtSquash.includes(cmp.replace(/\s+/g, ""));
 }
 
+// "not:" vetoes (##v9). A keyword alternative written "not:xyz" is not a way to earn the
+// mark: if "xyz" appears anywhere in the answer, the whole mark is refused. Use it for
+// things the mark scheme says must NOT be present (e.g. a wrong sign: "not:-2e").
+function splitVetoes(groups) {
+  const vetoes = [];
+  const strip = (g) => {
+    if (typeof g === "string") {
+      if (g.startsWith("not:")) { vetoes.push(g.slice(4)); return null; }
+      return g;
+    }
+    if (Array.isArray(g)) { const r = g.map(strip).filter((x) => x !== null && !(Array.isArray(x) && x.length === 0)); return r; }
+    return g;
+  };
+  const rest = strip(groups);
+  return { vetoes, rest };
+}
+
 // Keyword groups: flat OR list, AND-of-ORs, or OR-of-(AND-of-ORs)
 function matchGroups(groups, inp, tolPercent) {
   if (!Array.isArray(groups)) return false;
+  if (JSON.stringify(groups).indexOf('"not:') !== -1) {
+    const sv = splitVetoes(groups);
+    if (sv.vetoes.some((v) => altMatches(v, inp, tolPercent))) return false;
+    groups = sv.rest;
+    if (!Array.isArray(groups) || groups.length === 0) return false;
+  }
   if (Array.isArray(groups[0]) && Array.isArray(groups[0][0]) && Array.isArray(groups[0][0][0])) {
     return groups.some((sub) => matchGroups(sub, inp, tolPercent));
   }

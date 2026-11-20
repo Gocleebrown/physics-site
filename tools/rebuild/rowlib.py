@@ -1,7 +1,7 @@
 """Helpers to build sheet rows for a whole question (Rule 8). Used by build21.py etc."""
 import json, csv
-HDR = ['level','id','paper','type','tags','params','computedValues','tableRequest','mainText','partIndex','partText','imageBelowMain','imageAfterPart','A_keywords','C3_keywords','C2_keywords','C1_keywords','M_keywords','B_keywords','B2_keywords','modelAnswer','explanation','graphSpec','graph_straight_line_spec','will not work alone','make image','answerType','imageOptions','correctImageIndex','imageChoiceMarks','B3_keywords','tableRowLabels','tableColLabels','tableCellKeywords','tableCellAnswers','tolerance','maxMarks']
-KW = {'A':'A_keywords','C3':'C3_keywords','C2':'C2_keywords','C1':'C1_keywords','M':'M_keywords','B':'B_keywords','B2':'B2_keywords','B3':'B3_keywords'}
+HDR = ['level','id','paper','type','tags','params','computedValues','tableRequest','mainText','partIndex','partText','imageBelowMain','imageAfterPart','A_keywords','C3_keywords','C2_keywords','C1_keywords','M_keywords','B_keywords','B2_keywords','modelAnswer','explanation','graphSpec','graph_straight_line_spec','will not work alone','make image','answerType','imageOptions','correctImageIndex','imageChoiceMarks','B3_keywords','tableRowLabels','tableColLabels','tableCellKeywords','tableCellAnswers','tolerance','maxMarks','B4_keywords','B5_keywords','B6_keywords']
+KW = {'A':'A_keywords','C3':'C3_keywords','C2':'C2_keywords','C1':'C1_keywords','M':'M_keywords','B':'B_keywords','B2':'B2_keywords','B3':'B3_keywords','B4':'B4_keywords','B5':'B5_keywords','B6':'B6_keywords'}
 
 def kw(*alts):
     """pipe-separated OR list"""
