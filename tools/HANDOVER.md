@@ -1,7 +1,19 @@
-##v17
+##v18
 # CIE 9702 Physics Practice Site — Complete Handover (read this first)
 
-Last updated 20 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
+Last updated 22 Nov 2026. This file holds everything a fresh Claude session needs to carry on the work. It replaces the earlier `handover_rules.md` (v1–v6). Where this contradicts any older note, this file wins.
+
+
+## READ FIRST: WORKING PROTOCOL (set by Guy, 22 Nov 2026 — overrides any habit of "tidying up")
+Guy's standing worry is slow creeping changes to things that were already working. So:
+1. **Never change anything already done unless Guy asks, or you have checked and he has said go.** Read-only first, report, wait. If a fix seems obvious, it still waits.
+2. **Check, don't guess. If not 100% sure, ask.** Never state something "matches" or "is fine" without having opened the actual sheet row / mark scheme line in the same turn. (On 22 Nov a claim that p43 Q3 "matched" was made without reading the sheet; the sheet turned out to be correct, but the claim was unfounded. Don't repeat it.)
+3. **Every edit cites a mark-scheme line.** Derive keywords from the mark scheme, never from the model answer. CIE-correct answers are accepted; almost-correct ones are NOT (match CIE, no extra leniency).
+4. **Small batches, before/after diff of only the intended cells** (re-download CSV and diff must show 0 other changes). Test with a mark-scheme-quality answer (must score full) and plausible wrong answers (must score nothing). Leave questions that already match their mark scheme untouched.
+5. **Count marks with `marks.cap || marks.length`**, never by counting parts (sketch/imageChoice parts carry several marks; a miscount on 21 Nov produced a false "shortfall" report).
+6. **Source PDFs:** the sandbox shell cannot download from bestexamhelp.com (proxy 403). WebFetch can read the page text of a paper (links on `https://bestexamhelp.com/exam/cambridge-international-a-level/physics-9702/{year}/{summer|winter|march}.php`, PDFs at `.../2026/9702_s26_qp_43.pdf` style) but gives NO reliable figure/graph values. For figures, ask Guy to upload the PDF.
+7. Put a version marker (##vN) at the top of any delivered code/file, deliver whole files, and do not push anything to `master` that changes the live site without Guy's say-so.
+
 
 ---
 
@@ -309,3 +321,11 @@ An earlier version of this section listed `9702-26-24-Q4` "Figure 4.1" as missin
 - **B4, B5, B6 columns** (sheet columns AL-AN, headers `B4_keywords`, `B5_keywords`, `B6_keywords`, added AFTER `maxMarks`; `rowlib.HDR` updated). Each is another independent B point. Combine with the existing `maxMarks` cap for "any N of M": list every acceptable point as its own B mark and set maxMarks = N (+ any fixed marks). Example p41 Q4(a)(i): B = magnitudes equal; B2 = proton field right; B3 = electron field right; B4 = same direction; maxMarks 3. A phrase that is true of several points ("both to the right") is listed under each point, as the mark scheme credits it.
 - **`not:` veto.** Any keyword alternative written `not:xyz` (in a pipe list, a JSON list, or inside a JSON group) makes the whole mark FAIL if `xyz` appears in the answer. Use for what the MS says must not be present: `["2e","+2e","not:-2e"]` for row 59; wrong-way-round sign statements in p41 Q4(a)(ii); `not:in opposite directions`. Limitation: it is a substring test over the whole answer, with no sense of which noun a sign belongs to ("positive for the electron" is not caught unless listed), and no general "contradiction" rule.
 - Converted so far: s26 p41 Q4(a)(i) r336, Q4(a)(ii) r337, s26 p44 Q2(a)(ii) r469 (any two of equatorial / west to east / 24 h, maxMarks 2), and r59. Other "approximate any N of M" parts (see section 10) can now be done properly, mark scheme in hand.
+
+## s26 audit status (21-22 Nov 2026) — READ-ONLY CHECKS, NOTHING CHANGED
+- **Mark structure vs mark schemes:** all four s26 A2 papers total 100 in the sheet; p41, p42 and p43 match their MS question by question (p41 and p43 MS identical). p44: parser reads Q4-Q10 = 71, sheet Q1-Q3 = 29 total, and Q1 (10) matches; p44 Q2 and Q3 not yet checked individually. The earlier "shortfall" report was a counting error (see protocol item 5).
+- **Not yet done:** keyword-level comparison of every mark against the MS (proposed: read-only, one paper at a time, p41 first because it also covers p43, then p42, p44; list differences each citing the MS line; Guy approves a batch before any edit). The 2025 rows (9702-25-41/42M/21, 0625-26-31M) have no mark schemes yet.
+- **9702_s26_p43_q3 (rows 429-432) checked 22 Nov:** all numbers are parameters (N_23 4-9, T0 250-350, p_5 1-3, f 0.4-0.65; V, U, states B/C and graph points derived), so the numbers are NOT a copy of CIE. FLAG for Guy (unchanged): the final sentence of part (c) ("Determine three conclusions that can be drawn from the graph about the individual and overall effects ... may refer to any of work done, transfer of thermal energy and change in internal energy") is close to verbatim CIE, while part (a) is reworded. Guy said he is happy with this question as it stands; do not edit unless he asks. A wider "wording too close to CIE" check was offered and not requested.
+- **Superseded note:** the line above ("Not changed (need the real mark scheme): r336 ... r469 ... r59") is out of date; those three were resolved in Engine ##v9 below.
+- **Still deferred by Guy:** the 16 fixed-number ids; GitHub Support purge of old SHAs (owner action); the two reconstructed graphs (p44 Q9(b)(ii), p43 Q3c) which need the question-paper PDFs uploaded.
+- Section 10's row numbers and "open concerns" are the 4 Nov snapshot; trust the later dated sections.
