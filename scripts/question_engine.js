@@ -1,4 +1,4 @@
-// scripts/question_engine.js ##v9
+// scripts/question_engine.js ##v10
 
 // Convert plain text (from Google Sheets cells) to safe HTML for innerHTML:
 // newlines (Alt+Enter in Sheets) become <br> tags.
@@ -123,6 +123,14 @@ function classifyKeyword(kw) {
   }
   // "exact:V0" means the WHOLE answer must be exactly V0 (not just contain it).
   if (k.startsWith("exact:") && k.length > 6) return { kind: "exact", k: k.slice(6).trim() };
+  // "maxsf:N:V" (##v10) = the answer must equal V AND be written to at most N significant
+  // figures, e.g. "maxsf:1:0.4" for an absolute uncertainty (CIE: 1 s.f.). Only rows that
+  // use this prefix are affected.
+  const ms = /^maxsf:\s*(\d+)\s*:\s*(.+)$/.exec(k);
+  if (ms) {
+    const e = extractNumbers(ms[2])[0];
+    if (e) return { kind: "maxsf", k, n: parseInt(ms[1], 10), e, shown: ms[2].trim() };
+  }
   let numText = null;
   if (NUMBER_ONLY_RE.test(k)) numText = k;
   else { const u = k.match(NUMBER_UNIT_RE); if (u) numText = u[1]; }
@@ -140,6 +148,7 @@ function altMatches(kw, inp, tolPercent) {
   if (c.kind === "range") return inp.nums.some((t) => t.value >= c.lo && t.value <= c.hi);
   if (c.kind === "number") return inp.nums.some((t) => numbersAgree(t, c.e, tolPercent));
   if (c.kind === "exact") return inp.squash.replace(/[.\s]+$/, "") === c.k.replace(/\s+/g, "");
+  if (c.kind === "maxsf") return inp.nums.some((t) => t.value === c.e.value && t.sf <= c.n);
   if (inp.norm.includes(c.k) || inp.squash.includes(c.k.replace(/\s+/g, ""))) return true;
   // same test ignoring the words the / a / an
   const sk = stripArticles(c.k);
@@ -866,6 +875,7 @@ function describeAlternative(kw, tolPercent) {
     return `&ldquo;${c.k}&rdquo; (at least ${c.e.sf} s.f.${tolPercent > 0 ? `, or within ±${tolPercent}%` : ""})`;
   }
   if (c.kind === "exact") return `exactly &ldquo;${c.k}&rdquo;`;
+  if (c.kind === "maxsf") return `&ldquo;${c.shown}&rdquo; (to no more than ${c.n} s.f.)`;
   return `&ldquo;${c.k}&rdquo;`;
 }
 
@@ -948,7 +958,7 @@ function exampleForMark(m, vocabText) {
   const show = (kw) => {
     const c = classifyKeyword(kw);
     if (c.kind === "range") return `${c.lo} to ${c.hi}`;
-    const orig = String(kw).replace(/^\s*exact:\s*/i, "").trim();
+    const orig = String(kw).replace(/^\s*exact:\s*/i, "").replace(/^\s*maxsf:\s*\d+\s*:\s*/i, "").trim();
     const sci = /^([-+]?\d+(?:\.\d+)?)e([-+]?\d+)$/i.exec(orig);          // 4.92e+3 -> 4.92 × 10³
     if (sci) {
       const sup = String(parseInt(sci[2], 10)).replace(/[-0-9]/g, (d) => "⁻⁰¹²³⁴⁵⁶⁷⁸⁹"["-0123456789".indexOf(d)]);
@@ -961,7 +971,7 @@ function exampleForMark(m, vocabText) {
   };
   const pickMany = (arr, max) => {
     const flat = arr.filter((x) => typeof x === "string");
-    const nice = flat.filter((x) => classifyKeyword(x).kind !== "number");
+    const nice = flat.filter((x) => { const kd = classifyKeyword(x).kind; return kd !== "number" && kd !== "maxsf"; });
     if (nice.length === 0) return flat.slice(0, 1).map(show);        // numbers: first form only
     const readable = nice.filter((x) => show(x).length <= 70);
     const pool = readable.length ? readable : nice;
